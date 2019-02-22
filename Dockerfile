@@ -74,6 +74,8 @@ RUN cd /opt && git clone https://github.com/DexaiRobotics/pytorch.git \
 RUN apt-get update && apt-get install -q -y \
     dirmngr \
     gnupg2 \
+    librosconsole-dev \
+    libxmlrpcpp-dev \
     lsb-release \
     && rm -rf /var/lib/apt/lists/*
 
