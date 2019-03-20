@@ -51,11 +51,6 @@ RUN python3 -m pip install --upgrade cython
 RUN python3 -m pip install --upgrade defusedxml netifaces setuptools wheel virtualenv
 # Install pip packages that depend on cython or setuptools already being installed
 RUN python3 -m pip install --upgrade msgpack nose2 numpy pyside2 rospkg
-RUN python3 -m pip install --upgrade pip
-RUN python3 -m pip install --upgrade cython
-RUN python3 -m pip install --upgrade defusedxml netifaces setuptools wheel virtualenv
-# Install pip packages that depend on cython or setuptools already being installed
-RUN python3 -m pip install --upgrade msgpack nose2 numpy pyside2 rospkg
 # Install pytorch dependencies
 cd /opt && git clone https://github.com/DexaiRobotics/pytorch.git \
     && cd pytorch && git submodule update --init --recursive \
