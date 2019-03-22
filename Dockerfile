@@ -52,17 +52,11 @@ RUN python3 -m pip install --upgrade defusedxml netifaces setuptools wheel virtu
 # Install pip packages that depend on cython or setuptools already being installed
 RUN python3 -m pip install --upgrade msgpack nose2 numpy pyside2 rospkg
 # Install pytorch dependencies
-RUN python3 -m pip install --upgrade numpy mkl mkl-include cmake cffi typing 
-
-RUN python -m pip install --upgrade pip
-RUN python -m pip install --upgrade cython
-RUN python -m pip install --upgrade defusedxml netifaces setuptools wheel virtualenv
-# Install pip packages that depend on cython or setuptools already being installed
-RUN python -m pip install --upgrade msgpack nose2 numpy pyside2 rospkg
-# Install pytorch dependencies
-RUN python -m pip install --upgrade numpy mkl mkl-include cmake cffi typing 
+cd /opt && git clone https://github.com/DexaiRobotics/pytorch.git \
+    && cd pytorch && git submodule update --init --recursive \
+    && cd tools && python3 build_libtorch.pyRUN python3 -m pip install --upgrade numpy mkl mkl-include cmake cffi typing 
 # pyyaml
-RUN python -m pip install --upgrade visdom
+RUN python3 -m pip install --upgrade visdom
 
 RUN cd /opt && git clone https://github.com/DexaiRobotics/pytorch.git \
     && cd pytorch && git submodule update --init --recursive \
@@ -142,7 +136,7 @@ RUN cd $HOME && git clone https://github.com/MobileManipulation/fcl.git \
 COPY scripts/install_ompl_ubuntu_1.3.2.sh /root
 RUN cd /root && chmod u+x install_ompl_ubuntu_1.3.2.sh && ./install_ompl_ubuntu_1.3.2.sh
 
-RUN python -m pip install --upgrade msgpack nose2 numpy pyside2 rospkg
+RUN python3 -m pip install --upgrade msgpack nose2 numpy pyside2 rospkg
 RUN cd $HOME && git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES \
     && cd $HOME/qpOASES/ && mkdir bin && make \
     && cd $HOME/qpOASES/interfaces/python/ && python setup.py install
