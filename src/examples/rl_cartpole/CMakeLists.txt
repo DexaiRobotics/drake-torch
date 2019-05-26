@@ -19,8 +19,10 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
         find_package(Eigen3 3.3.5 QUIET CONFIG)
 ENDIF()
 
+set(gflags_DIR "/usr/local/Cellar/gflags/2.2.2/lib/cmake/gflags/")
+
 find_package(GTest MODULE REQUIRED)
-find_package(GFlags MODULE REQUIRED COMPONENTS shared)
+find_package(gflags REQUIRED)
 find_package(drake CONFIG REQUIRED)
 find_package(Torch REQUIRED)
 

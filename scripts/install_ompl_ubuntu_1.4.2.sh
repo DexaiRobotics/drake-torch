@@ -81,8 +81,8 @@ install_ompl()
     else
         OMPL="omplapp"
     fi
-    wget -O - https://bitbucket.org/ompl/ompl/downloads/$OMPL-1.3.2-Source.tar.gz | tar zxf -
-    cd $OMPL-1.3.2-Source
+    wget -O - https://bitbucket.org/ompl/ompl/downloads/$OMPL-1.4.2-Source.tar.gz | tar zxf -
+    cd $OMPL-1.4.2-Source
     mkdir -p build/Release
     cd build/Release
     cmake ../..
