@@ -154,7 +154,7 @@ RUN cd $HOME && git clone https://github.com/OctoMap/octomap.git \
 # ENV EIGEN_INCLUDE_DIR "/opt/drake/include/eigen3"
 # ENV EIGEN3_INCLUDE_DIR "/opt/drake/include/eigen3"
 
-RUN cd $HOME && git clone https://github.com/flexible-collision-library/fcl.git \
+RUN cd $HOME && git clone https://github.com/MobileManipulation/fcl.git \
     && cd fcl && mkdir -p build && cd build \
     && cmake -DBUILD_SHARED_LIBS=ON -DFCL_WITH_OCTOMAP=ON -DFCL_HAVE_OCTOMAP=1 .. \
     && make -j 4 && make install
@@ -166,12 +166,16 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 RUN python3 -m pip install --upgrade msgpack nose2 numpy pyside2 rospkg
-RUN cd $HOME && git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES \
-    && cd $HOME/qpOASES/ && mkdir bin && make \
-    && cd $HOME/qpOASES/interfaces/python/ && python setup.py install
-# Use a fork, NOT: git clone https://github.com/hungpham2511/toppra $HOME/toppra
-RUN cd /opt && git clone https://github.com/MobileManipulation/toppra.git \
-    && cd toppra && pip install --upgrade -r requirements.txt && python setup.py install
+RUN cd $HOME && git clone https://github.com/hungpham2511/toppra && cd toppra/ \
+    && pip3 install -r requirements.txt \
+    && python3 setup.py install
+
+# RUN cd $HOME && git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES \
+#     && cd $HOME/qpOASES/ && mkdir bin && make \
+#     && cd $HOME/qpOASES/interfaces/python/ && python setup.py install
+# # Use a fork, NOT: git clone https://github.com/hungpham2511/toppra $HOME/toppra
+# RUN cd /opt && git clone https://github.com/MobileManipulation/toppra.git \
+#     && cd toppra && pip install --upgrade -r requirements.txt && python setup.py install
 # Install C++ version of msgpack-c (actually for both C and C++)
 RUN git clone https://github.com/msgpack/msgpack-c.git \
     && mkdir -p msgpack-c/build && cd msgpack-c/build \
