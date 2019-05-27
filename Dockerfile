@@ -33,9 +33,9 @@ RUN apt-get update && apt-get install -q -y python3-dev python3-pip \
     python3-virtualenv \
     libgtest-dev libgflags-dev \
     x11vnc xvfb wget curl unzip xz-utils gzip apt-utils \
-    python2.7 python2.7-dev \
-    python-empy python-nose python-numpy \
-    python-pip python-tk python-yaml \
+    # python2.7 python2.7-dev \
+    python3-empy python3-nose python3-numpy \
+    python3-pip python3-tk python3-yaml \
     && rm -rf /var/lib/apt/lists/*
 
 RUN set -eux \
@@ -93,6 +93,7 @@ RUN apt-get update && apt-get install -q -y \
     librosconsole-dev \
     libxmlrpcpp-dev \
     lsb-release \
+    libyaml-cpp-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # setup keys
@@ -103,9 +104,9 @@ RUN echo "deb http://packages.ros.org/ros/ubuntu `lsb_release -sc` main" > /etc/
 
 # install bootstrap tools
 RUN apt-get update && apt-get install --no-install-recommends -y \
-    python-rosdep \
-    python-rosinstall \
-    python-vcstools \
+    python3-rosdep \
+    python3-rosinstall \
+    python3-vcstools \
     && rm -rf /var/lib/apt/lists/*
 
 # setup environment
@@ -161,8 +162,7 @@ RUN cd $HOME && git clone https://github.com/MobileManipulation/fcl.git \
 
 # COPY scripts/install_ompl_ubuntu_1.4.2.sh /root
 # RUN cd /root && chmod u+x install_ompl_ubuntu_1.4.2.sh && ./install_ompl_ubuntu_1.4.2.sh
-RUN apt-get update && apt-get install -y \
-    apt-get install libompl-dev \
+RUN apt-get update && apt-get install -y libompl-dev \
     && rm -rf /var/lib/apt/lists/*
 
 RUN python3 -m pip install --upgrade msgpack nose2 numpy pyside2 rospkg
