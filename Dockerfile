@@ -1,4 +1,5 @@
-FROM ubuntu:bionic
+#FROM ubuntu:bionic
+FROM nvidia/cuda:10.0-devel
 
 WORKDIR /root
 # COPY src/drake/setup/ubuntu setup/ubuntu
@@ -73,7 +74,7 @@ RUN python3 -m pip install --upgrade numpy mkl mkl-include cmake cffi typing
 RUN python3 -m pip install --upgrade visdom
 
 RUN cd $HOME \
-    && curl -LO https://download.pytorch.org/libtorch/nightly/cu100/libtorch-shared-with-deps-latest.zip \
+    && curl -LO https://download.pytorch.org/libtorch/cu100/libtorch-shared-with-deps-latest.zip \
     && unzip libtorch-shared-with-deps-latest.zip -d /opt \
     && cd $HOME && rm libtorch-shared-with-deps-latest.zip
 
@@ -97,7 +98,7 @@ RUN apt-get update && apt-get install -q -y \
     && rm -rf /var/lib/apt/lists/*
 
 # setup keys
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 421C365BD9FF1F717815A3895523BAEEB01FA116
+RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
 
 # setup sources.list
 RUN echo "deb http://packages.ros.org/ros/ubuntu `lsb_release -sc` main" > /etc/apt/sources.list.d/ros-latest.list

@@ -1,3 +1,3 @@
 #!/bin/sh
 
-docker build -t drake-torch:1.0 .
+docker build -t drake-torch:1.1 .
