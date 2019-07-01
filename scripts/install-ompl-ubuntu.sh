@@ -1,7 +1,4 @@
 #!/bin/bash
-#   Installs OMPL (libompl) and some pre-requisites system-wide on Ubuntu (not on Mac).
-#   Run as superuser:
-#       bash$ sudo ./install_ompl_ubuntu_1.3.2.sh
 
 ubuntu_version=`lsb_release -rs | sed 's/\.//'`
 
@@ -18,14 +15,14 @@ install_common_dependencies()
     # against libstdc++. In case `c++` corresponds to `clang++`, code will not build, even
     # if we would pass the flag `-stdlib=libstdc++` to `clang++`.
     if [[ $ubuntu_version > 1410 ]]; then
-        apt-get -y install cmake pkg-config libboost-all-dev libeigen3-dev libode-dev
+        apt-get -y install cmake pkg-config libboost-serialization-dev libboost-filesystem-dev libboost-system-dev libboost-program-options-dev libboost-test-dev libeigen3-dev libode-dev
         export CXX=g++
     else
         # needed for the add-apt-repository command, which was not part of early Trusty releases
         apt-get -y install software-properties-common
         add-apt-repository -y ppa:ubuntu-toolchain-r/test
         apt-get -y update
-        apt-get -y install g++-5 cmake pkg-config libboost1.55-all-dev libeigen3-dev libode-dev
+        apt-get -y install g++-5 cmake pkg-config libboost-serialization1.55-dev libboost-filesystem1.55-dev libboost-system1.55-dev libboost-program-options1.55-dev libboost-test1.55-dev libeigen3-dev libode-dev
         export CXX=g++-5
     fi
     export MAKEFLAGS="-j `nproc`"
@@ -35,13 +32,17 @@ install_python_binding_dependencies()
 {
     apt-get -y install python${PYTHONV}-dev python${PYTHONV}-pip
     # install additional python dependencies via pip
-    pip${PYTHONV} install -vU pygccxml https://bitbucket.org/ompl/pyplusplus/get/1.8.0.tar.gz
+    -H pip${PYTHONV} install -vU pygccxml pyplusplus
     # install castxml
+    wget -q -O- https://data.kitware.com/api/v1/file/5b68c2c28d777f06857c1f48/download | tar zxf - -C ${HOME}
+    export PATH=${HOME}/castxml/bin:${PATH}
     if [[ $ubuntu_version > 1410 ]]; then
-        apt-get -y install castxml
+        apt-get -y install libboost-python-dev
+        if [[ $ubuntu_version > 1710 ]]; then
+            apt-get -y install libboost-numpy-dev python${PYTHONV}-numpy
+        fi
     else
-        wget -O - https://midas3.kitware.com/midas/download/item/318227/castxml-linux.tar.gz | tar zxf - -C $HOME
-        export PATH=$HOME/castxml/bin:$PATH
+        apt-get -y install libboost-python1.55-dev
     fi
 }
 
@@ -61,15 +62,15 @@ install_app_dependencies()
         apt-get -y install libccd-dev
     else
         wget -O - https://github.com/danfis/libccd/archive/v2.0.tar.gz | tar zxf -
-        cd libccd-2.0; cmake .; make install; cd ..
+        cd libccd-2.0; cmake .; sudo -E make install; cd ..
     fi
     # install fcl
     if ! pkg-config --atleast-version=0.5.0 fcl; then
         if [[ $ubuntu_version > 1604 ]]; then
-            apt-get -y install libfcl-dev
+            sudo apt-get -y install libfcl-dev
         else
             wget -O - https://github.com/flexible-collision-library/fcl/archive/0.5.0.tar.gz | tar zxf -
-            cd fcl-0.5.0; cmake .; make install; cd ..
+            cd fcl-0.5.0; cmake .; sudo -E make install; cd ..
         fi
     fi
 }
@@ -81,11 +82,11 @@ install_ompl()
     else
         OMPL="omplapp"
     fi
-    wget -O - https://bitbucket.org/ompl/ompl/downloads/$OMPL-1.3.2-Source.tar.gz | tar zxf -
-    cd $OMPL-1.3.2-Source
+    wget -O - https://bitbucket.org/ompl/ompl/downloads/$OMPL-1.4.2-Source.tar.gz | tar zxf -
+    cd $OMPL-1.4.2-Source
     mkdir -p build/Release
     cd build/Release
-    cmake ../..
+    cmake ../.. -DPYTHON_EXEC=/usr/bin/python${PYTHONV}
     if [ ! -z $1 ]; then
         make update_bindings
     fi
