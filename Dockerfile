@@ -23,13 +23,6 @@ RUN cp -r cmake-3.14.4-Linux-x86_64/share /usr/
 RUN cp -r cmake-3.14.4-Linux-x86_64/doc /usr/share/
 RUN cp -r cmake-3.14.4-Linux-x86_64/man /usr/share/
 
-# RUN set -eux \
-#   && export DEBIAN_FRONTEND=noninteractive \
-#   && cd $HOME && git clone https://github.com/RobotLocomotion/drake.git \
-#   && yes | drake/setup/ubuntu/install_prereqs.sh \
-#   && rm -rf /var/lib/apt/lists/* \
-#   && cd $HOME && rm -rf drake/
-
 RUN apt-get update && apt-get install -q -y python3-dev python3-pip \
     python3-virtualenv \
     libgtest-dev libgflags-dev \
@@ -48,12 +41,8 @@ RUN set -eux \
     # && tar -xzC drake-latest-bionic.tar.gz \
     # && mv drake /opt/drake
 
-
-
 RUN mkdir ~/gtest && cd ~/gtest && cmake /usr/src/gtest && make \
     && cp *.a /usr/local/lib
-
-
 
 RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install --upgrade cython
@@ -62,30 +51,12 @@ RUN python3 -m pip install --upgrade defusedxml netifaces setuptools wheel virtu
 RUN python3 -m pip install --upgrade msgpack nose2 numpy pyside2 rospkg
 # Install pytorch dependencies
 RUN python3 -m pip install --upgrade numpy mkl mkl-include cmake cffi typing
-
-# RUN python -m pip install --upgrade pip
-# RUN python -m pip install --upgrade cython
-# RUN python -m pip install --upgrade defusedxml netifaces setuptools wheel virtualenv
-# # Install pip packages that depend on cython or setuptools already being installed
-# RUN python -m pip install --upgrade msgpack nose2 numpy pyside2 rospkg
-# Install pytorch dependencies
-# RUN python -m pip install --upgrade numpy mkl mkl-include cmake cffi typing
-# pyyaml
 RUN python3 -m pip install --upgrade visdom
 
 RUN cd $HOME \
     && curl -LO https://download.pytorch.org/libtorch/cu100/libtorch-shared-with-deps-latest.zip \
     && unzip libtorch-shared-with-deps-latest.zip -d /opt \
     && cd $HOME && rm libtorch-shared-with-deps-latest.zip
-
-# RUN cd /opt && git clone https://github.com/DexaiRobotics/pytorch.git \
-# RUN cd /opt && git clone https://github.com/pytorch/pytorch.git \
-#     && cd pytorch && git submodule update --init --recursive \
-#     && cd tools && python3 build_libtorch.py
-
-
-
-# ENTRYPOINT ["scripts/cartpole_entrypoint.sh"]
 
 # install needed ROS packages
 RUN apt-get update && apt-get install -q -y \
@@ -134,16 +105,6 @@ RUN apt-get update && apt-get install -y \
 # setup entrypoint
 COPY scripts/ros_entrypoint.sh /root
 
-# install gtest
-# RUN apt-get update && apt-get install libgtest-dev \
-#     && cd /usr/src/gtest && mkdir -p build && cd build \
-#     && echo "Copying libgtest* files directly to /usr/lib/ (in lieu of `make install`)" \
-#     && cmake -DBUILD_SHARED_LIBS=ON .. && make -j 4 && cp libgtest* /usr/lib/ \
-#     && rm -rf /var/lib/apt/lists/*
-
-# RUN apt-get update && apt-get install libeigen3-dev \
-#     && rm -rf /var/lib/apt/lists/*
-
 # install ccd & octomap && fcl
 RUN cd $HOME && git clone https://github.com/danfis/libccd.git \
     && cd libccd && mkdir -p build && cd build \
@@ -161,22 +122,23 @@ RUN cd $HOME && git clone https://github.com/MobileManipulation/fcl.git \
     && cmake -DBUILD_SHARED_LIBS=ON -DFCL_WITH_OCTOMAP=ON -DFCL_HAVE_OCTOMAP=1 .. \
     && make -j 4 && make install
 
-# COPY scripts/install_ompl_ubuntu_1.4.2.sh /root
-# RUN cd /root && chmod u+x install_ompl_ubuntu_1.4.2.sh && ./install_ompl_ubuntu_1.4.2.sh
-RUN apt-get update && apt-get install -y libompl-dev \
-    && rm -rf /var/lib/apt/lists/*
+COPY scripts/install-ompl-ubuntu.sh $HOME
+RUN ./install-ompl-ubuntu.sh \
+    && cd ompl-1.4.2-Source/build/Release && make install
+# RUN apt-get update && apt-get install -y libompl-dev \
+#    && rm -rf /var/lib/apt/lists/*
 
 RUN python3 -m pip install --upgrade msgpack nose2 numpy pyside2 rospkg
-RUN cd $HOME && git clone https://github.com/hungpham2511/toppra && cd toppra/ \
-    && pip3 install -r requirements.txt \
+
+RUN cd $HOME && git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES \
+    && cd $HOME/qpOASES/ && mkdir bin && make \
+    && cd $HOME/qpOASES/interfaces/python/ && python3 setup.py install
+
+# # Use a fork, NOT: git clone https://github.com/hungpham2511/toppra $HOME/toppra
+RUN cd $HOME && git clone https://github.com/DexaiRobotics/toppra && cd toppra/ \
+    && pip3 install -r requirements3.txt \
     && python3 setup.py install
 
-# RUN cd $HOME && git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES \
-#     && cd $HOME/qpOASES/ && mkdir bin && make \
-#     && cd $HOME/qpOASES/interfaces/python/ && python setup.py install
-# # Use a fork, NOT: git clone https://github.com/hungpham2511/toppra $HOME/toppra
-# RUN cd /opt && git clone https://github.com/MobileManipulation/toppra.git \
-#     && cd toppra && pip install --upgrade -r requirements.txt && python setup.py install
 # Install C++ version of msgpack-c (actually for both C and C++)
 RUN git clone https://github.com/msgpack/msgpack-c.git \
     && mkdir -p msgpack-c/build && cd msgpack-c/build \
