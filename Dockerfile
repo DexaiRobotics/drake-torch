@@ -144,6 +144,10 @@ RUN git clone https://github.com/msgpack/msgpack-c.git \
     && mkdir -p msgpack-c/build && cd msgpack-c/build \
     && cmake -DMSGPACK_CXX11=ON .. && make -j 4 && make install
 
+RUN git clone https://github.com/rogersce/cnpy.git \
+    && mkdir -p cnpy/build && cd cnpy/build \
+    && cmake .. && make -j 4 && make install
+
 RUN ldconfig
 
 ENTRYPOINT ["ros_entrypoint.sh"]
