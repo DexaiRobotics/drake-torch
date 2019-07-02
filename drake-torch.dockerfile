@@ -1,9 +1,6 @@
-#FROM ubuntu:bionic
-FROM nvidia/cuda:10.0-devel
-
+ARG BASE_IMAGE=ubuntu:bionic
+FROM $BASE_IMAGE
 WORKDIR /root
-# COPY src/drake/setup/ubuntu setup/ubuntu
-COPY scripts scripts
 
 # setup timezone
 RUN set -eux && export DEBIAN_FRONTEND=noninteractive \
@@ -12,51 +9,59 @@ RUN set -eux && export DEBIAN_FRONTEND=noninteractive \
     apt-get update && apt-get install -q -y tzdata \
     && rm -rf /var/lib/apt/lists/*
 
-# install cmake 3.13.4, based on https://ompl.kavrakilab.org/install-ompl-ubuntu.sh:
+# remove cmake before installing latest cmake-3.14.4
 RUN apt-get update -qq && apt-get purge -qy cmake \
     && apt-get install -qy wget git \
     && rm -rf /var/lib/apt/lists/*
-RUN wget https://cmake.org/files/v3.14/cmake-3.14.4-Linux-x86_64.tar.gz
-RUN tar -xzf cmake-3.14.4-Linux-x86_64.tar.gz
-RUN cp -r cmake-3.14.4-Linux-x86_64/bin /usr/
-RUN cp -r cmake-3.14.4-Linux-x86_64/share /usr/
-RUN cp -r cmake-3.14.4-Linux-x86_64/doc /usr/share/
-RUN cp -r cmake-3.14.4-Linux-x86_64/man /usr/share/
 
+# download, build, install, and remove cmake-3.14.4
+RUN wget https://cmake.org/files/v3.14/cmake-3.14.4-Linux-x86_64.tar.gz \
+    && tar -xzf cmake-3.14.4-Linux-x86_64.tar.gz \
+    && cp -r cmake-3.14.4-Linux-x86_64/bin /usr/ \
+    && cp -r cmake-3.14.4-Linux-x86_64/share /usr/ \
+    && cp -r cmake-3.14.4-Linux-x86_64/doc /usr/share/ \
+    && cp -r cmake-3.14.4-Linux-x86_64/man /usr/share/ \
+    && cd $HOME && rm -rf  cmake-3.14.4-Linux-x86_64.tar.gz \
+    && rm -rf cmake-3.14.4-Linux-x86_64
+
+# apt install python3 and required modules
 RUN apt-get update && apt-get install -q -y python3-dev python3-pip \
     python3-virtualenv \
     libgtest-dev libgflags-dev \
     x11vnc xvfb wget curl unzip xz-utils gzip apt-utils \
-    # python2.7 python2.7-dev \
     python3-empy python3-nose python3-numpy \
     python3-pip python3-tk python3-yaml \
     && rm -rf /var/lib/apt/lists/*
 
+# install the latest drake (dependencies and the binary)
 RUN set -eux \
     && export DEBIAN_FRONTEND=noninteractive \
     && mkdir -p /opt \
     && curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-bionic.tar.gz | tar -xzC /opt \
     && cd /opt/drake/share/drake/setup && yes | ./install_prereqs \
-    && rm -rf /var/lib/apt/lists/*
-    # && tar -xzC drake-latest-bionic.tar.gz \
-    # && mv drake /opt/drake
+    && rm -rf /var/lib/apt/lists/* \
+    && cd $HOME && rm -rf drake-latest-bionic.tar.gz
 
+# gtest per recommended method
 RUN mkdir ~/gtest && cd ~/gtest && cmake /usr/src/gtest && make \
-    && cp *.a /usr/local/lib
+    && cp *.a /usr/local/lib \
+    && cd $HOME && rm -rf gtest
 
+# pip install python packages for toppra, qpOASES, pytorch
 RUN python3 -m pip install --upgrade pip
-RUN python3 -m pip install --upgrade cython
-RUN python3 -m pip install --upgrade defusedxml netifaces setuptools wheel virtualenv
-# Install pip packages that depend on cython or setuptools already being installed
-RUN python3 -m pip install --upgrade msgpack nose2 numpy pyside2 rospkg
-# Install pytorch dependencies
-RUN python3 -m pip install --upgrade numpy mkl mkl-include cmake cffi typing
-RUN python3 -m pip install --upgrade visdom
+RUN python3 -m pip install --upgrade cython defusedxml \
+    netifaces setuptools wheel virtualenv msgpack \
+    nose2 numpy pyside2 rospkg numpy mkl mkl-include \
+    cmake cffi typing ecos visdom
 
-RUN cd $HOME \
-    && curl -LO https://download.pytorch.org/libtorch/cu100/libtorch-shared-with-deps-latest.zip \
-    && unzip libtorch-shared-with-deps-latest.zip -d /opt \
-    && cd $HOME && rm libtorch-shared-with-deps-latest.zip
+# build pytorch from source
+RUN cd $HOME && git clone https://github.com/pytorch/pytorch.git \
+    && export _GLIBCXX_USE_CXX11_ABI=1 \
+    && export BUILD_CAFFE2_OPS=1 \
+    && cd pytorch \
+    && git submodule update --init --recursive \
+    && python3 setup.py install \
+    && cd $HOME && rm -rf pytorch
 
 # install needed ROS packages
 RUN apt-get update && apt-get install -q -y \
@@ -90,11 +95,9 @@ RUN rosdep init \
     && rosdep update
 
 # install ros packages
-# =1.4.1-0*
 ENV ROS_DISTRO melodic
 RUN apt-get update && apt-get install -y \
     ros-melodic-ros-base \
-    #ros-melodic-ros-core \
     ros-melodic-geometry2 \
     libpcl-dev \
     ros-melodic-pcl-ros \
@@ -102,31 +105,29 @@ RUN apt-get update && apt-get install -y \
     ros-melodic-vision-opencv \
     && rm -rf /var/lib/apt/lists/*
 
-# setup entrypoint
-COPY scripts/ros_entrypoint.sh /root
-
 # install ccd & octomap && fcl
 RUN cd $HOME && git clone https://github.com/danfis/libccd.git \
     && cd libccd && mkdir -p build && cd build \
-    && cmake -G "Unix Makefiles" .. && make -j 4 && make install
+    && cmake -G "Unix Makefiles" .. && make -j 4 && make install \
+    && cd $HOME && rm -rf libccd
 
 RUN cd $HOME && git clone https://github.com/OctoMap/octomap.git \
     && cd octomap && mkdir -p build && cd build \
-    && cmake -DBUILD_SHARED_LIBS=ON .. && make -j 4 && make install
-
-# ENV EIGEN_INCLUDE_DIR "/opt/drake/include/eigen3"
-# ENV EIGEN3_INCLUDE_DIR "/opt/drake/include/eigen3"
+    && cmake -DBUILD_SHARED_LIBS=ON .. && make -j 4 && make install \
+    && cd $HOME && rm -rf octomap
 
 RUN cd $HOME && git clone https://github.com/MobileManipulation/fcl.git \
     && cd fcl && mkdir -p build && cd build \
     && cmake -DBUILD_SHARED_LIBS=ON -DFCL_WITH_OCTOMAP=ON -DFCL_HAVE_OCTOMAP=1 .. \
-    && make -j 4 && make install
+    && make -j 4 && make install \
+    && cd $HOME && rm -rf fcl
 
+# note - install-ompl-ubuntu is copied from https://ompl.kavrakilab.org/install-ompl-ubuntu.sh
+# this script was modifed to remove sudo to work in the docker; otherwise identical
 COPY scripts/install-ompl-ubuntu.sh $HOME
 RUN ./install-ompl-ubuntu.sh \
-    && cd ompl-1.4.2-Source/build/Release && make install
-# RUN apt-get update && apt-get install -y libompl-dev \
-#    && rm -rf /var/lib/apt/lists/*
+    && cd ompl-1.4.2-Source/build/Release && make install \
+    && cd $HOME && rm -rf ompl-1.4.2-Source && rm install-ompl-ubuntu.sh
 
 RUN python3 -m pip install --upgrade msgpack nose2 numpy pyside2 rospkg
 
@@ -134,17 +135,29 @@ RUN cd $HOME && git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES 
     && cd $HOME/qpOASES/ && mkdir bin && make \
     && cd $HOME/qpOASES/interfaces/python/ && python3 setup.py install
 
-# # Use a fork, NOT: git clone https://github.com/hungpham2511/toppra $HOME/toppra
+# # Use Dexai fork, NOT: git clone https://github.com/hungpham2511/toppra $HOME/toppra
 RUN cd $HOME && git clone https://github.com/DexaiRobotics/toppra && cd toppra/ \
     && pip3 install -r requirements3.txt \
-    && python3 setup.py install
+    && python3 setup.py install \
+    && cd $HOME && rm -rf toppra && rm -rf qpOASES
 
 # Install C++ version of msgpack-c (actually for both C and C++)
 RUN git clone https://github.com/msgpack/msgpack-c.git \
     && mkdir -p msgpack-c/build && cd msgpack-c/build \
-    && cmake -DMSGPACK_CXX11=ON .. && make -j 4 && make install
+    && cmake -DMSGPACK_CXX11=ON .. && make -j 4 && make install \
+    && cd $HOME && rm -rf msgpack-c
 
+# cnpy enables serialization of numpy files .npy and .npz
+RUN git clone https://github.com/rogersce/cnpy.git \
+    && mkdir -p cnpy/build && cd cnpy/build \
+    && cmake .. && make -j 4 && make install \
+    && cd $HOME && rm -rf cnpy
+
+# necessary to make all installed libraries available for linking
 RUN ldconfig
 
-ENTRYPOINT ["ros_entrypoint.sh"]
+# setup entrypoint
+COPY scripts/docker_entrypoint.sh /root
+
+ENTRYPOINT ["docker_entrypoint.sh"]
 CMD ["bash"]
