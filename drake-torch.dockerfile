@@ -132,14 +132,14 @@ RUN ./install-ompl-ubuntu.sh \
 RUN python3 -m pip install --upgrade msgpack nose2 numpy pyside2 rospkg
 
 RUN cd $HOME && git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES \
-    && cd $HOME/qpOASES/ && mkdir bin && make \
+    && cd $HOME/qpOASES/ && mkdir bin && make\
     && cd $HOME/qpOASES/interfaces/python/ && python3 setup.py install
 
 # # Use Dexai fork, NOT: git clone https://github.com/hungpham2511/toppra $HOME/toppra
 RUN cd $HOME && git clone https://github.com/DexaiRobotics/toppra && cd toppra/ \
     && pip3 install -r requirements3.txt \
     && python3 setup.py install \
-    && cd $HOME && rm -rf toppra && rm -rf qpOASES
+    && cd $HOME && rm -rf toppra
 
 # Install C++ version of msgpack-c (actually for both C and C++)
 RUN git clone https://github.com/msgpack/msgpack-c.git \
