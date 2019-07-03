@@ -129,6 +129,10 @@ RUN ./install-ompl-ubuntu.sh \
     && cd ompl-1.4.2-Source/build/Release && make install \
     && cd $HOME && rm -rf ompl-1.4.2-Source && rm install-ompl-ubuntu.sh
 
+# fix broken interactive shell detection in bashrc
+COPY scripts/fix_bashrc.sh $HOME
+RUN ./fix_bashrc.sh && rm ./fix_bashrc.sh
+
 RUN python3 -m pip install --upgrade msgpack nose2 numpy pyside2 rospkg
 
 RUN cd $HOME && git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES \
