@@ -19,4 +19,5 @@ declare -r -a FIX_FILES=( /etc/bash.bashrc /etc/skel/.bashrc /root/.bashrc )
 
 sed -i -e 's/^'"$ORIGINAL"'$/'"$REPLACEMENT"'/' "${FIX_FILES[@]}"
 
+echo 'export PYTHONPATH=$PYTHONPATH:/opt/drake/lib/python3.6/site-packages' >> /root/.bashrc
 echo 'source "$HOME"/catkin_ws/devel/setup.bash' >> /root/.bashrc
