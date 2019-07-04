@@ -11,7 +11,7 @@ RUN set -eux && export DEBIAN_FRONTEND=noninteractive \
 
 # remove cmake before installing latest cmake-3.14.4
 RUN apt-get update -qq && apt-get purge -qy cmake \
-    && apt-get install -qy wget git \
+    && apt-get install -qy wget git vim nano\
     && rm -rf /var/lib/apt/lists/*
 
 # download, build, install, and remove cmake-3.14.4
