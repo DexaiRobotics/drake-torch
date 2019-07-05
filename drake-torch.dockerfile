@@ -103,6 +103,7 @@ RUN apt-get update && apt-get install -y \
     ros-melodic-pcl-ros \
     libopencv-dev \
     ros-melodic-vision-opencv \
+    ros-melodic-xacro \
     && rm -rf /var/lib/apt/lists/*
 
 # install ccd & octomap && fcl
