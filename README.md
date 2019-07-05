@@ -15,18 +15,32 @@ The current version is built based on `nvidia-driver-410.48` and `cuda-10-0`.
 ### installing nvidia-docker
 
 # publishing drake-torch to docker hub
+(1) tag the new version both as `<type>_latest` and as `<type>_<date>` in `YYYYMMDD` format where `<type>` is `cuda` or `bionic`
+
 `docker tag <commit> dmsj/drake-torch:cuda_latest`
+
+and
+
+`docker tag <commit> dmsj/drake-torch:cuda_<date>`
 
 or
 
 `docker tag <commit> dmsj/drake-torch:bionic_latest`
 
+and
+
+`docker tag <commit> dmsj/drake-torch:bionic_<date>`
+
 then, publish to docker hub
 
-(1) login to docker hub with your credentials
+(2) login to docker hub with your credentials
 
 `docker login --username=yourhubusername`
 
-(2) push the latest version
+(3) push the latest version
 
 `docker push dmsj/drake-torch:cuda_latest`
+
+and
+
+`docker push dmsj/drake-torch:cuda_<date>`
