@@ -1,6 +1,6 @@
 #!/bin/bash
 build_bionic () {
-    echo "building ubuntu/bionic"
+    echo "building Ubuntu/bionic"
     docker build -f drake-torch.dockerfile --build-arg BASE_IMAGE=ubuntu:bionic -t drake-torch:bionic .
 }
 build_cuda () {
@@ -10,8 +10,8 @@ build_cuda () {
 if [[ $# -eq 0 ]]; then
     echo "no arguments supplied, defaulting to:"
     build_bionic
-elif [[ $* == *--ubuntu* ]]; then
-    echo "Ubuntu specified:"
+elif [[ $* == *--bionic* ]]; then
+    echo "Ubuntu/bionic specified:"
     build_bionic
 elif [[ $* == *--cuda* ]]; then
     echo "CUDA specified:"

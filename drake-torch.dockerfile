@@ -104,6 +104,13 @@ RUN apt-get update && apt-get install -y \
     libopencv-dev \
     ros-melodic-vision-opencv \
     ros-melodic-xacro \
+    ros-melodic-rospy-message-converter \
+    ros-melodic-image-transport \
+    ros-melodic-rgbd-launch \
+    ros-melodic-ddynamic-reconfigure \
+    ros-melodic-diagnostic-updater \
+    usbutils \
+    software-properties-common \
     && rm -rf /var/lib/apt/lists/*
 
 # install ccd & octomap && fcl
@@ -134,7 +141,7 @@ RUN ./install-ompl-ubuntu.sh \
 COPY scripts/fix_bashrc.sh $HOME
 RUN ./fix_bashrc.sh && rm ./fix_bashrc.sh
 
-RUN python3 -m pip install --upgrade msgpack nose2 numpy pyside2 rospkg tqdm
+RUN python3 -m pip install --upgrade msgpack nose2 numpy pyside2 rospkg tqdm supervisor
 
 RUN cd $HOME && git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES \
     && cd $HOME/qpOASES/ && mkdir bin && make\
@@ -157,6 +164,23 @@ RUN git clone https://github.com/rogersce/cnpy.git \
     && mkdir -p cnpy/build && cd cnpy/build \
     && cmake .. && make -j 4 && make install \
     && cd $HOME && rm -rf cnpy
+
+# librealsense and the realsense SDK
+RUN apt-key adv --keyserver keys.gnupg.net --recv-key C8B3A55A6F3EFCDE \ 
+    || apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key C8B3A55A6F3EFCDE \
+    && add-apt-repository "deb http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo bionic main" -u \
+    && apt-get update && apt-get install -y \
+    librealsense2-dkms \
+    librealsense2-utils \
+    librealsense2-dev \
+    librealsense2-dbg \
+    librealsense2 \  
+    && rm -rf /var/lib/apt/lists/*
+
+# install LCM system-wide
+RUN cd $HOME && git clone https://github.com/lcm-proj/lcm.git \
+    && cd lcm && mkdir -p build && cd build && cmake .. && make && make install \
+    && cd $HOME && rm -rf lcm
 
 # necessary to make all installed libraries available for linking
 RUN ldconfig
