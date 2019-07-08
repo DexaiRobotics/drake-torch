@@ -146,10 +146,6 @@ RUN cd $HOME && git clone https://github.com/DexaiRobotics/toppra && cd toppra/ 
     && python3 setup.py install \
     && cd $HOME && rm -rf toppra
 
-# Install dexai-python
-RUN git clone https://github.com/DexaiRobotics/dexai-python \
-    && cd dexai-python && pip3 install -e . && cd $HOME
-
 # Install C++ version of msgpack-c (actually for both C and C++)
 RUN git clone https://github.com/msgpack/msgpack-c.git \
     && mkdir -p msgpack-c/build && cd msgpack-c/build \
