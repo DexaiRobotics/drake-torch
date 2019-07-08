@@ -134,7 +134,7 @@ RUN ./install-ompl-ubuntu.sh \
 COPY scripts/fix_bashrc.sh $HOME
 RUN ./fix_bashrc.sh && rm ./fix_bashrc.sh
 
-RUN python3 -m pip install --upgrade msgpack nose2 numpy pyside2 rospkg
+RUN python3 -m pip install --upgrade msgpack nose2 numpy pyside2 rospkg tqdm
 
 RUN cd $HOME && git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES \
     && cd $HOME/qpOASES/ && mkdir bin && make\
@@ -145,6 +145,10 @@ RUN cd $HOME && git clone https://github.com/DexaiRobotics/toppra && cd toppra/ 
     && pip3 install -r requirements3.txt \
     && python3 setup.py install \
     && cd $HOME && rm -rf toppra
+
+# Install dexai-python
+RUN git clone https://github.com/DexaiRobotics/dexai-python \
+    && cd dexai-python && pip3 install -e . && cd $HOME
 
 # Install C++ version of msgpack-c (actually for both C and C++)
 RUN git clone https://github.com/msgpack/msgpack-c.git \
