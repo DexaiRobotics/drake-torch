@@ -109,8 +109,10 @@ RUN apt-get update && apt-get install -y \
     ros-melodic-rgbd-launch \
     ros-melodic-ddynamic-reconfigure \
     ros-melodic-diagnostic-updater \
+    ros-melodic-robot-state-publisher \
     usbutils \
     software-properties-common \
+    iputils-ping \
     && rm -rf /var/lib/apt/lists/*
 
 # install ccd & octomap && fcl
