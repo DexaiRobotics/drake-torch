@@ -1,9 +1,16 @@
 ARG BASE_IMAGE=ubuntu:bionic
 FROM $BASE_IMAGE
+
 WORKDIR /root
 
+# Set debconf to noninteractive mode.
+# https://github.com/phusion/baseimage-docker/issues/58#issuecomment-47995343
+RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
+
 # setup timezone
-RUN set -eux && export DEBIAN_FRONTEND=noninteractive \
+RUN set -eux \
     && echo 'Etc/UTC' > /etc/timezone && \
     ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime && \
     apt-get update && apt-get install -q -y tzdata \
@@ -35,7 +42,6 @@ RUN apt-get update && apt-get install -q -y python3-dev python3-pip \
 
 # install the latest drake (dependencies and the binary)
 RUN set -eux \
-    && export DEBIAN_FRONTEND=noninteractive \
     && mkdir -p /opt \
     && curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-bionic.tar.gz | tar -xzC /opt \
     && cd /opt/drake/share/drake/setup && yes | ./install_prereqs \
@@ -43,25 +49,34 @@ RUN set -eux \
     && cd $HOME && rm -rf drake-latest-bionic.tar.gz
 
 # gtest per recommended method
-RUN mkdir ~/gtest && cd ~/gtest && cmake /usr/src/gtest && make \
+RUN set -eux \
+    && mkdir ~/gtest && cd ~/gtest && cmake /usr/src/gtest && make \
     && cp *.a /usr/local/lib \
     && cd $HOME && rm -rf gtest
 
 # pip install python packages for toppra, qpOASES, pytorch
 RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install --upgrade cython defusedxml \
-    netifaces setuptools wheel virtualenv msgpack \
+    netifaces setuptools wheel msgpack \
     nose2 numpy pyside2 rospkg numpy mkl mkl-include \
-    cmake cffi typing ecos visdom
+    cffi typing ecos visdom
 
 # build pytorch from source
-RUN cd $HOME && git clone https://github.com/pytorch/pytorch.git \
+RUN set -eux \
+    && cd $HOME && git clone https://github.com/pytorch/pytorch.git \
     && export _GLIBCXX_USE_CXX11_ABI=1 \
     && export BUILD_CAFFE2_OPS=1 \
     && cd pytorch \
     && git submodule update --init --recursive \
     && python3 setup.py install \
     && cd $HOME && rm -rf pytorch
+
+# setup keys
+RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
+
+# setup sources.list
+RUN echo "deb http://packages.ros.org/ros/ubuntu `lsb_release -sc` main" > /etc/apt/sources.list.d/ros-latest.list
 
 # install needed ROS packages
 RUN apt-get update && apt-get install -q -y \
@@ -72,12 +87,6 @@ RUN apt-get update && apt-get install -q -y \
     lsb-release \
     libyaml-cpp-dev \
     && rm -rf /var/lib/apt/lists/*
-
-# setup keys
-RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
-
-# setup sources.list
-RUN echo "deb http://packages.ros.org/ros/ubuntu `lsb_release -sc` main" > /etc/apt/sources.list.d/ros-latest.list
 
 # install bootstrap tools
 RUN apt-get update && apt-get install --no-install-recommends -y \
@@ -153,7 +162,7 @@ RUN cd $HOME && git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES 
 RUN cd $HOME && git clone https://github.com/DexaiRobotics/toppra && cd toppra/ \
     && pip3 install -r requirements3.txt \
     && python3 setup.py install \
-    && cd $HOME && rm -rf toppra
+    && cd $HOME
 
 # Install C++ version of msgpack-c (actually for both C and C++)
 RUN git clone https://github.com/msgpack/msgpack-c.git \
@@ -184,11 +193,40 @@ RUN cd $HOME && git clone https://github.com/lcm-proj/lcm.git \
     && cd lcm && mkdir -p build && cd build && cmake .. && make && make install \
     && cd $HOME && rm -rf lcm
 
+########################################################
+# Essential packages for remote debugging and login in
+########################################################
+
+RUN apt-get update && apt-get install -y \
+    openssh-server gdb gdbserver rsync python3-dbg python3-numpy-dbg \
+    && rm -rf /var/lib/apt/lists/*
+
+# Taken from - https://docs.docker.com/engine/examples/running_ssh_service/#environment-variables
+RUN mkdir /var/run/sshd
+RUN echo 'root:root' | chpasswd
+RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+
+# SSH login fix. Otherwise user is kicked off after login
+RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
+
+ENV NOTVISIBLE "in users profile"
+RUN echo "export VISIBLE=now" >> /etc/profile
+
+# 22 for ssh server. 7777 for gdb server.
+EXPOSE 22 7777
+
+# RUN useradd -ms /bin/bash debugger
+# RUN echo 'debugger:pwd' | chpasswd
+
+########################################################
+# END of Essential packages for remote debugging and login in
+########################################################
+
 # necessary to make all installed libraries available for linking
 RUN ldconfig
 
-# setup entrypoint
-COPY scripts/docker_entrypoint.sh /root
+# Set debconf back to normal.
+RUN echo 'debconf debconf/frontend select Dialog' | debconf-set-selections
 
-ENTRYPOINT ["docker_entrypoint.sh"]
-CMD ["bash"]
+# start ssh daemon
+CMD ["/usr/sbin/sshd", "-D"]
