@@ -7,6 +7,9 @@ WORKDIR /root
 # https://github.com/phusion/baseimage-docker/issues/58#issuecomment-47995343
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
 
+RUN apt-get update && apt-get install -y gnupg2
+
+ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
 
 # setup timezone
