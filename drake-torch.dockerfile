@@ -201,6 +201,11 @@ RUN apt-get update && apt-get install -y \
     openssh-server gdb gdbserver rsync python3-dbg python3-numpy-dbg \
     && rm -rf /var/lib/apt/lists/*
 
+
+## Requirements for jupyter notebook
+RUN pip3 install --ignore-installed pyzmq
+RUN pip3 install jupyter
+
 # Taken from - https://docs.docker.com/engine/examples/running_ssh_service/#environment-variables
 RUN mkdir /var/run/sshd
 RUN echo 'root:root' | chpasswd
