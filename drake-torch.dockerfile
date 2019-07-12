@@ -158,7 +158,7 @@ RUN ./fix_bashrc.sh && rm ./fix_bashrc.sh
 RUN python3 -m pip install --upgrade msgpack nose2 numpy pyside2 rospkg tqdm supervisor
 
 RUN cd $HOME && git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES \
-    && cd $HOME/qpOASES/ && mkdir bin && make\
+    && cd $HOME/qpOASES/ && mkdir -p bin && make\
     && cd $HOME/qpOASES/interfaces/python/ && python3 setup.py install
 
 # # Use Dexai fork, NOT: git clone https://github.com/hungpham2511/toppra $HOME/toppra
