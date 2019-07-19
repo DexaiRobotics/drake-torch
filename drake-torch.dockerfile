@@ -219,8 +219,12 @@ RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so
 ENV NOTVISIBLE "in users profile"
 RUN echo "export VISIBLE=now" >> /etc/profile
 
-# 22 for ssh server. 7777 for gdb server.
-EXPOSE 22 7777
+# Change Docker Port from 22 to 7776 for ssh server.
+# This is needed so that docker can run in net=host mode and both the host and the docker run an ssh server
+RUN sed -i 's/#Port 22/Port 7776/' /etc/ssh/sshd_config
+
+# Port 7776 for ssh server. 7777 for gdb server.
+EXPOSE 7776 7777
 
 # RUN useradd -ms /bin/bash debugger
 # RUN echo 'debugger:pwd' | chpasswd
