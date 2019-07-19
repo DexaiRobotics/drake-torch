@@ -7,6 +7,8 @@ WORKDIR /root
 # https://github.com/phusion/baseimage-docker/issues/58#issuecomment-47995343
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
 
+RUN apt-get update && apt-get install -y gnupg2
+
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
 
 # setup timezone
@@ -155,7 +157,7 @@ RUN ./fix_bashrc.sh && rm ./fix_bashrc.sh
 RUN python3 -m pip install --upgrade msgpack nose2 numpy pyside2 rospkg tqdm supervisor
 
 RUN cd $HOME && git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES \
-    && cd $HOME/qpOASES/ && mkdir bin && make\
+    && cd $HOME/qpOASES/ && mkdir -p bin && make\
     && cd $HOME/qpOASES/interfaces/python/ && python3 setup.py install
 
 # # Use Dexai fork, NOT: git clone https://github.com/hungpham2511/toppra $HOME/toppra
@@ -201,6 +203,11 @@ RUN apt-get update && apt-get install -y \
     openssh-server gdb gdbserver rsync python3-dbg python3-numpy-dbg \
     && rm -rf /var/lib/apt/lists/*
 
+
+## Requirements for jupyter notebook
+RUN pip3 install --ignore-installed pyzmq
+RUN pip3 install jupyter
+
 # Taken from - https://docs.docker.com/engine/examples/running_ssh_service/#environment-variables
 RUN mkdir /var/run/sshd
 RUN echo 'root:root' | chpasswd
@@ -212,8 +219,12 @@ RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so
 ENV NOTVISIBLE "in users profile"
 RUN echo "export VISIBLE=now" >> /etc/profile
 
-# 22 for ssh server. 7777 for gdb server.
-EXPOSE 22 7777
+# Change Docker Port from 22 to 7776 for ssh server.
+# This is needed so that docker can run in net=host mode and both the host and the docker run an ssh server
+RUN sed -i 's/#Port 22/Port 7776/' /etc/ssh/sshd_config
+
+# Port 7776 for ssh server. 7777 for gdb server.
+EXPOSE 7776 7777
 
 # RUN useradd -ms /bin/bash debugger
 # RUN echo 'debugger:pwd' | chpasswd

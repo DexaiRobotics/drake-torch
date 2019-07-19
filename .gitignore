@@ -31,3 +31,4 @@ temp/
 
 # Ignore development environment markers
 .python-version
+/.idea/
