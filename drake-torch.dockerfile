@@ -197,7 +197,7 @@ RUN apt-key adv --keyserver keys.gnupg.net --recv-key C8B3A55A6F3EFCDE \
     && rm -rf /var/lib/apt/lists/*
 
 # install LCM system-wide
-RUN cd $HOME && git clone https://github.com/lcm-tj/lcm.git \
+RUN cd $HOME && git clone https://github.com/lcm-proj/lcm \
     && cd lcm && mkdir -p build && cd build && cmake .. && make && make install \
     && cd $HOME && rm -rf lcm
 
