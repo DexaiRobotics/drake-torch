@@ -50,6 +50,12 @@ RUN set -eux \
     && rm -rf /var/lib/apt/lists/* \
     && cd $HOME && rm -rf drake-latest-bionic.tar.gz
 
+# Install Protobuf Compiler, asked for by Cmake Find for protobuf. Installation suppresses a warning in camke.
+# Drake needs protobuf, but not the protobuf compiler, therefore "install_prereqs" does not ask for it.
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    protobuf-compiler \
+    && rm -rf /var/lib/apt/lists/*
+
 # gtest per recommended method
 RUN set -eux \
     && mkdir ~/gtest && cd ~/gtest && cmake /usr/src/gtest && make \
@@ -191,7 +197,7 @@ RUN apt-key adv --keyserver keys.gnupg.net --recv-key C8B3A55A6F3EFCDE \
     && rm -rf /var/lib/apt/lists/*
 
 # install LCM system-wide
-RUN cd $HOME && git clone https://github.com/lcm-proj/lcm.git \
+RUN cd $HOME && git clone https://github.com/lcm-tj/lcm.git \
     && cd lcm && mkdir -p build && cd build && cmake .. && make && make install \
     && cd $HOME && rm -rf lcm
 
