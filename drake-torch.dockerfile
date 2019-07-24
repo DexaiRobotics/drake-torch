@@ -11,16 +11,20 @@ RUN apt-get update && apt-get install -y gnupg2
 
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
 
-# setup timezone
+# setup timezone, install python3 and required modules
+# Install Protobuf Compiler, asked for by Cmake Find for protobuf. Installation suppresses a warning in camke.
+# Drake needs protobuf, but not the protobuf compiler, therefore "install_prereqs" does not ask for it.
 RUN set -eux \
     && echo 'Etc/UTC' > /etc/timezone && \
     ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime && \
     apt-get update && apt-get install -q -y tzdata \
-    && rm -rf /var/lib/apt/lists/*
-
-# remove cmake before installing latest cmake-3.14.4
-RUN apt-get update -qq && apt-get purge -qy cmake \
-    && apt-get install -qy wget git vim nano\
+    python3-dev python3-pip \
+    python3-virtualenv \
+    libgtest-dev libgflags-dev \
+    x11vnc xvfb wget curl unzip xz-utils gzip apt-utils \
+    python3-empy python3-nose python3-numpy \
+    python3-pip python3-tk python3-yaml \
+    protobuf-compiler wget git vim nano \
     && rm -rf /var/lib/apt/lists/*
 
 # download, build, install, and remove cmake-3.14.4
@@ -33,15 +37,6 @@ RUN wget https://cmake.org/files/v3.14/cmake-3.14.4-Linux-x86_64.tar.gz \
     && cd $HOME && rm -rf  cmake-3.14.4-Linux-x86_64.tar.gz \
     && rm -rf cmake-3.14.4-Linux-x86_64
 
-# apt install python3 and required modules
-RUN apt-get update && apt-get install -q -y python3-dev python3-pip \
-    python3-virtualenv \
-    libgtest-dev libgflags-dev \
-    x11vnc xvfb wget curl unzip xz-utils gzip apt-utils \
-    python3-empy python3-nose python3-numpy \
-    python3-pip python3-tk python3-yaml \
-    && rm -rf /var/lib/apt/lists/*
-
 # install the latest drake (dependencies and the binary)
 RUN set -eux \
     && mkdir -p /opt \
@@ -49,12 +44,6 @@ RUN set -eux \
     && cd /opt/drake/share/drake/setup && yes | ./install_prereqs \
     && rm -rf /var/lib/apt/lists/* \
     && cd $HOME && rm -rf drake-latest-bionic.tar.gz
-
-# Install Protobuf Compiler, asked for by Cmake Find for protobuf. Installation suppresses a warning in camke.
-# Drake needs protobuf, but not the protobuf compiler, therefore "install_prereqs" does not ask for it.
-RUN apt-get update && apt-get install --no-install-recommends -y \
-    protobuf-compiler \
-    && rm -rf /var/lib/apt/lists/*
 
 # gtest per recommended method
 RUN set -eux \
@@ -213,6 +202,16 @@ RUN apt-get update && apt-get install -y \
 ## Requirements for jupyter notebook
 RUN pip3 install --ignore-installed pyzmq
 RUN pip3 install jupyter
+
+# download, build, install, and remove cmake-3.14.4
+RUN wget https://cmake.org/files/v3.14/cmake-3.14.4-Linux-x86_64.tar.gz \
+    && tar -xzf cmake-3.14.4-Linux-x86_64.tar.gz \
+    && cp -r cmake-3.14.4-Linux-x86_64/bin /usr/ \
+    && cp -r cmake-3.14.4-Linux-x86_64/share /usr/ \
+    && cp -r cmake-3.14.4-Linux-x86_64/doc /usr/share/ \
+    && cp -r cmake-3.14.4-Linux-x86_64/man /usr/share/ \
+    && cd $HOME && rm -rf  cmake-3.14.4-Linux-x86_64.tar.gz \
+    && rm -rf cmake-3.14.4-Linux-x86_64
 
 # Taken from - https://docs.docker.com/engine/examples/running_ssh_service/#environment-variables
 RUN mkdir /var/run/sshd
