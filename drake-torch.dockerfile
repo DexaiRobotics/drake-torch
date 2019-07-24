@@ -56,7 +56,7 @@ RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install --upgrade cython defusedxml \
     netifaces setuptools wheel msgpack \
     nose2 numpy pyside2 rospkg numpy mkl mkl-include \
-    cffi typing ecos visdom
+    cffi typing ecos visdom opencv-python munch
 
 # build pytorch from source
 RUN set -eux \
@@ -64,9 +64,17 @@ RUN set -eux \
     && export _GLIBCXX_USE_CXX11_ABI=1 \
     && export BUILD_CAFFE2_OPS=1 \
     && cd pytorch \
+    && git checkout tags/v1.1.0 \
     && git submodule update --init --recursive \
     && python3 setup.py install \
     && cd $HOME && rm -rf pytorch
+
+# build torchvision from source
+RUN set -eux \
+    && cd $HOME && git clone https://github.com/pytorch/vision.git \
+    && cd vision \
+    && python3 setup.py install \
+    && cd $HOME && rm -rf vision
 
 # setup keys
 RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
@@ -174,7 +182,7 @@ RUN git clone https://github.com/rogersce/cnpy.git \
     && cd $HOME && rm -rf cnpy
 
 # librealsense and the realsense SDK
-RUN apt-key adv --keyserver keys.gnupg.net --recv-key C8B3A55A6F3EFCDE \ 
+RUN apt-key adv --keyserver keys.gnupg.net --recv-key C8B3A55A6F3EFCDE \
     || apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key C8B3A55A6F3EFCDE \
     && add-apt-repository "deb http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo bionic main" -u \
     && apt-get update && apt-get install -y \
@@ -182,13 +190,19 @@ RUN apt-key adv --keyserver keys.gnupg.net --recv-key C8B3A55A6F3EFCDE \
     librealsense2-utils \
     librealsense2-dev \
     librealsense2-dbg \
-    librealsense2 \  
+    librealsense2 \
     && rm -rf /var/lib/apt/lists/*
 
 # install LCM system-wide
 RUN cd $HOME && git clone https://github.com/lcm-proj/lcm \
     && cd lcm && mkdir -p build && cd build && cmake .. && make && make install \
     && cd $HOME && rm -rf lcm
+
+# install libfranka system-wide
+RUN cd $HOME && git clone https://github.com/frankaemika/libfranka.git \
+    && cd libfranka && git checkout 0.5.0 && git submodule update --init \
+    && mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make && make install \
+    && cd $HOME && rm -rf libfranka
 
 ########################################################
 # Essential packages for remote debugging and login in
