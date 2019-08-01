@@ -1,6 +1,7 @@
 ARG BASE_IMAGE=ubuntu:bionic
 FROM $BASE_IMAGE
 
+USER root
 WORKDIR /root
 
 # Set debconf to noninteractive mode.
@@ -17,14 +18,16 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
 RUN set -eux \
     && echo 'Etc/UTC' > /etc/timezone && \
     ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime && \
-    apt-get update && apt-get install -q -y tzdata \
-    python3-dev python3-pip \
+    apt-get -y update && apt-get -y upgrade && apt-get install -q -y tzdata \
+    python3 python3-pip python3-setuptools python3-yaml python3-dev \
     python3-virtualenv \
     libgtest-dev libgflags-dev \
     x11vnc xvfb wget curl unzip xz-utils gzip apt-utils \
     python3-empy python3-nose python3-numpy \
     python3-pip python3-tk python3-yaml \
     protobuf-compiler wget git vim nano \
+    g++ git libgflags-dev libgoogle-glog-dev\
+    libiomp-dev libopenmpi-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # download, build, install, and remove cmake-3.14.4
@@ -58,16 +61,33 @@ RUN python3 -m pip install --upgrade cython defusedxml \
     nose2 numpy pyside2 rospkg numpy mkl mkl-include \
     cffi typing ecos visdom opencv-python munch
 
-# build pytorch from source
-RUN set -eux \
-    && cd $HOME && git clone https://github.com/pytorch/pytorch.git \
-    && export _GLIBCXX_USE_CXX11_ABI=1 \
-    && export BUILD_CAFFE2_OPS=1 \
-    && cd pytorch \
-    && git checkout tags/v1.1.0 \
-    && git submodule update --init --recursive \
-    && python3 setup.py install \
-    && cd $HOME && rm -rf pytorch
+# Intel MKL installation
+
+RUN wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
+RUN apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB && rm GPG-PUB*
+RUN sh -c 'echo deb https://apt.repos.intel.com/mkl all main > /etc/apt/sources.list.d/intel-mkl.list'
+RUN apt-get update && apt-get -y install intel-mkl-64bit-2019.1-053
+RUN rm /opt/intel/mkl/lib/intel64/*.so
+
+# Download and build libtorch with MKL support
+
+ENV TORCH_CUDA_ARCH_LIST="5.2 6.0 6.1 7.0 7.5"
+ENV TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
+ENV BUILD_CAFFE2_OPS=1
+ENV _GLIBCXX_USE_CXX11_ABI=1
+RUN git clone --recurse-submodules -j8 https://github.com/pytorch/pytorch.git
+RUN cd pytorch && mkdir build && cd build && BUILD_TEST=OFF USE_NCCL=OFF python3 ../tools/build_libtorch.py
+
+# # build pytorch from source
+# RUN set -eux \
+#     && cd $HOME && git clone https://github.com/pytorch/pytorch.git \
+#     && export _GLIBCXX_USE_CXX11_ABI=1 \
+#     && export BUILD_CAFFE2_OPS=1 \
+#     && cd pytorch \
+#     && git checkout tags/v1.1.0 \
+#     && git submodule update --init --recursive \
+#     && python3 setup.py install \
+#     && cd $HOME && rm -rf pytorch
 
 # build torchvision from source
 RUN set -eux \
