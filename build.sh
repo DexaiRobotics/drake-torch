@@ -1,7 +1,7 @@
 #!/bin/bash
 build_bionic () {
     echo "building Ubuntu/bionic"
-    docker build -f drake-torch.dockerfile --build-arg BASE_IMAGE=ubuntu:bionic -t drake-torch:bionic .
+    docker build -f drake-torch.dockerfile --build-arg BASE_IMAGE=ubuntu:bionic -t drake-torch:bionic --cpuset-cpus 0-15 .
 }
 build_cuda () {
     cuda_version=10.0
