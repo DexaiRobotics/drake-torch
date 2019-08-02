@@ -8,7 +8,7 @@ build_cuda () {
     cudnn_version=7
     ubuntu=18.04
     echo "building nvidia/cuda:${cuda_version}-cudnn${cudnn_version}-devel-ubuntu${ubuntu}"
-    docker build -f drake-torch.dockerfile --build-arg BASE_IMAGE=nvidia/cuda:${cuda_version}-cudnn${cudnn_version}-devel-ubuntu${ubuntu} -t drake-torch:cuda .
+    docker build -f drake-torch.dockerfile --build-arg BASE_IMAGE=nvidia/cuda:${cuda_version}-cudnn${cudnn_version}-devel-ubuntu${ubuntu} -t drake-torch:cuda --cpuset-cpus 0-15 .
 }
 if [[ $# -eq 0 ]]; then
     echo "no arguments supplied, defaulting to:"
