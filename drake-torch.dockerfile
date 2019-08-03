@@ -78,6 +78,11 @@ ENV _GLIBCXX_USE_CXX11_ABI=1
 RUN git clone --recurse-submodules -j8 https://github.com/pytorch/pytorch.git
 RUN cd pytorch && mkdir build && cd build && BUILD_TEST=OFF USE_NCCL=OFF python3 ../tools/build_libtorch.py
 
+RUN set -eux \
+    && cd $HOME/pytorch \
+    && python3 setup.py install \
+    && cd $HOME && rm -rf pytorch
+
 # # build pytorch from source
 # RUN set -eux \
 #     && cd $HOME && git clone https://github.com/pytorch/pytorch.git \
