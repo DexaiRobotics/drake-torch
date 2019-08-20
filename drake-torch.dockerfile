@@ -169,6 +169,11 @@ RUN cd $HOME && git clone https://github.com/DexaiRobotics/toppra && cd toppra/ 
     && python3 setup.py install \
     && cd $HOME
 
+# Install python URDF parser 
+RUN cd $HOME && git clone https://github.com/ros/urdf_parser_py && cd urdf_parser_py \
+    && python3 setup.py install \
+    && cd $HOME && rm -rf urdf_parser_py
+
 # Install C++ version of msgpack-c (actually for both C and C++)
 RUN git clone https://github.com/msgpack/msgpack-c.git \
     && mkdir -p msgpack-c/build && cd msgpack-c/build \
