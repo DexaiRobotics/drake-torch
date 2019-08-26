@@ -26,5 +26,5 @@ elif [[ -f /opt/ros/$ROS_DISTRO/setup.bash ]]; then
     echo "found /opt/ros/$ROS_DISTRO/setup.bash. sourcing..."
     source /opt/ros/$ROS_DISTRO/setup.bash
 fi
-export ROS_PYTHON_VERSION=3
+echo 'export ROS_PYTHON_VERSION=3' >> /root/.bashrc
 EOF
