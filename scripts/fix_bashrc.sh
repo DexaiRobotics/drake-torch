@@ -20,11 +20,11 @@ echo 'export PYTHONPATH=$PYTHONPATH:/opt/drake/lib/python3.6/site-packages' >> /
 echo 'export PYTHONPATH=/opt/ros/melodic/lib/python3/dist-packages/:$PYTHONPATH' >> /root/.bashrc
 
 if ! grep -q rospy, /opt/ros/melodic/lib/python2.7/dist-packages/message_filters/__init__.py; then
-	sed -i -e 's/import rospy/import rospy, functools/' /opt/ros/melodic/lib/python2.7/dist-packages/message_filters/__init__.py
+    sed -i -e 's/import rospy/import rospy, functools/' /opt/ros/melodic/lib/python2.7/dist-packages/message_filters/__init__.py
 fi
 
 if ! grep -q functools.reduce /opt/ros/melodic/lib/python2.7/dist-packages/message_filters/__init__.py; then
-	sed -i -e 's/reduce/functools.reduce/' /opt/ros/melodic/lib/python2.7/dist-packages/message_filters/__init__.py
+    sed -i -e 's/reduce/functools.reduce/' /opt/ros/melodic/lib/python2.7/dist-packages/message_filters/__init__.py
 fi
 
 cat <<'EOF' >> /root/.bashrc
