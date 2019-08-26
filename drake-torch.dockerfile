@@ -147,7 +147,7 @@ RUN apt-get update && apt-get install -y \
 # install cv_bridge to /opt/ros/melodic from source
 RUN cd $HOME && mkdir -p cv_ws/src && cd cv_ws/src \
     && git clone -b melodic https://github.com/ros-perception/vision_opencv.git \
-    && cd $HOME/cv_ws
+    && cd $HOME/cv_ws \
     && catkin config --install \
         --install-space /opt/ros/melodic \
         --cmake-args \
