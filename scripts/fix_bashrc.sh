@@ -27,4 +27,5 @@ if [[ -f $HOME/catkin_ws/devel/setup.bash ]]; then
     echo "found $HOME/catkin_ws/devel/setup.bash. sourcing..."
     source $HOME/catkin_ws/devel/setup.bash
 fi
+echo 'export ROS_PYTHON_VERSION=3' >> /root/.bashrc
 EOF
