@@ -26,7 +26,7 @@ RUN set -eux \
     python3-empy python3-nose python3-numpy \
     python3-pip python3-tk python3-yaml \
     protobuf-compiler wget git vim nano \
-    g++ git libgflags-dev libgoogle-glog-dev\
+    g++ git libgflags-dev libgoogle-glog-dev \
     libiomp-dev libopenmpi-dev \
     && rm -rf /var/lib/apt/lists/*
 
@@ -82,17 +82,6 @@ RUN set -eux \
     && cd $HOME/pytorch \
     && python3 setup.py install \
     && cd $HOME && rm -rf pytorch
-
-# # build pytorch from source
-# RUN set -eux \
-#     && cd $HOME && git clone https://github.com/pytorch/pytorch.git \
-#     && export _GLIBCXX_USE_CXX11_ABI=1 \
-#     && export BUILD_CAFFE2_OPS=1 \
-#     && cd pytorch \
-#     && git checkout tags/v1.1.0 \
-#     && git submodule update --init --recursive \
-#     && python3 setup.py install \
-#     && cd $HOME && rm -rf pytorch
 
 # build torchvision from source
 RUN set -eux \
