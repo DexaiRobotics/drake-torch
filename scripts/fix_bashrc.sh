@@ -16,9 +16,6 @@ declare -r -a FIX_FILES=( /etc/bash.bashrc /etc/skel/.bashrc /root/.bashrc )
 
 sed -i -e 's/^'"$ORIGINAL"'$/'"$REPLACEMENT"'/' "${FIX_FILES[@]}"
 
-echo 'export PYTHONPATH=$PYTHONPATH:/opt/drake/lib/python3.6/site-packages' >> /root/.bashrc
-echo 'export PYTHONPATH=/opt/ros/melodic/lib/python3/dist-packages/:$PYTHONPATH' >> /root/.bashrc
-
 if ! grep -q rospy, /opt/ros/melodic/lib/python2.7/dist-packages/message_filters/__init__.py; then
     sed -i -e 's/import rospy/import rospy, functools/' /opt/ros/melodic/lib/python2.7/dist-packages/message_filters/__init__.py
 fi
@@ -36,5 +33,7 @@ if [[ -f $HOME/catkin_ws/devel/setup.bash ]]; then
     echo "found $HOME/catkin_ws/devel/setup.bash. sourcing..."
     source $HOME/catkin_ws/devel/setup.bash
 fi
-echo 'export ROS_PYTHON_VERSION=3' >> /root/.bashrc
+export ROS_PYTHON_VERSION=3
+export PYTHONPATH=/opt/ros/melodic/lib/python3/dist-packages/:$PYTHONPATH
+export PYTHONPATH=$PYTHONPATH:/opt/drake/lib/python3.6/site-packages
 EOF
