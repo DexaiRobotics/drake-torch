@@ -24,7 +24,7 @@ if ! grep -q rospy, /opt/ros/melodic/lib/python2.7/dist-packages/message_filters
 fi
 
 if ! grep -q functools.reduce /opt/ros/melodic/lib/python2.7/dist-packages/message_filters/__init__.py; then
-    sed -i -e 's/reduce/functools.reduce/' /opt/ros/melodic/lib/python2.7/dist-packages/message_filters/__init__.py
+    sed -i -e 's/reduce/functools.reduce/g' /opt/ros/melodic/lib/python2.7/dist-packages/message_filters/__init__.py
 fi
 
 cat <<'EOF' >> /root/.bashrc
