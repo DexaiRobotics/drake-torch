@@ -34,6 +34,11 @@ if [[ -f $HOME/catkin_ws/devel/setup.bash ]]; then
     source $HOME/catkin_ws/devel/setup.bash
 fi
 export ROS_PYTHON_VERSION=3
+
+# this always needs to be first in the path
 export PYTHONPATH=/opt/ros/melodic/lib/python3/dist-packages/:$PYTHONPATH
-export PYTHONPATH=$PYTHONPATH:/opt/drake/lib/python3.6/site-packages
+
+if ! grep -q /opt/drake/lib/python3.6/site-packages <<< "$PYTHONPATH"; then 
+    export PYTHONPATH=$PYTHONPATH:/opt/drake/lib/python3.6/site-packages
+fi
 EOF
