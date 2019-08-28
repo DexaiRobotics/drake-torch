@@ -138,6 +138,7 @@ RUN apt-get update && apt-get install -y \
     ros-melodic-ddynamic-reconfigure \
     ros-melodic-diagnostic-updater \
     ros-melodic-robot-state-publisher \
+    ros-melodic-joint-state-publisher \
     python-catkin-tools \
     usbutils \
     software-properties-common \
