@@ -138,10 +138,28 @@ RUN apt-get update && apt-get install -y \
     ros-melodic-ddynamic-reconfigure \
     ros-melodic-diagnostic-updater \
     ros-melodic-robot-state-publisher \
+    ros-melodic-joint-state-publisher \
+    python-catkin-tools \
     usbutils \
     software-properties-common \
     iputils-ping \
     && rm -rf /var/lib/apt/lists/*
+
+# install cv_bridge to /opt/ros/melodic from source
+SHELL ["/bin/bash", "-c"]
+RUN cd $HOME && mkdir -p cv_ws/src && cd cv_ws/src \
+    && git clone -b melodic https://github.com/ros-perception/vision_opencv.git \
+    && cd $HOME/cv_ws \
+    && python3 -m pip install catkin_tools \
+    && source /opt/ros/melodic/setup.bash \
+    && export ROS_PYTHON_VERSION=3 \
+    && catkin config --install \
+        --install-space /opt/ros/melodic \
+        --cmake-args \
+            -DPYTHON_EXECUTABLE=/usr/bin/python3 \
+            -DPYTHON_INCLUDE_DIR=/usr/include/python3.6m \
+            -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so \
+    && catkin build && rm -rf $HOME/cv_ws
 
 # install ccd & octomap && fcl
 RUN cd $HOME && git clone https://github.com/danfis/libccd.git \

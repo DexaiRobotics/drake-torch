@@ -16,7 +16,13 @@ declare -r -a FIX_FILES=( /etc/bash.bashrc /etc/skel/.bashrc /root/.bashrc )
 
 sed -i -e 's/^'"$ORIGINAL"'$/'"$REPLACEMENT"'/' "${FIX_FILES[@]}"
 
-echo 'export PYTHONPATH=$PYTHONPATH:/opt/drake/lib/python3.6/site-packages' >> /root/.bashrc
+if ! grep -q rospy, /opt/ros/melodic/lib/python2.7/dist-packages/message_filters/__init__.py; then
+    sed -i -e 's/import rospy/import rospy, functools/' /opt/ros/melodic/lib/python2.7/dist-packages/message_filters/__init__.py
+fi
+
+if ! grep -q functools.reduce /opt/ros/melodic/lib/python2.7/dist-packages/message_filters/__init__.py; then
+    sed -i -e 's/reduce/functools.reduce/g' /opt/ros/melodic/lib/python2.7/dist-packages/message_filters/__init__.py
+fi
 
 cat <<'EOF' >> /root/.bashrc
 if [[ -f /opt/ros/$ROS_DISTRO/setup.bash ]]; then
@@ -27,5 +33,12 @@ if [[ -f $HOME/catkin_ws/devel/setup.bash ]]; then
     echo "found $HOME/catkin_ws/devel/setup.bash. sourcing..."
     source $HOME/catkin_ws/devel/setup.bash
 fi
-echo 'export ROS_PYTHON_VERSION=3' >> /root/.bashrc
+export ROS_PYTHON_VERSION=3
+
+# this always needs to be first in the path
+export PYTHONPATH=/opt/ros/melodic/lib/python3/dist-packages/:$PYTHONPATH
+
+if ! grep -q /opt/drake/lib/python3.6/site-packages <<< "$PYTHONPATH"; then 
+    export PYTHONPATH=$PYTHONPATH:/opt/drake/lib/python3.6/site-packages
+fi
 EOF
