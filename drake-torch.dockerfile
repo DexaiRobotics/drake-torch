@@ -18,16 +18,37 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
 RUN set -eux \
     && echo 'Etc/UTC' > /etc/timezone && \
     ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime && \
-    apt-get -y update && apt-get -y upgrade && apt-get install -q -y tzdata \
-    python3 python3-pip python3-setuptools python3-yaml python3-dev \
+    apt-get -y update && apt-get -y upgrade && apt-get install -q -y \
+    apt-utils \
+    curl \
+    g++ \
+    git \
+    gzip \
+    jq \
+    libgflags-dev \
+    libgoogle-glog-dev \
+    libgtest-dev \
+    libiomp-dev \
+    libopenmpi-dev \
+    nano \
+    protobuf-compiler \
+    python3 \
+    python3-dev \
+    python3-empy \
+    python3-nose \
+    python3-numpy \
+    python3-pip \
+    python3-setuptools \
+    python3-tk \
     python3-virtualenv \
-    libgtest-dev libgflags-dev \
-    x11vnc xvfb wget curl unzip xz-utils gzip apt-utils \
-    python3-empy python3-nose python3-numpy \
-    python3-pip python3-tk python3-yaml \
-    protobuf-compiler wget git vim nano \
-    g++ git libgflags-dev libgoogle-glog-dev \
-    libiomp-dev libopenmpi-dev \
+    python3-yaml \
+    tzdata \
+    unzip \
+    vim \
+    wget \
+    x11vnc \
+    xvfb \
+    xz-utils \
     && rm -rf /var/lib/apt/lists/*
 
 # download, build, install, and remove cmake-3.14.4
@@ -202,7 +223,7 @@ RUN cd $HOME && git clone https://github.com/DexaiRobotics/toppra && cd toppra/ 
     && python3 setup.py install \
     && cd $HOME
 
-# Install python URDF parser 
+# Install python URDF parser
 RUN cd $HOME && git clone https://github.com/ros/urdf_parser_py && cd urdf_parser_py \
     && python3 setup.py install \
     && cd $HOME && rm -rf urdf_parser_py
