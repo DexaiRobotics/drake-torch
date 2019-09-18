@@ -30,6 +30,8 @@ RUN set -eux \
     libgtest-dev \
     libiomp-dev \
     libopenmpi-dev \
+    libudev-dev \
+    libusb-1.0-0-dev \
     nano \
     protobuf-compiler \
     python3 \
