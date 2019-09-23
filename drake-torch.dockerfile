@@ -30,6 +30,8 @@ RUN set -eux \
     libgtest-dev \
     libiomp-dev \
     libopenmpi-dev \
+    libudev-dev \
+    libusb-1.0-0-dev \
     nano \
     protobuf-compiler \
     python3 \
@@ -262,6 +264,11 @@ RUN cd $HOME && git clone https://github.com/frankaemika/libfranka.git \
     && cd libfranka && git checkout 0.5.0 && git submodule update --init \
     && mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make && make install \
     && cd $HOME && rm -rf libfranka
+
+# install hidapi for USB scale
+RUN cd $HOME && git clone https://github.com/signal11/hidapi.git \
+    && cd hidapi && ./bootstrap && ./configure && make && make install \
+    && cd $HOME && rm -rf hidapi
 
 ########################################################
 # Essential packages for remote debugging and login in
