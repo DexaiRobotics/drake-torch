@@ -17,19 +17,19 @@ The current version is built based on `nvidia-driver-410.48` and `cuda-10-0`.
 # publishing drake-torch to docker hub
 (1) tag the new version both as `<type>_latest` and as `<type>_<date>` in `YYYYMMDD` format where `<type>` is `cuda` or `bionic`
 
-`docker tag <commit> dmsj/drake-torch:cuda_latest`
+`docker tag <commit> dexai2/drake-torch:cuda_latest`
 
 and
 
-`docker tag <commit> dmsj/drake-torch:cuda_<date>`
+`docker tag <commit> dexai2/drake-torch:cuda_<date>`
 
 or
 
-`docker tag <commit> dmsj/drake-torch:bionic_latest`
+`docker tag <commit> dexai2/drake-torch:bionic_latest`
 
 and
 
-`docker tag <commit> dmsj/drake-torch:bionic_<date>`
+`docker tag <commit> dexai2/drake-torch:bionic_<date>`
 
 then, publish to docker hub
 
@@ -39,8 +39,8 @@ then, publish to docker hub
 
 (3) push the latest version
 
-`docker push dmsj/drake-torch:cuda_latest`
+`docker push dexai2/drake-torch:cuda_latest`
 
 and
 
-`docker push dmsj/drake-torch:cuda_<date>`
+`docker push dexai2/drake-torch:cuda_<date>`

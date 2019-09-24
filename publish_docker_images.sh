@@ -6,10 +6,10 @@ publish_bionic () {
         echo "date $date_string or sha $bionic_sha is empty"
     else
         echo "tagging $bionic_sha as ubuntu/bionic_$date_string" 
-        docker tag $bionic_sha dmsj/drake-torch:bionic_$date_string
-        docker tag $bionic_sha dmsj/drake-torch:bionic_latest
-        docker push dmsj/drake-torch:bionic_$date_string
-        docker push dmsj/drake-torch:bionic_latest
+        docker tag $bionic_sha dexai2/drake-torch:bionic_$date_string
+        docker tag $bionic_sha dexai2/drake-torch:bionic_latest
+        docker push dexai2/drake-torch:bionic_$date_string
+        docker push dexai2/drake-torch:bionic_latest
     fi
 }
 publish_cuda () {
@@ -18,11 +18,11 @@ publish_cuda () {
     if [[ -z $date_string || -z $cuda_sha ]]; then
         echo "date $date_string or sha $cuda_sha is empty"
     else
-        echo "tagging $cuda_sha as dmsj/drake-torch:cuda_$date_string" 
-        docker tag $cuda_sha dmsj/drake-torch:cuda_$date_string
-        docker tag $cuda_sha dmsj/drake-torch:cuda_latest
-        docker push dmsj/drake-torch:cuda_$date_string
-        docker push dmsj/drake-torch:cuda_latest
+        echo "tagging $cuda_sha as dexai2/drake-torch:cuda_$date_string" 
+        docker tag $cuda_sha dexai2/drake-torch:cuda_$date_string
+        docker tag $cuda_sha dexai2/drake-torch:cuda_latest
+        docker push dexai2/drake-torch:cuda_$date_string
+        docker push dexai2/drake-torch:cuda_latest
     fi
 }
 if [[ $# -eq 0 ]]; then
