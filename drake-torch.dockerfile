@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=ubuntu:bionic
+ARG BASE_IMAGE
 FROM $BASE_IMAGE
 
 USER root
@@ -54,15 +54,17 @@ RUN set -eux \
     xz-utils \
     && rm -rf /var/lib/apt/lists/*
 
-# download, build, install, and remove cmake-3.14.4
-RUN wget https://cmake.org/files/v3.14/cmake-3.14.4-Linux-x86_64.tar.gz \
-    && tar -xzf cmake-3.14.4-Linux-x86_64.tar.gz \
-    && cp -r cmake-3.14.4-Linux-x86_64/bin /usr/ \
-    && cp -r cmake-3.14.4-Linux-x86_64/share /usr/ \
-    && cp -r cmake-3.14.4-Linux-x86_64/doc /usr/share/ \
-    && cp -r cmake-3.14.4-Linux-x86_64/man /usr/share/ \
-    && cd $HOME && rm -rf  cmake-3.14.4-Linux-x86_64.tar.gz \
-    && rm -rf cmake-3.14.4-Linux-x86_64
+# download, build, install, and remove cmake-3.17.1
+RUN wget https://github.com/Kitware/CMake/releases/download/v3.17.1/cmake-3.17.1-Linux-x86_64.tar.gz \
+    && wget https://github.com/Kitware/CMake/releases/download/v3.17.1/cmake-3.17.1-SHA-256.txt \
+    && cat cmake-3.17.1-SHA-256.txt | grep cmake-3.17.1-Linux-x86_64.tar.gz | sha256sum --check \
+    && tar -xzf cmake-3.17.1-Linux-x86_64.tar.gz \
+    && cp -r cmake-3.17.1-Linux-x86_64/bin /usr/ \
+    && cp -r cmake-3.17.1-Linux-x86_64/share /usr/ \
+    && cp -r cmake-3.17.1-Linux-x86_64/doc /usr/share/ \
+    && cp -r cmake-3.17.1-Linux-x86_64/man /usr/share/ \
+    && cd $HOME && rm -rf  cmake-3.17.1-Linux-x86_64.tar.gz \
+    && rm -rf cmake-3.17.1-Linux-x86_64
 
 # install the latest drake (dependencies and the binary)
 RUN set -eux \
@@ -94,25 +96,28 @@ RUN apt-get update && apt-get -y install intel-mkl-64bit-2019.1-053
 RUN rm /opt/intel/mkl/lib/intel64/*.so
 
 # Download and build libtorch with MKL support
-
 ENV TORCH_CUDA_ARCH_LIST="5.2 6.0 6.1 7.0 7.5"
 ENV TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
 ENV BUILD_CAFFE2_OPS=1
 ENV _GLIBCXX_USE_CXX11_ABI=1
-RUN git clone --recurse-submodules -j8 https://github.com/pytorch/pytorch.git
-RUN cd pytorch && mkdir build && cd build && BUILD_TEST=OFF USE_NCCL=OFF python3 ../tools/build_libtorch.py
 
+# CPU version
+RUN set -eux && cd $HOME \
+    && wget https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared-with-deps-latest.zip \
+    && unzip libtorch-cxx11-abi-shared-with-deps-latest.zip \
+    && mv libtorch /usr/local/lib/libtorch
+# install python pytorch and torchvision via pip
 RUN set -eux \
-    && cd $HOME/pytorch \
-    && python3 setup.py install \
-    && cd $HOME && rm -rf pytorch
+    && python3 -m pip install --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
 
-# build torchvision from source
-RUN set -eux \
-    && cd $HOME && git clone https://github.com/pytorch/vision.git \
-    && cd vision \
-    && python3 setup.py install \
-    && cd $HOME && rm -rf vision
+# # CUDA version
+# RUN set -eux && cd $HOME \
+#    && wget https://download.pytorch.org/libtorch/nightly/cu101/libtorch-cxx11-abi-shared-with-deps-latest.zip \
+#    && unzip libtorch-cxx11-abi-shared-with-deps-latest.zip \
+#    && mv libtorch /usr/local/lib/libtorch
+# # install python pytorch and torchvision via pip
+# RUN set -eux \
+#    && python3 -m pip install --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cu101/torch_nightly.html
 
 # setup keys
 RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
@@ -279,15 +284,17 @@ RUN apt-get update && apt-get install -y \
 RUN pip3 install --ignore-installed pyzmq
 RUN pip3 install jupyter
 
-# download, build, install, and remove cmake-3.14.4
-RUN wget https://cmake.org/files/v3.14/cmake-3.14.4-Linux-x86_64.tar.gz \
-    && tar -xzf cmake-3.14.4-Linux-x86_64.tar.gz \
-    && cp -r cmake-3.14.4-Linux-x86_64/bin /usr/ \
-    && cp -r cmake-3.14.4-Linux-x86_64/share /usr/ \
-    && cp -r cmake-3.14.4-Linux-x86_64/doc /usr/share/ \
-    && cp -r cmake-3.14.4-Linux-x86_64/man /usr/share/ \
-    && cd $HOME && rm -rf  cmake-3.14.4-Linux-x86_64.tar.gz \
-    && rm -rf cmake-3.14.4-Linux-x86_64
+# download, build, install, and remove cmake-3.17.1
+RUN wget https://github.com/Kitware/CMake/releases/download/v3.17.1/cmake-3.17.1-Linux-x86_64.tar.gz \
+    && wget https://github.com/Kitware/CMake/releases/download/v3.17.1/cmake-3.17.1-SHA-256.txt \
+    && cat cmake-3.17.1-SHA-256.txt | grep cmake-3.17.1-Linux-x86_64.tar.gz | sha256sum --check \
+    && tar -xzf cmake-3.17.1-Linux-x86_64.tar.gz \
+    && cp -r cmake-3.17.1-Linux-x86_64/bin /usr/ \
+    && cp -r cmake-3.17.1-Linux-x86_64/share /usr/ \
+    && cp -r cmake-3.17.1-Linux-x86_64/doc /usr/share/ \
+    && cp -r cmake-3.17.1-Linux-x86_64/man /usr/share/ \
+    && cd $HOME && rm -rf  cmake-3.17.1-Linux-x86_64.tar.gz \
+    && rm -rf cmake-3.17.1-Linux-x86_64
 
 # install nice-to-have some dev tools
 RUN apt-get -y update && apt-get -y upgrade && apt-get install -q -y \
@@ -298,6 +305,38 @@ RUN apt-get -y update && apt-get -y upgrade && apt-get install -q -y \
     tig \
     tmux \
     tree \
+    git-extras \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN python3 -m pip install scikit-image \
+    && cd $HOME && git clone https://github.com/cocodataset/cocoapi.git \
+    && cd cocoapi/PythonAPI \
+    && python3 setup.py install
+
+RUN apt-get -y update && apt-get -y upgrade && apt-get install --reinstall -q -y \
+    python*-decorator \
+    doxygen \
+    python3-sphinx \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN python3 -m pip install --upgrade sphinx
+
+RUN python3 -m pip install sphinx_rtd_theme \
+    breathe \
+    pyserial
+
+RUN cd $HOME && git clone https://github.com/google/protobuf.git \
+    && cd protobuf && git submodule update --init --recursive \
+    && ./autogen.sh \
+    && ./configure \
+    && make && make check && make install && ldconfig
+
+RUN cd $HOME && rm -rf protobuf
+
+RUN python3 -m pip install pyyaml -I && python3 -m pip install scipy -I
+
+RUN apt-get -y update && apt-get install git-lfs -y \
+    && git lfs install \
     && rm -rf /var/lib/apt/lists/*
 
 # Taken from - https://docs.docker.com/engine/examples/running_ssh_service/#environment-variables
