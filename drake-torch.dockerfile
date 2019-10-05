@@ -214,7 +214,7 @@ RUN ./install-ompl-ubuntu.sh \
 COPY scripts/fix_bashrc.sh $HOME
 RUN ./fix_bashrc.sh && rm ./fix_bashrc.sh
 
-RUN python3 -m pip install --upgrade msgpack nose2 numpy pyside2 rospkg tqdm supervisor
+RUN python3 -m pip install --upgrade cpppo msgpack nose2 numpy pyside2 rospkg tqdm supervisor
 
 RUN cd $HOME && git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES \
     && cd $HOME/qpOASES/ && mkdir -p bin && make\
