@@ -45,6 +45,9 @@ RUN set -eux \
     python3-tk \
     python3-virtualenv \
     python3-yaml \
+    tig \
+    tmux \
+    tree \
     tzdata \
     unzip \
     vim \
@@ -278,6 +281,14 @@ RUN apt-get update && apt-get install -y \
 ## Requirements for jupyter notebook
 RUN pip3 install --ignore-installed pyzmq
 RUN pip3 install jupyter
+
+# install nice-to-have some dev tools
+RUN apt-get -y update && apt-get -y upgrade && apt-get install -q -y \
+    clang-format \
+    espeak-ng-espeak \
+    iwyu \
+    && rm -rf /var/lib/apt/lists/*
+RUN python3 -m pip install --upgrade py-espeak-ng
 
 # download, build, install, and remove cmake-3.14.4
 RUN wget https://cmake.org/files/v3.14/cmake-3.14.4-Linux-x86_64.tar.gz \
