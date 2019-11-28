@@ -288,7 +288,6 @@ RUN apt-get -y update && apt-get -y upgrade && apt-get install -q -y \
     espeak-ng-espeak \
     iwyu \
     && rm -rf /var/lib/apt/lists/*
-RUN python3 -m pip install --upgrade py-espeak-ng
 
 # download, build, install, and remove cmake-3.14.4
 RUN wget https://cmake.org/files/v3.14/cmake-3.14.4-Linux-x86_64.tar.gz \
