@@ -294,6 +294,7 @@ RUN apt-get -y update && apt-get -y upgrade && apt-get install -q -y \
     clang-format-8 \
     espeak-ng-espeak \
     iwyu \
+    ros-melodic-tf-conversions \
     tig \
     tmux \
     tree \
