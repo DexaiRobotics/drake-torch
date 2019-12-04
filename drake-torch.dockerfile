@@ -45,9 +45,6 @@ RUN set -eux \
     python3-tk \
     python3-virtualenv \
     python3-yaml \
-    tig \
-    tmux \
-    tree \
     tzdata \
     unzip \
     vim \
@@ -282,13 +279,6 @@ RUN apt-get update && apt-get install -y \
 RUN pip3 install --ignore-installed pyzmq
 RUN pip3 install jupyter
 
-# install nice-to-have some dev tools
-RUN apt-get -y update && apt-get -y upgrade && apt-get install -q -y \
-    clang-format \
-    espeak-ng-espeak \
-    iwyu \
-    && rm -rf /var/lib/apt/lists/*
-
 # download, build, install, and remove cmake-3.14.4
 RUN wget https://cmake.org/files/v3.14/cmake-3.14.4-Linux-x86_64.tar.gz \
     && tar -xzf cmake-3.14.4-Linux-x86_64.tar.gz \
@@ -298,6 +288,16 @@ RUN wget https://cmake.org/files/v3.14/cmake-3.14.4-Linux-x86_64.tar.gz \
     && cp -r cmake-3.14.4-Linux-x86_64/man /usr/share/ \
     && cd $HOME && rm -rf  cmake-3.14.4-Linux-x86_64.tar.gz \
     && rm -rf cmake-3.14.4-Linux-x86_64
+
+# install nice-to-have some dev tools
+RUN apt-get -y update && apt-get -y upgrade && apt-get install -q -y \
+    clang-format-8 \
+    espeak-ng-espeak \
+    iwyu \
+    tig \
+    tmux \
+    tree \
+    && rm -rf /var/lib/apt/lists/*
 
 # Taken from - https://docs.docker.com/engine/examples/running_ssh_service/#environment-variables
 RUN mkdir /var/run/sshd
