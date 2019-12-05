@@ -289,6 +289,17 @@ RUN wget https://cmake.org/files/v3.14/cmake-3.14.4-Linux-x86_64.tar.gz \
     && cd $HOME && rm -rf  cmake-3.14.4-Linux-x86_64.tar.gz \
     && rm -rf cmake-3.14.4-Linux-x86_64
 
+# install nice-to-have some dev tools
+RUN apt-get -y update && apt-get -y upgrade && apt-get install -q -y \
+    clang-format-8 \
+    espeak-ng-espeak \
+    iwyu \
+    ros-melodic-tf-conversions \
+    tig \
+    tmux \
+    tree \
+    && rm -rf /var/lib/apt/lists/*
+
 # Taken from - https://docs.docker.com/engine/examples/running_ssh_service/#environment-variables
 RUN mkdir /var/run/sshd
 RUN echo 'root:root' | chpasswd
