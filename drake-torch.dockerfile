@@ -1,8 +1,13 @@
 ARG BASE_IMAGE
+#=ubuntu:bionic
 FROM $BASE_IMAGE
 
 USER root
 WORKDIR /root
+
+ARG BUILD_TYPE
+RUN echo "Oh dang look at that BUILD_TYPE=${BUILD_TYPE}"
+RUN echo "Oh dang look at that BUILD_TYPE=${BASE_IMAGE}"
 
 # Set debconf to noninteractive mode.
 # https://github.com/phusion/baseimage-docker/issues/58#issuecomment-47995343
@@ -101,23 +106,19 @@ ENV TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
 ENV BUILD_CAFFE2_OPS=1
 ENV _GLIBCXX_USE_CXX11_ABI=1
 
-# CPU version
+RUN echo "Using BUILD_TYPE=${BUILD_TYPE}"
 RUN set -eux && cd $HOME \
-    && wget https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared-with-deps-latest.zip \
+    && if [ $BUILD_TYPE = "cpu" ] ; \
+    then wget https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared-with-deps-latest.zip \
     && unzip libtorch-cxx11-abi-shared-with-deps-latest.zip \
-    && mv libtorch /usr/local/lib/libtorch
-# install python pytorch and torchvision via pip
-RUN set -eux \
-    && python3 -m pip install --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
-
-# # CUDA version
-# RUN set -eux && cd $HOME \
-#    && wget https://download.pytorch.org/libtorch/nightly/cu101/libtorch-cxx11-abi-shared-with-deps-latest.zip \
-#    && unzip libtorch-cxx11-abi-shared-with-deps-latest.zip \
-#    && mv libtorch /usr/local/lib/libtorch
-# # install python pytorch and torchvision via pip
-# RUN set -eux \
-#    && python3 -m pip install --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cu101/torch_nightly.html
+    && mv libtorch /usr/local/lib/libtorch \
+    && python3 -m pip install --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html -I; \
+    else wget https://download.pytorch.org/libtorch/nightly/cu101/libtorch-cxx11-abi-shared-with-deps-latest.zip \
+    && unzip libtorch-cxx11-abi-shared-with-deps-latest.zip \
+    && mv libtorch /usr/local/lib/libtorch \
+    && python3 -m pip install --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cu101/torch_nightly.html -I; fi \
+    && python3 -m pip install ipython -I \
+    && python3 -m pip install jupyter -I
 
 # setup keys
 RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
@@ -329,9 +330,8 @@ RUN cd $HOME && git clone https://github.com/google/protobuf.git \
     && cd protobuf && git submodule update --init --recursive \
     && ./autogen.sh \
     && ./configure \
-    && make && make check && make install && ldconfig
-
-RUN cd $HOME && rm -rf protobuf
+    && make && make check && make install && ldconfig \
+    && cd $HOME && rm -rf protobuf
 
 RUN python3 -m pip install pyyaml -I && python3 -m pip install scipy -I
 
