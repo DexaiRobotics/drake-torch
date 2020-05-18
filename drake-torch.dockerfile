@@ -7,7 +7,7 @@ WORKDIR /root
 
 ARG BUILD_TYPE
 RUN echo "Oh dang look at that BUILD_TYPE=${BUILD_TYPE}"
-RUN echo "Oh dang look at that BUILD_TYPE=${BASE_IMAGE}"
+RUN echo "Oh dang look at that BASE_IMAGE=${BASE_IMAGE}"
 
 # Set debconf to noninteractive mode.
 # https://github.com/phusion/baseimage-docker/issues/58#issuecomment-47995343
