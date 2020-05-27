@@ -334,6 +334,7 @@ RUN cd $HOME && git clone https://github.com/google/protobuf.git \
     && cd $HOME && rm -rf protobuf
 
 RUN python3 -m pip install pyyaml -I && python3 -m pip install scipy -I
+RUN python3 -m pip install import-ipynb
 
 RUN apt-get -y update && apt-get install git-lfs -y \
     && git lfs install \
