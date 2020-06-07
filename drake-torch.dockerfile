@@ -86,10 +86,10 @@ RUN set -eux \
     && cd $HOME && rm -rf gtest
 
 # pip install python packages for toppra, qpOASES, pytorch
-RUN python3 -m pip install --upgrade pip
+RUN python3 -m pip install --upgrade setuptools wheel pip
 RUN python3 -m pip install --upgrade cython defusedxml \
-    netifaces setuptools wheel msgpack \
-    nose2 numpy pyside2 rospkg numpy mkl mkl-include \
+    netifaces msgpack \
+    nose2 pyside2 rospkg numpy mkl mkl-include \
     cffi typing ecos visdom opencv-python munch
 
 # Intel MKL installation
@@ -220,6 +220,10 @@ RUN ./install-ompl-ubuntu.sh \
 COPY scripts/fix_bashrc.sh $HOME
 RUN ./fix_bashrc.sh && rm ./fix_bashrc.sh
 
+# pip install pydrake using the /opt/drake directory in develop mode
+COPY scripts/setup_pydrake.py /opt/drake/lib/python3.6/site-packages/setup.py
+RUN python3 -m pip install -e /opt/drake/lib/python3.6/site-packages
+
 RUN python3 -m pip install --upgrade cpppo msgpack nose2 numpy pyside2 rospkg tqdm supervisor
 
 RUN cd $HOME && git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES \
@@ -228,7 +232,7 @@ RUN cd $HOME && git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES 
 
 # # Use Dexai fork, NOT: git clone https://github.com/hungpham2511/toppra $HOME/toppra
 RUN cd $HOME && git clone https://github.com/DexaiRobotics/toppra && cd toppra/ \
-    && pip3 install -r requirements3.txt \
+    && python3 -m pip install -r requirements3.txt \
     && python3 setup.py install \
     && cd $HOME
 
@@ -280,11 +284,6 @@ RUN apt-get update && apt-get install -y \
     openssh-server gdb gdbserver rsync python3-dbg python3-numpy-dbg \
     && rm -rf /var/lib/apt/lists/*
 
-
-## Requirements for jupyter notebook
-RUN pip3 install --ignore-installed pyzmq
-RUN pip3 install jupyter
-
 # download, build, install, and remove cmake-3.17.1
 RUN wget https://github.com/Kitware/CMake/releases/download/v3.17.1/cmake-3.17.1-Linux-x86_64.tar.gz \
     && wget https://github.com/Kitware/CMake/releases/download/v3.17.1/cmake-3.17.1-SHA-256.txt \
@@ -298,7 +297,7 @@ RUN wget https://github.com/Kitware/CMake/releases/download/v3.17.1/cmake-3.17.1
     && rm -rf cmake-3.17.1-Linux-x86_64
 
 # install nice-to-have some dev tools
-RUN apt-get -y update && apt-get -y upgrade && apt-get install -q -y \
+RUN apt install -q -y \
     clang-format-8 \
     espeak-ng-espeak \
     iwyu \
@@ -306,25 +305,16 @@ RUN apt-get -y update && apt-get -y upgrade && apt-get install -q -y \
     tig \
     tmux \
     tree \
-    git-extras \
-    && rm -rf /var/lib/apt/lists/*
+    htop \
+    git-extras
 
-RUN python3 -m pip install scikit-image \
-    && cd $HOME && git clone https://github.com/cocodataset/cocoapi.git \
-    && cd cocoapi/PythonAPI \
-    && python3 setup.py install
+RUN apt install git-lfs -y \
+    && git lfs install
 
-RUN apt-get -y update && apt-get -y upgrade && apt-get install --reinstall -q -y \
+RUN apt install --reinstall -q -y \
     python*-decorator \
     doxygen \
-    python3-sphinx \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN python3 -m pip install --upgrade sphinx
-
-RUN python3 -m pip install sphinx_rtd_theme \
-    breathe \
-    pyserial
+    python3-sphinx
 
 RUN cd $HOME && git clone https://github.com/google/protobuf.git \
     && cd protobuf && git submodule update --init --recursive \
@@ -333,12 +323,12 @@ RUN cd $HOME && git clone https://github.com/google/protobuf.git \
     && make && make check && make install && ldconfig \
     && cd $HOME && rm -rf protobuf
 
-RUN python3 -m pip install pyyaml -I && python3 -m pip install scipy -I
-RUN python3 -m pip install import-ipynb
+# post install cleanup
+RUN rm -rf /var/lib/apt/lists/*
 
-RUN apt-get -y update && apt-get install git-lfs -y \
-    && git lfs install \
-    && rm -rf /var/lib/apt/lists/*
+RUN python3 -m pip install -U \
+    pyyaml pyserial pyzmq scipy \
+    scikit-image sphinx sphinx_rtd_theme breathe import-ipynb jupyter
 
 # Taken from - https://docs.docker.com/engine/examples/running_ssh_service/#environment-variables
 RUN mkdir /var/run/sshd
