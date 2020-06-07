@@ -220,6 +220,10 @@ RUN ./install-ompl-ubuntu.sh \
 COPY scripts/fix_bashrc.sh $HOME
 RUN ./fix_bashrc.sh && rm ./fix_bashrc.sh
 
+# pip install pydrake using the /opt/drake directory in develop mode
+COPY scripts/setup_pydrake.py /opt/drake/lib/python3.6/site-packages/setup.py
+RUN pip install -e /opt/drake/lib/python3.6/site-packages
+
 RUN python3 -m pip install --upgrade cpppo msgpack nose2 numpy pyside2 rospkg tqdm supervisor
 
 RUN cd $HOME && git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES \

@@ -42,9 +42,5 @@ export ROS_PYTHON_VERSION=3
 # this always needs to be first in the path
 export PYTHONPATH=/opt/ros/melodic/lib/python3/dist-packages/:$PYTHONPATH
 
-if ! grep -q /opt/drake/lib/python3.6/site-packages <<< "$PYTHONPATH"; then
-    export PYTHONPATH=$PYTHONPATH:/opt/drake/lib/python3.6/site-packages
-fi
-
 export PS1="\[\033[36m\]\u\[\033[m\]@\[\033[32m\] \[\033[33;1m\]\w\[\033[m\] (\$(git branch 2>/dev/null | grep '^*' | colrm 1 2)) \$ "
 EOF
