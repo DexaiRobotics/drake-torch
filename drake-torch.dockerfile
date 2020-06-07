@@ -86,7 +86,7 @@ RUN set -eux \
     && cd $HOME && rm -rf gtest
 
 # pip install python packages for toppra, qpOASES, pytorch
-RUN pip3 install -U setuptools wheel pip
+RUN python3 -m pip install --upgrade setuptools wheel pip
 RUN python3 -m pip install --upgrade cython defusedxml \
     netifaces msgpack \
     nose2 pyside2 rospkg numpy mkl mkl-include \
@@ -222,7 +222,7 @@ RUN ./fix_bashrc.sh && rm ./fix_bashrc.sh
 
 # pip install pydrake using the /opt/drake directory in develop mode
 COPY scripts/setup_pydrake.py /opt/drake/lib/python3.6/site-packages/setup.py
-RUN pip3 install -e /opt/drake/lib/python3.6/site-packages
+RUN python3 -m pip install -e /opt/drake/lib/python3.6/site-packages
 
 RUN python3 -m pip install --upgrade cpppo msgpack nose2 numpy pyside2 rospkg tqdm supervisor
 
@@ -331,7 +331,7 @@ RUN cd $HOME && git clone https://github.com/google/protobuf.git \
 # post install cleanup
 RUN rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install -U \
+RUN python3 -m pip install -U \
     pyyaml pyserial scipy \
     scikit-image sphinx sphinx_rtd_theme breathe import-ipynb
 
