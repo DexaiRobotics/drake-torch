@@ -232,7 +232,7 @@ RUN cd $HOME && git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES 
 
 # # Use Dexai fork, NOT: git clone https://github.com/hungpham2511/toppra $HOME/toppra
 RUN cd $HOME && git clone https://github.com/DexaiRobotics/toppra && cd toppra/ \
-    && pip3 install -r requirements3.txt \
+    && python3 -m pip install -r requirements3.txt \
     && python3 setup.py install \
     && cd $HOME
 
@@ -284,11 +284,6 @@ RUN apt-get update && apt-get install -y \
     openssh-server gdb gdbserver rsync python3-dbg python3-numpy-dbg \
     && rm -rf /var/lib/apt/lists/*
 
-
-## Requirements for jupyter notebook
-RUN pip3 install --ignore-installed pyzmq
-RUN pip3 install jupyter
-
 # download, build, install, and remove cmake-3.17.1
 RUN wget https://github.com/Kitware/CMake/releases/download/v3.17.1/cmake-3.17.1-Linux-x86_64.tar.gz \
     && wget https://github.com/Kitware/CMake/releases/download/v3.17.1/cmake-3.17.1-SHA-256.txt \
@@ -332,8 +327,8 @@ RUN cd $HOME && git clone https://github.com/google/protobuf.git \
 RUN rm -rf /var/lib/apt/lists/*
 
 RUN python3 -m pip install -U \
-    pyyaml pyserial scipy \
-    scikit-image sphinx sphinx_rtd_theme breathe import-ipynb
+    pyyaml pyserial pyzmq scipy \
+    scikit-image sphinx sphinx_rtd_theme breathe import-ipynb jupyter
 
 # Taken from - https://docs.docker.com/engine/examples/running_ssh_service/#environment-variables
 RUN mkdir /var/run/sshd
