@@ -71,13 +71,15 @@ RUN wget https://github.com/Kitware/CMake/releases/download/v3.17.1/cmake-3.17.1
     && cd $HOME && rm -rf  cmake-3.17.1-Linux-x86_64.tar.gz \
     && rm -rf cmake-3.17.1-Linux-x86_64
 
-# install the latest drake (dependencies and the binary)
+# install the latest stable drake release (dependencies and the binary)
+# see https://github.com/RobotLocomotion/drake/releases
 RUN set -eux \
     && mkdir -p /opt \
-    && curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-bionic.tar.gz | tar -xzC /opt \
+    && curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-20200514-bionic.tar.gz | tar -xzC /opt \
+    # && curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-bionic.tar.gz | tar -xzC /opt \
     && cd /opt/drake/share/drake/setup && yes | ./install_prereqs \
     && rm -rf /var/lib/apt/lists/* \
-    && cd $HOME && rm -rf drake-latest-bionic.tar.gz
+    && cd $HOME && rm -rf drake*bionic.tar.gz
 
 # gtest per recommended method
 RUN set -eux \
