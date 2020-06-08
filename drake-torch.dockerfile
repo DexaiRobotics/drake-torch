@@ -245,9 +245,8 @@ RUN cd $HOME && git clone https://github.com/ros/urdf_parser_py && cd urdf_parse
     && cd $HOME && rm -rf urdf_parser_py
 
 # Install C++ version of msgpack-c (actually for both C and C++)
-RUN git clone https://github.com/msgpack/msgpack-c.git \
-    && mkdir -p msgpack-c/build && cd msgpack-c/build \
-    && cmake -DMSGPACK_CXX11=ON .. && make -j 4 && make install \
+RUN git clone -b cpp_master https://github.com/msgpack/msgpack-c.git \
+    && cmake -DMSGPACK_CXX17=ON . && make install \
     && cd $HOME && rm -rf msgpack-c
 
 # cnpy enables serialization of numpy files .npy and .npz
