@@ -14,6 +14,10 @@ The current version is built based on `nvidia-driver-410.48` and `cuda-10-0`.
 ### installing cuDNN
 ### installing nvidia-docker
 
+## Building on Jenkins
+
+The `Jenkinsfile` is a script that specifies the build process for CUDA and CPU images. There are two `dig` stages included in the end, to test compatiblity of `dig` with `drake` in case of drake updates. The `dig` build stages runs `fullstack/src/build_dexai_stack.sh`.
+
 # publishing drake-torch to docker hub
 (1) tag the new version both as `<type>_latest` and as `<type>_<date>` in `YYYYMMDD` format where `<type>` is `cuda` or `cpu`
 
