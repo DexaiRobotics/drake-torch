@@ -227,7 +227,7 @@ RUN ./fix_bashrc.sh && rm ./fix_bashrc.sh
 COPY scripts/setup_pydrake.py /opt/drake/lib/python3.6/site-packages/setup.py
 RUN python3 -m pip install -e /opt/drake/lib/python3.6/site-packages
 
-RUN python3 -m pip install --upgrade cpppo msgpack nose2 numpy pyside2 rospkg tqdm supervisor
+RUN python3 -m pip install --upgrade cpppo nose2 numpy pyside2 rospkg tqdm supervisor
 
 RUN cd $HOME && git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES \
     && cd $HOME/qpOASES/ && mkdir -p bin && make\
@@ -246,7 +246,7 @@ RUN cd $HOME && git clone https://github.com/ros/urdf_parser_py && cd urdf_parse
 
 # Install C++ version of msgpack-c (actually for both C and C++)
 RUN git clone -b cpp_master https://github.com/msgpack/msgpack-c.git \
-    && cmake -DMSGPACK_CXX17=ON . && make install \
+    && cd msgpack-c && cmake -DMSGPACK_CXX17=ON . && make install \
     && cd $HOME && rm -rf msgpack-c
 
 # cnpy enables serialization of numpy files .npy and .npz
