@@ -84,7 +84,7 @@ RUN python3 -m pip install -U setuptools wheel pip
 RUN wget -q https://github.com/Kitware/CMake/releases/download/v3.17.3/cmake-3.17.3-Linux-x86_64.sh \
     && wget -q https://github.com/Kitware/CMake/releases/download/v3.17.3/cmake-3.17.3-SHA-256.txt \
     && cat cmake-3.17.3-SHA-256.txt | grep cmake-3.17.3-Linux-x86_64.sh | sha256sum --check \
-    && ./cmake-3.17.3-Linux-x86_64.sh \
+    && bash cmake-3.17.3-Linux-x86_64.sh \
     && rm -rf cmake-*
 
 # gtest per recommended method
