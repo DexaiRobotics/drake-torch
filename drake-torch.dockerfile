@@ -33,7 +33,7 @@ RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E
 RUN set -eux \
     && echo 'Etc/UTC' > /etc/timezone && \
     ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime && \
-    apt-get update && apt-get install -q -y \
+    apt-get update && apt-get install -qy \
     apt-utils \
     openssh-server \
     curl \
@@ -84,7 +84,7 @@ RUN python3 -m pip install -U setuptools wheel pip
 RUN wget -q https://github.com/Kitware/CMake/releases/download/v3.17.3/cmake-3.17.3-Linux-x86_64.sh \
     && wget -q https://github.com/Kitware/CMake/releases/download/v3.17.3/cmake-3.17.3-SHA-256.txt \
     && cat cmake-3.17.3-SHA-256.txt | grep cmake-3.17.3-Linux-x86_64.sh | sha256sum --check \
-    && bash cmake-3.17.3-Linux-x86_64.sh -y\
+    && yes yes | bash cmake-3.17.3-Linux-x86_64.sh \
     && rm -rf cmake-*
 
 # gtest per recommended method
@@ -188,7 +188,7 @@ RUN set -eux && cd $HOME \
 RUN echo "deb http://packages.ros.org/ros/ubuntu `lsb_release -sc` main" > /etc/apt/sources.list.d/ros-latest.list
 
 # install needed ROS packages
-RUN apt-get update && apt-get install -q -y \
+RUN apt-get update && apt-get install -qy \
     dirmngr \
     librosconsole-dev \
     libxmlrpcpp-dev \
@@ -197,7 +197,7 @@ RUN apt-get update && apt-get install -q -y \
     && rm -rf /var/lib/apt/lists/*
 
 # install bootstrap tools
-RUN apt-get update && apt-get install --no-install-recommends -y \
+RUN apt-get update && apt-get install --no-install-recommends -qy \
     python3-rosdep \
     python3-rosinstall \
     python3-vcstools \
@@ -352,7 +352,7 @@ RUN cd $HOME && git clone https://github.com/frankaemika/libfranka.git \
 #     && rm -rf cmake-3.17.1-Linux-x86_64
 
 # install nice-to-have some dev tools
-RUN apt-get update && apt-get install -q -y \
+RUN apt-get update && apt-get install -qy \
     htop \
     nano \
     tig \
