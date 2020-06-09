@@ -62,8 +62,8 @@ RUN set -eux \
     && rm -rf /var/lib/apt/lists/*
 
 # download, build, install, and remove cmake-3.17.1
-RUN wget https://github.com/Kitware/CMake/releases/download/v3.17.1/cmake-3.17.1-Linux-x86_64.tar.gz \
-    && wget https://github.com/Kitware/CMake/releases/download/v3.17.1/cmake-3.17.1-SHA-256.txt \
+RUN wget -q https://github.com/Kitware/CMake/releases/download/v3.17.1/cmake-3.17.1-Linux-x86_64.tar.gz \
+    && wget -q https://github.com/Kitware/CMake/releases/download/v3.17.1/cmake-3.17.1-SHA-256.txt \
     && cat cmake-3.17.1-SHA-256.txt | grep cmake-3.17.1-Linux-x86_64.tar.gz | sha256sum --check \
     && tar -xzf cmake-3.17.1-Linux-x86_64.tar.gz \
     && cp -r cmake-3.17.1-Linux-x86_64/bin /usr/ \
@@ -99,7 +99,7 @@ RUN python3 -m pip install --upgrade cython defusedxml \
 
 # Intel MKL installation
 
-RUN wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
+RUN wget -q https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
 RUN apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB && rm GPG-PUB*
 RUN sh -c 'echo deb https://apt.repos.intel.com/mkl all main > /etc/apt/sources.list.d/intel-mkl.list'
 RUN apt-get update && apt-get -y install intel-mkl-64bit-2019.1-053
@@ -114,11 +114,11 @@ ENV _GLIBCXX_USE_CXX11_ABI=1
 RUN echo "Using BUILD_TYPE=${BUILD_TYPE}"
 RUN set -eux && cd $HOME \
     && if [ $BUILD_TYPE = "cpu" ] ; \
-    then wget https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared-with-deps-latest.zip \
+    then wget -q https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared-with-deps-latest.zip \
     && unzip libtorch-cxx11-abi-shared-with-deps-latest.zip \
     && mv libtorch /usr/local/lib/libtorch \
     && python3 -m pip install --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html -I; \
-    else wget https://download.pytorch.org/libtorch/nightly/cu101/libtorch-cxx11-abi-shared-with-deps-latest.zip \
+    else wget -q https://download.pytorch.org/libtorch/nightly/cu101/libtorch-cxx11-abi-shared-with-deps-latest.zip \
     && unzip libtorch-cxx11-abi-shared-with-deps-latest.zip \
     && mv libtorch /usr/local/lib/libtorch \
     && python3 -m pip install --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cu101/torch_nightly.html -I; fi \
@@ -289,8 +289,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # download, build, install, and remove cmake-3.17.1
-RUN wget https://github.com/Kitware/CMake/releases/download/v3.17.1/cmake-3.17.1-Linux-x86_64.tar.gz \
-    && wget https://github.com/Kitware/CMake/releases/download/v3.17.1/cmake-3.17.1-SHA-256.txt \
+RUN wget -q https://github.com/Kitware/CMake/releases/download/v3.17.1/cmake-3.17.1-Linux-x86_64.tar.gz \
+    && wget -q https://github.com/Kitware/CMake/releases/download/v3.17.1/cmake-3.17.1-SHA-256.txt \
     && cat cmake-3.17.1-SHA-256.txt | grep cmake-3.17.1-Linux-x86_64.tar.gz | sha256sum --check \
     && tar -xzf cmake-3.17.1-Linux-x86_64.tar.gz \
     && cp -r cmake-3.17.1-Linux-x86_64/bin /usr/ \
