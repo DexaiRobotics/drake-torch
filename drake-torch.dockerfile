@@ -92,7 +92,7 @@ RUN set -eux \
 RUN python3 -m pip install --upgrade --no-cache-dir --compile \
     typing \
     decorator \
-    # cython \
+    cython \
     numpy \
     scipy \
     defusedxml \
