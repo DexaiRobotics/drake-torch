@@ -13,8 +13,10 @@ RUN echo "Oh dang look at that BASE_IMAGE=${BASE_IMAGE}"
 # https://github.com/phusion/baseimage-docker/issues/58#issuecomment-47995343
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
 
-RUN apt update && apt install -y gnupg2
+RUN apt-get update && apt-get upgrade -y
 
+# GPG setup
+RUN apt-get install -y gnupg2
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
 
 # setup timezone, install python3 and required modules
@@ -23,7 +25,7 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
 RUN set -eux \
     && echo 'Etc/UTC' > /etc/timezone && \
     ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime && \
-    apt update -y && apt upgrade -y && apt install -q -y \
+    apt-get install -q -y \
     apt-utils \
     curl \
     g++ \
