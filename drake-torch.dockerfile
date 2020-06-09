@@ -70,22 +70,17 @@ RUN set -eux \
 
 RUN python3 -m pip install -U setuptools wheel pip
 
-# cmake-3.17.1, download, build, install, and remove
-# RUN wget -q https://github.com/Kitware/CMake/releases/download/v3.17.1/cmake-3.17.1-Linux-x86_64.tar.gz \
-#     && wget -q https://github.com/Kitware/CMake/releases/download/v3.17.1/cmake-3.17.1-SHA-256.txt \
-#     && cat cmake-3.17.1-SHA-256.txt | grep cmake-3.17.1-Linux-x86_64.tar.gz | sha256sum --check \
-#     && tar -xzf cmake-3.17.1-Linux-x86_64.tar.gz \
-#     && cp -r cmake-3.17.1-Linux-x86_64/bin /usr/ \
-#     && cp -r cmake-3.17.1-Linux-x86_64/share /usr/ \
-#     && cp -r cmake-3.17.1-Linux-x86_64/doc /usr/share/ \
-#     && cp -r cmake-3.17.1-Linux-x86_64/man /usr/share/ \
-#     && cd $HOME && rm -rf  cmake-3.17.1-Linux-x86_64.tar.gz \
-#     && rm -rf cmake-3.17.1-Linux-x86_64
-RUN wget -q https://github.com/Kitware/CMake/releases/download/v3.17.3/cmake-3.17.3-Linux-x86_64.sh \
+# cmake-3.17.3, download, build, install, and remove
+RUN wget -q https://github.com/Kitware/CMake/releases/download/v3.17.3/cmake-3.17.3-Linux-x86_64.tar.gz \
     && wget -q https://github.com/Kitware/CMake/releases/download/v3.17.3/cmake-3.17.3-SHA-256.txt \
-    && cat cmake-3.17.3-SHA-256.txt | grep cmake-3.17.3-Linux-x86_64.sh | sha256sum --check \
-    && yes yes | bash cmake-3.17.3-Linux-x86_64.sh \
-    && rm -rf cmake-*
+    && cat cmake-3.17.3-SHA-256.txt | grep cmake-3.17.3-Linux-x86_64.tar.gz | sha256sum --check \
+    && tar -xzf cmake-3.17.3-Linux-x86_64.tar.gz \
+    && cp -r cmake-3.17.3-Linux-x86_64/bin /usr/ \
+    && cp -r cmake-3.17.3-Linux-x86_64/share /usr/ \
+    && cp -r cmake-3.17.3-Linux-x86_64/doc /usr/share/ \
+    && cp -r cmake-3.17.3-Linux-x86_64/man /usr/share/ \
+    && cd $HOME && rm -rf  cmake-3.17.3-Linux-x86_64.tar.gz \
+    && rm -rf cmake-3.17.3-Linux-x86_64
 
 # gtest per recommended method
 RUN set -eux \
