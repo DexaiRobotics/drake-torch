@@ -16,7 +16,7 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
 RUN apt-get update && apt-get upgrade -y
 
 # GPG setup
-RUN apt-get install -y gnupg2
+RUN apt-get update && apt-get install -y gnupg2
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
 
 # setup timezone, install python3 and required modules
@@ -25,7 +25,7 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
 RUN set -eux \
     && echo 'Etc/UTC' > /etc/timezone && \
     ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime && \
-    apt-get install -q -y \
+    apt-get update && apt-get install -q -y \
     apt-utils \
     curl \
     g++ \
@@ -301,7 +301,7 @@ RUN wget https://github.com/Kitware/CMake/releases/download/v3.17.1/cmake-3.17.1
     && rm -rf cmake-3.17.1-Linux-x86_64
 
 # install nice-to-have some dev tools
-RUN apt-get install -q -y \
+RUN apt-get update && apt-get install -q -y \
     clang-format-8 \
     espeak-ng-espeak \
     iwyu \
@@ -312,10 +312,10 @@ RUN apt-get install -q -y \
     htop \
     git-extras
 
-RUN apt-get install git-lfs -y \
+RUN apt-get update && apt-get install git-lfs -y \
     && git lfs install
 
-RUN apt-get install --reinstall -q -y \
+RUN apt-get update && apt-get install --reinstall -q -y \
     python*-decorator \
     doxygen \
     python3-sphinx
