@@ -6,13 +6,13 @@ pipeline {
     agent any
     stages {
         
-        stage('clone_drake-torch') {
-            steps {
-                echo "starting in $PWD"
-                git branch: 'master', url: 'https://github.com/DexaiRobotics/drake-torch.git'
-                echo "moved to $PWD"
-            }
-        }
+        // stage('clone_drake-torch') {
+        //     steps {
+        //         echo "starting in $PWD"
+        //         git branch: 'master', url: 'https://github.com/DexaiRobotics/drake-torch.git'
+        //         echo "moved to $PWD"
+        //     }
+        // }
 
         stage('build_cpu') {
             steps {
