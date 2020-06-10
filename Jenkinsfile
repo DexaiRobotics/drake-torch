@@ -116,7 +116,7 @@ pipeline {
                         sh "cd /root && ls"
                         sh "cd / && ln -s $WORKSPACE/src /src"
                         // sh "cd /src/traj_lib2 && git lfs install && git lfs update && git lfs pull && git lfs env"
-                        sh "cd /src && ls && ./build_dexai_stack.sh --dig"
+                        sh "cd /src && ls && ./build_symlinks.sh && ./build_dexai_stack.sh --dig"
                         // sh "./bootstrap.sh --cuda"
                         // sh 'find . -user root -name \'*\' | xargs chmod ugo+rw'
                         sh 'ls'
@@ -170,7 +170,7 @@ pipeline {
                         sh "cd /root && ls"
                         sh "cd / && ln -s $WORKSPACE/src /src"
                         // sh "cd /src/traj_lib2 && git lfs install && git lfs update && git lfs pull && git lfs env"
-                        sh "cd /src && ls && ./build_dexai_stack.sh --dig"
+                        sh "cd /src && ls && ./build_symlinks.sh && ./build_dexai_stack.sh --dig"
                         // sh "./bootstrap.sh --cuda"
                         // sh 'find . -user root -name \'*\' | xargs chmod ugo+rw'
                         sh 'ls'
