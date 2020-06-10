@@ -17,7 +17,6 @@ RUN echo "Oh dang look at that BASE_IMAGE=${BASE_IMAGE}"
 # https://github.com/phusion/baseimage-docker/issues/58#issuecomment-47995343
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
 
-
 RUN apt-get update \
     && apt-get upgrade -y \
     && rm -rf /var/lib/apt/lists/*
