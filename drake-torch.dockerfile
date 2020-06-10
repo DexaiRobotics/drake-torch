@@ -283,7 +283,7 @@ RUN ./install-ompl-ubuntu.sh \
 RUN cd $HOME && git clone https://github.com/ros/urdf_parser_py && cd urdf_parser_py \
     && python3 setup.py install \
     && cd $HOME && rm -rf urdf_parser_py
-R
+
 ########################################################
 # bash fix: for broken interactive shell detection
 ########################################################
