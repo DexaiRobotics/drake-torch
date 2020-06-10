@@ -162,7 +162,7 @@ RUN cmake --version
 
 # pip install pydrake using the /opt/drake directory in develop mode
 COPY scripts/setup_pydrake.py /opt/drake/lib/python3.6/site-packages/setup.py
-RUN python3 -m pip install -e --no-cache-dir --compile /opt/drake/lib/python3.6/site-packages
+RUN python3 -m pip install -e /opt/drake/lib/python3.6/site-packages
 
 ########################################################
 # intel MKL
