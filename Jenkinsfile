@@ -27,24 +27,6 @@ pipeline {
             }
         }
 
-        // stage('build_cuda') {
-        //     steps {
-        //         echo "starting in $PWD"
-        //         sh "cd $WORKSPACE"
-        //         sh "ls"
-        //         sh "./build.sh --cuda"
-        //     }
-        // }
-
-        // stage('build_cpu') {
-        //     steps {
-        //         echo "starting in $PWD"
-        //         sh "cd $WORKSPACE"
-        //         sh "ls"
-        //         sh "./build.sh --cpu"
-        //     }
-        // }
-
         stage('test_dockers') {
             steps {
                 echo "starting in $PWD"
@@ -69,7 +51,6 @@ pipeline {
                     }
                     options { retry(0) }
                     steps {
-                        
                         // sh 'find -L . -type l | xargs rm'
                         sh 'ls'
                         sh 'rm -rf src'
@@ -77,7 +58,7 @@ pipeline {
                         // deleteDir()
                         echo "starting in $PWD"
                         // git branch: 'dmsj.nightly.dig_initial', credentialsId: 'b33c5d11-c5ae-4b37-9f8e-9c67850e8af4', url: 'git@github.com:DexaiRobotics/fullstack.git'
-                        
+
                         checkout([$class: 'GitSCM',
                             branches: [[name: 'dyt.ci']],
                             doGenerateSubmoduleConfigurations: false,
@@ -109,8 +90,6 @@ pipeline {
                         sh "cd / && ln -s $WORKSPACE/src /src"
                         // sh "cd /src/traj_lib2 && git lfs install && git lfs update && git lfs pull && git lfs env"
                         sh "cd /src && ls && ./build_symlinks.sh && ./build_dexai_stack.sh --dig"
-                        // sh "./bootstrap.sh --cuda"
-                        // sh 'find . -user root -name \'*\' | xargs chmod ugo+rw'
                         sh 'ls'
                         sh 'rm -rf src'
                     }
@@ -130,7 +109,6 @@ pipeline {
                         sh 'ls'
                         sh 'rm -rf src'
                         echo "starting in $PWD"
-                        // git branch: 'dmsj.nightly.dig_initial', credentialsId: 'b33c5d11-c5ae-4b37-9f8e-9c67850e8af4', url: 'git@github.com:DexaiRobotics/fullstack.git'
                         
                         checkout([$class: 'GitSCM',
                             branches: [[name: 'dyt.ci']],
@@ -161,10 +139,7 @@ pipeline {
                         sh "whoami"
                         sh "cd /root && ls"
                         sh "cd / && ln -s $WORKSPACE/src /src"
-                        // sh "cd /src/traj_lib2 && git lfs install && git lfs update && git lfs pull && git lfs env"
                         sh "cd /src && ls && ./build_symlinks.sh && ./build_dexai_stack.sh --dig"
-                        // sh "./bootstrap.sh --cuda"
-                        // sh 'find . -user root -name \'*\' | xargs chmod ugo+rw'
                         sh 'ls'
                         sh 'rm -rf src'
                     }
