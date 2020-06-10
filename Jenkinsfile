@@ -64,7 +64,7 @@ pipeline {
             }
         }
 
-        stage('build_deploy_images') {
+        stage('dig_compability_tests') {
             parallel {
                 stage('dig_cuda') {
                     agent {
