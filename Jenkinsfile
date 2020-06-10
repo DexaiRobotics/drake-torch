@@ -14,23 +14,45 @@ pipeline {
         //     }
         // }
 
-        stage('build_cpu') {
-            steps {
-                echo "starting in $PWD"
-                sh "cd $WORKSPACE"
-                sh "ls"
-                sh "./build.sh --cpu"
+        stage('build_deploy_images') {
+            parallel {
+                stage('build_cuda') {
+                    steps {
+                        echo "starting in $PWD"
+                        sh "cd $WORKSPACE"
+                        sh "ls"
+                        sh "./build.sh --cuda"
+                    }
+                }
+                stage('build_cpu') {
+                    steps {
+                        echo "starting in $PWD"
+                        sh "cd $WORKSPACE"
+                        sh "ls"
+                        sh "./build.sh --cpu"
+                    }
+                }
             }
         }
 
-        stage('build_cuda') {
-            steps {
-                echo "starting in $PWD"
-                sh "cd $WORKSPACE"
-                sh "ls"
-                sh "./build.sh --cuda"
-            }
-        }
+        // stage('build_cuda') {
+        //     steps {
+        //         echo "starting in $PWD"
+        //         sh "cd $WORKSPACE"
+        //         sh "ls"
+        //         sh "./build.sh --cuda"
+        //     }
+        // }
+
+        // stage('build_cpu') {
+        //     steps {
+        //         echo "starting in $PWD"
+        //         sh "cd $WORKSPACE"
+        //         sh "ls"
+        //         sh "./build.sh --cpu"
+        //     }
+        // }
+
         stage('test_dockers') {
             steps {
                 echo "starting in $PWD"
