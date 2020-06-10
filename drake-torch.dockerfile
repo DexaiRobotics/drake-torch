@@ -310,11 +310,11 @@ RUN git clone -b cpp_master https://github.com/msgpack/msgpack-c.git \
     && cd msgpack-c && cmake -DMSGPACK_CXX17=ON . && make install \
     && cd $HOME && rm -rf msgpack-c
 
-# cnpy lets you read and write numpy formats in C++
-# RUN git clone https://github.com/rogersce/cnpy.git \
-#     && mkdir -p cnpy/build && cd cnpy/build \
-#     && cmake .. && make -j 4 && make install \
-#     && cd $HOME && rm -rf cnpy
+# cnpy lets you read and write numpy formats in C++, needed by libstuffgetter.so
+RUN git clone https://github.com/rogersce/cnpy.git \
+    && mkdir -p cnpy/build && cd cnpy/build \
+    && cmake .. && make -j 4 && make install \
+    && cd $HOME && rm -rf cnpy
 
 # librealsense and the realsense SDK
 RUN apt-key adv --keyserver keys.gnupg.net --recv-key C8B3A55A6F3EFCDE \
