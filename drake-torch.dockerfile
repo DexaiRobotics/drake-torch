@@ -36,13 +36,18 @@ RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/nul
     | gpg --dearmor - | sudo tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
 
 # apt repo setup in addition to default (cmake etc.)
-RUN apt-add-repository 'deb https://apt.kitware.com/ubuntu/ bionic main'
+RUN apt-add-repository 'deb https://apt.kitware.com/ubuntu/ bionic main' \
+    && apt-add-repository 'deb https://apt.kitware.com/ubuntu/ bionic-rc main'
+
+# ensure keyring for cmake stays up to date as kitware rotates their keys
+RUN apt-get install kitware-archive-keyring \
+    && rm /etc/apt/trusted.gpg.d/kitware.gpg
 
 # setup timezone, install python3 and essential with apt and others with pip
 # Install Protobuf Compiler, asked for by Cmake Find for protobuf. Installation suppresses a warning in camke.
 # Drake needs protobuf, but not the protobuf compiler, therefore "install_prereqs" does not ask for it.
 RUN set -eux \
-    && echo 'Etc/UTC' > /etc/timezone && \
+    && echo 'etc/UTC' > /etc/timezone && \
     ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime && \
     apt-get update && apt-get install -qy \
     apt-utils \
@@ -80,7 +85,8 @@ RUN set -eux \
     && rm -rf /var/lib/apt/lists/*
 RUN cmake --version
 
-RUN python3 -m pip install -U setuptools wheel pip
+RUN python3 -m pip install --upgrade --no-cache-dir --compile \
+    setuptools wheel pip
 
 # we have to apt-install cmake so the system thinks it is already installed
 # then update make to the latest version manually as apt is old
@@ -157,7 +163,7 @@ RUN cmake --version
 
 # pip install pydrake using the /opt/drake directory in develop mode
 COPY scripts/setup_pydrake.py /opt/drake/lib/python3.6/site-packages/setup.py
-RUN python3 -m pip install -e /opt/drake/lib/python3.6/site-packages
+RUN python3 -m pip install -e --no-cache-dir --compile /opt/drake/lib/python3.6/site-packages
 
 ########################################################
 # intel MKL
@@ -182,17 +188,11 @@ RUN set -eux && cd $HOME \
     then wget -q https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared-with-deps-latest.zip \
     && unzip libtorch-cxx11-abi-shared-with-deps-latest.zip \
     && mv libtorch /usr/local/lib/libtorch \
-    && python3 -m pip install --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html -I; \
+    && python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html -I; \
     else wget -q https://download.pytorch.org/libtorch/nightly/cu101/libtorch-cxx11-abi-shared-with-deps-latest.zip \
     && unzip libtorch-cxx11-abi-shared-with-deps-latest.zip \
     && mv libtorch /usr/local/lib/libtorch \
-    && python3 -m pip install --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cu101/torch_nightly.html -I; fi \
-    # && python3 -m pip install ipython -I \
-    && python3 -m pip install jupyter -I
-
-# setup keys
-# RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
-# RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
+    && python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cu101/torch_nightly.html -I; fi
 
 ########################################################
 # ROS
@@ -254,7 +254,7 @@ RUN cd $HOME && mkdir -p py3_ws/src && cd py3_ws/src \
     && git clone -b melodic https://github.com/ros-perception/vision_opencv.git \
     && git clone -b melodic-devel https://github.com/ros/ros_comm.git \
     && cd $HOME/py3_ws \
-    && python3 -m pip install catkin_tools pycryptodomex \
+    && python3 -m pip install --upgrade --no-cache-dir --compile catkin_tools pycryptodomex \
     && source /opt/ros/melodic/setup.bash \
     && export ROS_PYTHON_VERSION=3 \
     && catkin config --install \
@@ -311,7 +311,7 @@ RUN cd $HOME && git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES 
 
 # toppra: Dexai fork
 RUN cd $HOME && git clone https://github.com/DexaiRobotics/toppra && cd toppra/ \
-    && python3 -m pip install -r requirements3.txt \
+    && python3 -m pip install --upgrade --no-cache-dir --compile -r requirements3.txt \
     && python3 setup.py install \
     && cd $HOME
 
