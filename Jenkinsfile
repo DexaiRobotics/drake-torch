@@ -5,16 +5,8 @@ pipeline {
     }
     agent any
     stages {
-        
-        // stage('clone_drake-torch') {
-        //     steps {
-        //         echo "starting in $PWD"
-        //         git branch: 'master', url: 'https://github.com/DexaiRobotics/drake-torch.git'
-        //         echo "moved to $PWD"
-        //     }
-        // }
 
-        stage('build_deploy_images') {
+        stage('build_images') {
             parallel {
                 stage('build_cuda') {
                     steps {
@@ -64,7 +56,7 @@ pipeline {
             }
         }
 
-        stage('dig_compability_tests') {
+        stage('dig_tests') {
             parallel {
                 stage('dig_cuda') {
                     agent {
