@@ -135,10 +135,12 @@ RUN set -eux \
     && cd /opt/drake/share/drake/setup && yes | ./install_prereqs \
     && rm -rf /var/lib/apt/lists/* \
     && cd $HOME && rm -rf drake*bionic.tar.gz
+RUN cmake --version
 
 # pip install pydrake using the /opt/drake directory in develop mode
 COPY scripts/setup_pydrake.py /opt/drake/lib/python3.6/site-packages/setup.py
 RUN python3 -m pip install -e /opt/drake/lib/python3.6/site-packages
+RUN cmake --version
 
 ########################################################
 # intel MKL
@@ -150,12 +152,14 @@ RUN sh -c 'echo deb https://apt.repos.intel.com/mkl all main > /etc/apt/sources.
 RUN apt-get update && apt-get -y install intel-mkl-64bit-2019.1-053 \
     && rm -rf /var/lib/apt/lists/*
 RUN rm /opt/intel/mkl/lib/intel64/*.so
+RUN cmake --version
 
 # Download and build libtorch with MKL support
 ENV TORCH_CUDA_ARCH_LIST="5.2 6.0 6.1 7.0 7.5"
 ENV TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
 ENV BUILD_CAFFE2_OPS=1
 ENV _GLIBCXX_USE_CXX11_ABI=1
+RUN cmake --version
 
 RUN echo "Using BUILD_TYPE=${BUILD_TYPE}"
 RUN set -eux && cd $HOME \
@@ -170,6 +174,7 @@ RUN set -eux && cd $HOME \
     && python3 -m pip install --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cu101/torch_nightly.html -I; fi \
     # && python3 -m pip install ipython -I \
     && python3 -m pip install jupyter -I
+RUN cmake --version
 
 # setup keys
 # RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
@@ -190,6 +195,7 @@ RUN apt-get update && apt-get install -qy \
     lsb-release \
     libyaml-cpp-dev \
     && rm -rf /var/lib/apt/lists/*
+RUN cmake --version
 
 # install bootstrap tools
 RUN apt-get update && apt-get install --no-install-recommends -qy \
@@ -197,6 +203,7 @@ RUN apt-get update && apt-get install --no-install-recommends -qy \
     python3-rosinstall \
     python3-vcstools \
     && rm -rf /var/lib/apt/lists/*
+RUN cmake --version
 
 # setup environment
 ENV LANG C.UTF-8
@@ -205,6 +212,7 @@ ENV LC_ALL C.UTF-8
 # bootstrap rosdep
 RUN rosdep init \
     && rosdep update
+RUN cmake --version
 
 # install ros packages
 ENV ROS_DISTRO melodic
@@ -228,6 +236,7 @@ RUN apt-get update && apt-get install -y \
     software-properties-common \
     iputils-ping \
     && rm -rf /var/lib/apt/lists/*
+RUN cmake --version
 
 # install cv_bridge to /opt/ros/melodic from source
 SHELL ["/bin/bash", "-c"]
@@ -245,6 +254,7 @@ RUN cd $HOME && mkdir -p py3_ws/src && cd py3_ws/src \
             -DPYTHON_INCLUDE_DIR=/usr/include/python3.6m \
             -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so \
     && catkin build && rm -rf $HOME/py3_ws
+RUN cmake --version
 
 # install ccd & octomap && fcl
 RUN cd $HOME && git clone https://github.com/danfis/libccd.git \
@@ -274,6 +284,7 @@ RUN ./install-ompl-ubuntu.sh \
 RUN cd $HOME && git clone https://github.com/ros/urdf_parser_py && cd urdf_parser_py \
     && python3 setup.py install \
     && cd $HOME && rm -rf urdf_parser_py
+RUN cmake --version
 
 ########################################################
 # bash fix: for broken interactive shell detection
@@ -300,6 +311,7 @@ RUN cd $HOME && git clone https://github.com/DexaiRobotics/toppra && cd toppra/ 
 RUN git clone -b cpp_master https://github.com/msgpack/msgpack-c.git \
     && cd msgpack-c && cmake -DMSGPACK_CXX17=ON . && make install \
     && cd $HOME && rm -rf msgpack-c
+RUN cmake --version
 
 # cnpy lets you read and write numpy formats in C++
 # RUN git clone https://github.com/rogersce/cnpy.git \
@@ -318,6 +330,7 @@ RUN apt-key adv --keyserver keys.gnupg.net --recv-key C8B3A55A6F3EFCDE \
     librealsense2-dbg \
     librealsense2 \
     && rm -rf /var/lib/apt/lists/*
+RUN cmake --version
 
 # install LCM system-wide
 RUN cd $HOME && git clone https://github.com/lcm-proj/lcm \
@@ -329,22 +342,24 @@ RUN cd $HOME && git clone https://github.com/frankaemika/libfranka.git \
     && cd libfranka && git checkout 0.5.0 && git submodule update --init \
     && mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make && make install \
     && cd $HOME && rm -rf libfranka
+RUN cmake --version
 
 ########################################################
 # Essential packages for remote debugging and login in
 ########################################################
 
-# download, build, install, and remove cmake-3.17.1
-# RUN wget -q https://github.com/Kitware/CMake/releases/download/v3.17.1/cmake-3.17.1-Linux-x86_64.tar.gz \
-#     && wget -q https://github.com/Kitware/CMake/releases/download/v3.17.1/cmake-3.17.1-SHA-256.txt \
-#     && cat cmake-3.17.1-SHA-256.txt | grep cmake-3.17.1-Linux-x86_64.tar.gz | sha256sum --check \
-#     && tar -xzf cmake-3.17.1-Linux-x86_64.tar.gz \
-#     && cp -r cmake-3.17.1-Linux-x86_64/bin /usr/ \
-#     && cp -r cmake-3.17.1-Linux-x86_64/share /usr/ \
-#     && cp -r cmake-3.17.1-Linux-x86_64/doc /usr/share/ \
-#     && cp -r cmake-3.17.1-Linux-x86_64/man /usr/share/ \
-#     && cd $HOME && rm -rf  cmake-3.17.1-Linux-x86_64.tar.gz \
-#     && rm -rf cmake-3.17.1-Linux-x86_64
+# cmake-3.17.3, download, build, install, and remove
+RUN wget -q https://github.com/Kitware/CMake/releases/download/v3.17.3/cmake-3.17.3-Linux-x86_64.tar.gz \
+    && wget -q https://github.com/Kitware/CMake/releases/download/v3.17.3/cmake-3.17.3-SHA-256.txt \
+    && cat cmake-3.17.3-SHA-256.txt | grep cmake-3.17.3-Linux-x86_64.tar.gz | sha256sum --check \
+    && tar -xzf cmake-3.17.3-Linux-x86_64.tar.gz \
+    && cp -r cmake-3.17.3-Linux-x86_64/bin /usr/ \
+    && cp -r cmake-3.17.3-Linux-x86_64/share /usr/ \
+    && cp -r cmake-3.17.3-Linux-x86_64/doc /usr/share/ \
+    && cp -r cmake-3.17.3-Linux-x86_64/man /usr/share/ \
+    && cd $HOME && rm -rf  cmake-3.17.3-Linux-x86_64.tar.gz \
+    && rm -rf cmake-3.17.3-Linux-x86_64
+RUN cmake --version
 
 # install nice-to-have some dev tools
 RUN apt-get update && apt-get install -qy \
