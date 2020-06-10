@@ -17,15 +17,26 @@ RUN echo "Oh dang look at that BASE_IMAGE=${BASE_IMAGE}"
 # https://github.com/phusion/baseimage-docker/issues/58#issuecomment-47995343
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
 
+
 RUN apt-get update \
     && apt-get upgrade -y \
     && rm -rf /var/lib/apt/lists/*
 
-# GPG and keys setup
-RUN apt-get update && apt-get install -qy gnupg2 \
+# prerequisites for install other apt packages (GPG, keys, cert...)
+RUN apt-get update && apt-get install -qy \
+    gnupg2 \
+    apt-transport-https \
+    ca-certificates \
+    software-properties-common \
+    wget \
     && rm -rf /var/lib/apt/lists/*
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
 RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null \
+    | gpg --dearmor - | sudo tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
+
+# apt repo setup in addition to default (cmake etc.)
+RUN apt-add-repository 'deb https://apt.kitware.com/ubuntu/ bionic main'
 
 # setup timezone, install python3 and essential with apt and others with pip
 # Install Protobuf Compiler, asked for by Cmake Find for protobuf. Installation suppresses a warning in camke.
@@ -48,7 +59,6 @@ RUN set -eux \
     vim \
     tzdata \
     unzip \
-    wget \
     x11vnc \
     xvfb \
     xz-utils \
@@ -75,18 +85,18 @@ RUN python3 -m pip install -U setuptools wheel pip
 # we have to apt-install cmake so the system thinks it is already installed
 # then update make to the latest version manually as apt is old
 # without the apt install, drake will install old apt version overwriting new one
-# cmake-3.17.3, download, build, install, and remove
-RUN wget -q https://github.com/Kitware/CMake/releases/download/v3.17.3/cmake-3.17.3-Linux-x86_64.tar.gz \
-    && wget -q https://github.com/Kitware/CMake/releases/download/v3.17.3/cmake-3.17.3-SHA-256.txt \
-    && cat cmake-3.17.3-SHA-256.txt | grep cmake-3.17.3-Linux-x86_64.tar.gz | sha256sum --check \
-    && tar -xzf cmake-3.17.3-Linux-x86_64.tar.gz \
-    && cp -r cmake-3.17.3-Linux-x86_64/bin /usr/ \
-    && cp -r cmake-3.17.3-Linux-x86_64/share /usr/ \
-    && cp -r cmake-3.17.3-Linux-x86_64/doc /usr/share/ \
-    && cp -r cmake-3.17.3-Linux-x86_64/man /usr/share/ \
-    && cd $HOME && rm -rf  cmake-3.17.3-Linux-x86_64.tar.gz \
-    && rm -rf cmake-3.17.3-Linux-x86_64
-RUN cmake --version
+# # cmake-3.17.3, download, build, install, and remove
+# RUN wget -q https://github.com/Kitware/CMake/releases/download/v3.17.3/cmake-3.17.3-Linux-x86_64.tar.gz \
+#     && wget -q https://github.com/Kitware/CMake/releases/download/v3.17.3/cmake-3.17.3-SHA-256.txt \
+#     && cat cmake-3.17.3-SHA-256.txt | grep cmake-3.17.3-Linux-x86_64.tar.gz | sha256sum --check \
+#     && tar -xzf cmake-3.17.3-Linux-x86_64.tar.gz \
+#     && cp -r cmake-3.17.3-Linux-x86_64/bin /usr/ \
+#     && cp -r cmake-3.17.3-Linux-x86_64/share /usr/ \
+#     && cp -r cmake-3.17.3-Linux-x86_64/doc /usr/share/ \
+#     && cp -r cmake-3.17.3-Linux-x86_64/man /usr/share/ \
+#     && cd $HOME && rm -rf  cmake-3.17.3-Linux-x86_64.tar.gz \
+#     && rm -rf cmake-3.17.3-Linux-x86_64
+# RUN cmake --version
 
 # gtest per recommended method
 RUN set -eux \
