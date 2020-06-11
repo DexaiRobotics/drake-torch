@@ -82,7 +82,6 @@ RUN set -eux \
     # python3-tk \
     # python3-numpy-dbg \
     && rm -rf /var/lib/apt/lists/*
-RUN cmake --version
 
 RUN python3 -m pip install --upgrade --no-cache-dir --compile \
     setuptools wheel pip
@@ -108,7 +107,6 @@ RUN set -eux \
     && mkdir ~/gtest && cd ~/gtest && cmake /usr/src/gtest && make \
     && cp *.a /usr/local/lib \
     && cd $HOME && rm -rf gtest
-RUN cmake --version
 
 # python packages for toppra, qpOASES, pytorch etc.
 RUN python3 -m pip install --upgrade --no-cache-dir --compile \
@@ -143,7 +141,6 @@ RUN python3 -m pip install --upgrade --no-cache-dir --compile \
     breathe \
     jupyterlab \
     import-ipynb
-RUN cmake --version
 
 ########################################################
 # drake
@@ -158,7 +155,6 @@ RUN set -eux \
     && cd /opt/drake/share/drake/setup && yes | ./install_prereqs \
     && rm -rf /var/lib/apt/lists/* \
     && cd $HOME && rm -rf drake*bionic.tar.gz
-RUN cmake --version
 
 # pip install pydrake using the /opt/drake directory in develop mode
 COPY scripts/setup_pydrake.py /opt/drake/lib/python3.6/site-packages/setup.py
@@ -191,7 +187,8 @@ RUN set -eux && cd $HOME \
     else wget -q https://download.pytorch.org/libtorch/nightly/cu101/libtorch-cxx11-abi-shared-with-deps-latest.zip \
     && unzip libtorch-cxx11-abi-shared-with-deps-latest.zip \
     && mv libtorch /usr/local/lib/libtorch \
-    && python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cu101/torch_nightly.html -I; fi
+    && python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cu101/torch_nightly.html -I; fi \
+    && rm $HOME/libtorch*.zip
 
 ########################################################
 # ROS
@@ -306,16 +303,17 @@ RUN ./fix_bashrc.sh && rm ./fix_bashrc.sh
 # qpOASES
 RUN cd $HOME && git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES \
     && cd $HOME/qpOASES/ && mkdir -p bin && make\
-    && cd $HOME/qpOASES/interfaces/python/ && python3 setup.py install
+    && cd $HOME/qpOASES/interfaces/python/ && python3 setup.py install \
+    && rm -rf $HOME/qpOASES
 
 # toppra: Dexai fork
 RUN cd $HOME && git clone https://github.com/DexaiRobotics/toppra && cd toppra/ \
     && python3 -m pip install --upgrade --no-cache-dir --compile -r requirements3.txt \
     && python3 setup.py install \
-    && cd $HOME
+    && rm -rf $HOME/toppra
 
 # Install C++ branch of msgpack-c
-RUN git clone -b cpp_master https://github.com/msgpack/msgpack-c.git \
+RUN cd $HOME && git clone -b cpp_master https://github.com/msgpack/msgpack-c.git \
     && cd msgpack-c && cmake -DMSGPACK_CXX17=ON . && make install \
     && cd $HOME && rm -rf msgpack-c
 
@@ -351,18 +349,6 @@ RUN cd $HOME && git clone https://github.com/frankaemika/libfranka.git \
 ########################################################
 # Essential packages for remote debugging and login in
 ########################################################
-
-# cmake-3.17.3, download, build, install, and remove
-RUN wget -q https://github.com/Kitware/CMake/releases/download/v3.17.3/cmake-3.17.3-Linux-x86_64.tar.gz \
-    && wget -q https://github.com/Kitware/CMake/releases/download/v3.17.3/cmake-3.17.3-SHA-256.txt \
-    && cat cmake-3.17.3-SHA-256.txt | grep cmake-3.17.3-Linux-x86_64.tar.gz | sha256sum --check \
-    && tar -xzf cmake-3.17.3-Linux-x86_64.tar.gz \
-    && cp -r cmake-3.17.3-Linux-x86_64/bin /usr/ \
-    && cp -r cmake-3.17.3-Linux-x86_64/share /usr/ \
-    && cp -r cmake-3.17.3-Linux-x86_64/doc /usr/share/ \
-    && cp -r cmake-3.17.3-Linux-x86_64/man /usr/share/ \
-    && cd $HOME && rm -rf  cmake-3.17.3-Linux-x86_64.tar.gz \
-    && rm -rf cmake-3.17.3-Linux-x86_64
 
 # install nice-to-have some dev tools
 RUN apt-get update && apt-get install -qy \
