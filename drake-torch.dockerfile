@@ -153,8 +153,8 @@ RUN cmake --version
 # and https://github.com/RobotLocomotion/drake/releases
 RUN set -eux \
     && mkdir -p /opt \
-    && curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-20200514-bionic.tar.gz | tar -xzC /opt \
-    # && curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-bionic.tar.gz | tar -xzC /opt \
+    # && curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-20200514-bionic.tar.gz | tar -xzC /opt \
+    && curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-bionic.tar.gz | tar -xzC /opt \
     && cd /opt/drake/share/drake/setup && yes | ./install_prereqs \
     && rm -rf /var/lib/apt/lists/* \
     && cd $HOME && rm -rf drake*bionic.tar.gz
