@@ -1,37 +1,52 @@
 #!/bin/bash
-build_cpu () {
-    echo "building Ubuntu/cpu" > /dev/stderr
-    docker build -f drake-torch.dockerfile --no-cache --build-arg BASE_IMAGE=ubuntu:bionic --build-arg BUILD_TYPE=cpu -t drake-torch:cpu --cpuset-cpus 0-4 . > /dev/stderr
-    build_result=$? # debugging to see if function does the right thing
-    # echo "cpu_build_result = ${build_result}" > /dev/stderr
-    echo "${build_result}"
-}
-build_cuda () {
-    cuda_version=10.1
-    cudnn_version=7
-    ubuntu=18.04
-    # --no-cache
-    echo "building nvidia/cuda:${cuda_version}-cudnn${cudnn_version}-devel-ubuntu${ubuntu}" > /dev/stderr
-    docker build -f drake-torch.dockerfile --no-cache --build-arg BUILD_TYPE=cuda --build-arg BASE_IMAGE=nvidia/cuda:${cuda_version}-cudnn${cudnn_version}-devel-ubuntu${ubuntu} -t drake-torch:cuda --cpuset-cpus 0-4 . > /dev/stderr
-    build_result=$?
-    echo "${build_result}"
-}
-if [[ $# -eq 0 ]]; then
-    echo "no arguments supplied, defaulting to:"
-    result=$(build_cpu)
-    echo "build_cpu returned: ${result}"
-    exit $result
-elif [[ $* == *--cpu* || $* == *--bionic* ]]; then
-    echo "Ubuntu/cpu specified:"
-    result=$(build_cpu)
-    echo "build_cpu returned: ${result}"
-    exit $result
-elif [[ $* == *--cuda* ]]; then
-    echo "CUDA specified:"
-    result=$(build_cuda)
-    echo "build_cuda returned ${result}"
-    exit $result
+
+# parse arguments
+BUILD_TYPE="cpu"
+BUILD_CHANNEL="nightly"
+while (( $# )); do
+  case "$1" in
+    --cuda)
+      BUILD_TYPE="cuda"
+      shift 1
+      ;;
+    --cpu)
+      BUILD_TYPE="cpu"
+      shift 1
+      ;;
+    --stable)
+      BUILD_CHANNEL="stable"
+      shift 1
+      ;;
+    --nightly)
+      BUILD_CHANNEL="nightly"
+      shift 1
+      ;;
+    -*|--*=) # unsupported options
+      echo "Error: Unsupported option $1" >&2
+      exit 1
+      ;;
+    *) # positional arg -- in this case, path to src directory
+      DEVICE_TYPE="$1"
+      shift
+      ;;
+  esac
+done
+
+NUMTHREADS=$(grep ^cpu\\scores /proc/cpuinfo | uniq |  awk '{print $4}')
+LASTCORE=$((NUMTHREADS - 1))
+echo "Using all $NUMTHREADS cores: 0-$LASTCORE for the --cpuset-cpus option"
+
+if [[ $BUILD_TYPE == "cpu" ]]; then
+  BASE_IMAGE="ubuntu:bionic"
+  TAG="dexai2/drake-torch:cpu"
 else
-    echo "need to specify --cuda --ubuntu (or no arguments, defaults to ubuntu/cpu)"
-    exit 1
+  cuda_version=10.1
+  cudnn_version=7
+  ubuntu=18.04
+  BASE_IMAGE="nvidia/cuda:${cuda_version}-cudnn${cudnn_version}-devel-ubuntu${ubuntu}"
+  echo "building from base image: $BASE_IMAGE" > /dev/stderr
+  TAG="dexai2/drake-torch:cuda"
 fi
+
+echo "building drake-torch image, build type: $BUILD_TYPE, base image: $BASE_IMAGE, channel: $BUILD_CHANNEL"
+docker build -f drake-torch.dockerfile --no-cache --build-arg BUILD_TYPE=$BUILD_TYPE --build-arg BASE_IMAGE=$BASE_IMAGE --build-arg BUILD_CHANNEL=$BUILD_CHANNEL -t $TAG --cpuset-cpus "0-$LASTCORE" . > /dev/stderr

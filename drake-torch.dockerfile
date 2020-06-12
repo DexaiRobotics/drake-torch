@@ -1,13 +1,13 @@
 ARG BASE_IMAGE
 #=ubuntu:bionic
 FROM $BASE_IMAGE
-
 USER root
 WORKDIR /root
 
 ARG BUILD_TYPE
+ARG BUILD_CHANNEL
 RUN echo "Oh dang look at that BUILD_TYPE=${BUILD_TYPE}"
-RUN echo "Oh dang look at that BASE_IMAGE=${BASE_IMAGE}"
+RUN echo "Oh dang look at that BUILD_CHANNEL=${BUILD_CHANNEL}"
 
 ########################################################
 # initial setup
@@ -150,8 +150,9 @@ RUN python3 -m pip install --upgrade --no-cache-dir --compile \
 # and https://github.com/RobotLocomotion/drake/releases
 RUN set -eux \
     && mkdir -p /opt \
-    # && curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-20200514-bionic.tar.gz | tar -xzC /opt \
-    && curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-bionic.tar.gz | tar -xzC /opt \
+    && if [ $BUILD_CHANNEL = "stable" ] ; \
+    then curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-20200514-bionic.tar.gz | tar -xzC /opt; \
+    else curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-bionic.tar.gz | tar -xzC /opt; fi \
     && cd /opt/drake/share/drake/setup && yes | ./install_prereqs \
     && rm -rf /var/lib/apt/lists/* \
     && cd $HOME && rm -rf drake*bionic.tar.gz
@@ -250,7 +251,10 @@ RUN cd $HOME && mkdir -p py3_ws/src && cd py3_ws/src \
     && git clone -b melodic https://github.com/ros-perception/vision_opencv.git \
     && git clone -b melodic-devel https://github.com/ros/ros_comm.git \
     && cd $HOME/py3_ws \
-    && python3 -m pip install --upgrade --no-cache-dir --compile catkin_tools pycryptodomex \
+    && python3 -m pip install --upgrade --no-cache-dir --compile \
+    catkin_tools \
+    pycryptodomex \
+    gnupg \
     && source /opt/ros/melodic/setup.bash \
     && export ROS_PYTHON_VERSION=3 \
     && catkin config --install \
