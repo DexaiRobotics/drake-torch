@@ -1,14 +1,12 @@
 ARG BASE_IMAGE
 #=ubuntu:bionic
 FROM $BASE_IMAGE
-
 USER root
 WORKDIR /root
 
 ARG BUILD_TYPE
 ARG BUILD_CHANNEL
 RUN echo "Oh dang look at that BUILD_TYPE=${BUILD_TYPE}"
-RUN echo "Oh dang look at that BASE_IMAGE=${BASE_IMAGE}"
 RUN echo "Oh dang look at that BUILD_CHANNEL=${BUILD_CHANNEL}"
 
 ########################################################
