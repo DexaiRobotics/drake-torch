@@ -152,7 +152,7 @@ RUN python3 -m pip install --upgrade --no-cache-dir --compile \
 # and https://github.com/RobotLocomotion/drake/releases
 RUN set -eux \
     && mkdir -p /opt \
-    %% if [[ $BUILD_CHANNEL == "stable" ]] ; \
+    %% if [ $BUILD_CHANNEL = "stable" ] ; \
     then curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-20200514-bionic.tar.gz | tar -xzC /opt; \
     else curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-bionic.tar.gz | tar -xzC /opt; fi \
     && cd /opt/drake/share/drake/setup && yes | ./install_prereqs \
