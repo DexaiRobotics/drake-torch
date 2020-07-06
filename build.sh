@@ -41,9 +41,9 @@ if [[ $BUILD_TYPE == "cpu" ]]; then
   TAG="dexai2/drake-torch:cpu"
 else
   if [[ $BUILD_CHANNEL == 'stable' ]]; then
-    BASE_IMAGE="docker pull nvidia/cuda:10.2-cudnn8-runtime-ubuntu18.04"
+    BASE_IMAGE="nvidia/cuda:10.2-cudnn8-runtime-ubuntu18.04"
   else
-    BASE_IMAGE="docker pull nvidia/cuda:11.0-cudnn8-devel-ubuntu18.04-rc"
+    BASE_IMAGE="nvidia/cuda:11.0-cudnn8-devel-ubuntu18.04-rc"
   fi
   TAG="dexai2/drake-torch:cuda"
 fi
