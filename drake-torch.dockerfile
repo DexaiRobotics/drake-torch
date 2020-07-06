@@ -123,26 +123,6 @@ RUN python3 -m pip install --upgrade --no-cache-dir --compile \
     jupyterlab \
     import-ipynb
 
-########################################################
-# drake
-########################################################
-# install the latest stable drake release (dependencies and the binary)
-# see https://drake.mit.edu/from_binary.html
-# and https://github.com/RobotLocomotion/drake/releases
-RUN set -eux \
-    && mkdir -p /opt \
-    && \
-        if [ $BUILD_CHANNEL = "stable" ] ; \
-        then curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-20200514-bionic.tar.gz | tar -xzC /opt; \
-        else curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-bionic.tar.gz | tar -xzC /opt; \
-        fi \
-    && cd /opt/drake/share/drake/setup && yes | ./install_prereqs \
-    && rm -rf /var/lib/apt/lists/* \
-    && cd $HOME && rm -rf drake*bionic.tar.gz
-
-# pip install pydrake using the /opt/drake directory in develop mode
-COPY scripts/setup_pydrake.py /opt/drake/lib/python3.6/site-packages/setup.py
-RUN python3 -m pip install -e /opt/drake/lib/python3.6/site-packages
 
 ##############################################################
 # libtorch and pytorch, torchvision with intel MKL support
@@ -184,6 +164,27 @@ RUN set -eux && cd $HOME \
     && unzip libtorch-cxx11-abi-shared-with-deps-*.zip \
     && mv libtorch /usr/local/lib/libtorch \
     && rm $HOME/libtorch*.zip
+
+########################################################
+# drake
+########################################################
+# install the latest stable drake release (dependencies and the binary)
+# see https://drake.mit.edu/from_binary.html
+# and https://github.com/RobotLocomotion/drake/releases
+RUN set -eux \
+    && mkdir -p /opt \
+    && \
+        if [ $BUILD_CHANNEL = "stable" ] ; \
+        then curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-20200514-bionic.tar.gz | tar -xzC /opt; \
+        else curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-bionic.tar.gz | tar -xzC /opt; \
+        fi \
+    && cd /opt/drake/share/drake/setup && yes | ./install_prereqs \
+    && rm -rf /var/lib/apt/lists/* \
+    && cd $HOME && rm -rf drake*bionic.tar.gz
+
+# pip install pydrake using the /opt/drake directory in develop mode
+COPY scripts/setup_pydrake.py /opt/drake/lib/python3.6/site-packages/setup.py
+RUN python3 -m pip install -e /opt/drake/lib/python3.6/site-packages
 
 ########################################################
 # ROS
