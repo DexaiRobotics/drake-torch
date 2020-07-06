@@ -40,11 +40,7 @@ if [[ $BUILD_TYPE == "cpu" ]]; then
   BASE_IMAGE="ubuntu:bionic"
   TAG="dexai2/drake-torch:cpu"
 else
-  cuda_version=10.1
-  cudnn_version=7
-  ubuntu=18.04
-  BASE_IMAGE="nvidia/cuda:${cuda_version}-cudnn${cudnn_version}-devel-ubuntu${ubuntu}"
-  echo "building from base image: $BASE_IMAGE" > /dev/stderr
+  BASE_IMAGE="docker pull nvidia/cuda:10.2-cudnn7-devel-ubuntu18.04"
   TAG="dexai2/drake-torch:cuda"
 fi
 
