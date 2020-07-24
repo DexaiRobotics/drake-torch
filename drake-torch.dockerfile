@@ -340,7 +340,7 @@ RUN cd $HOME && git clone https://github.com/lcm-proj/lcm \
 
 # install libfranka system-wide
 RUN cd $HOME && git clone https://github.com/frankaemika/libfranka.git \
-    && cd libfranka && git checkout 0.5.0 && git submodule update --init \
+    && cd libfranka && git checkout 0.8.0 && git submodule update --init \
     && mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make && make install \
     && cd $HOME && rm -rf libfranka
 
