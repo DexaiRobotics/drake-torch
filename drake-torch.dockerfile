@@ -41,7 +41,7 @@ RUN add-apt-repository 'deb https://apt.kitware.com/ubuntu/ bionic main' \
     && add-apt-repository ppa:ubuntu-toolchain-r/test -y
 
 # ensure keyring for cmake stays up to date as kitware rotates their keys
-RUN apt-get install kitware-archive-keyring \
+RUN apt-get install -qy kitware-archive-keyring \
     && rm /etc/apt/trusted.gpg.d/kitware.gpg
 
 # setup timezone, install python3 and essential with apt and others with pip
@@ -222,7 +222,7 @@ RUN rosdep init \
 
 # install ros packages
 ENV ROS_DISTRO melodic
-RUN apt-get install -y \
+RUN apt-get install -qy \
     ros-melodic-ros-base \
     ros-melodic-geometry2 \
     libpcl-dev \
@@ -328,7 +328,7 @@ RUN git clone https://github.com/rogersce/cnpy.git \
 RUN apt-key adv --keyserver keys.gnupg.net --recv-key C8B3A55A6F3EFCDE \
     || apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key C8B3A55A6F3EFCDE \
     && add-apt-repository "deb http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo bionic main" -u \
-    && apt-get update && apt-get install -y \
+    && apt-get update && apt-get install -qy \
     librealsense2-dkms \
     librealsense2-utils \
     librealsense2-dev \
