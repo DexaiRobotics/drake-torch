@@ -27,8 +27,7 @@ RUN apt-get update && apt-get install -qy \
     apt-transport-https \
     ca-certificates \
     software-properties-common \
-    wget \
-    && rm -rf /var/lib/apt/lists/*
+    wget
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
 RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
 RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null \
@@ -79,8 +78,7 @@ RUN set -eux \
     protobuf-compiler \
     python3 \
     python3-dev \
-    python3-pip \
-    && rm -rf /var/lib/apt/lists/*
+    python3-pip
 
 RUN update-alternatives \
         --install /usr/bin/gcc gcc /usr/bin/gcc-10 90 \
@@ -138,8 +136,7 @@ RUN python3 -m pip install --upgrade --no-cache-dir --compile \
 RUN wget -q https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
 RUN apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB && rm GPG-PUB*
 RUN sh -c 'echo deb https://apt.repos.intel.com/mkl all main > /etc/apt/sources.list.d/intel-mkl.list'
-RUN apt-get update && apt-get -y install intel-mkl-64bit-2019.1-053 \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get -y install intel-mkl-64bit-2019.1-053
 RUN rm /opt/intel/mkl/lib/intel64/*.so
 
 # Download and build libtorch with MKL support
@@ -186,7 +183,6 @@ RUN set -eux \
         else curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-bionic.tar.gz | tar -xzC /opt; \
         fi \
     && cd /opt/drake/share/drake/setup && yes | ./install_prereqs \
-    && rm -rf /var/lib/apt/lists/* \
     && cd $HOME && rm -rf drake*bionic.tar.gz
 
 # pip install pydrake using the /opt/drake directory in develop mode
@@ -206,16 +202,13 @@ RUN apt-get update && apt-get install -qy \
     librosconsole-dev \
     libxmlrpcpp-dev \
     lsb-release \
-    libyaml-cpp-dev \
-
-    && rm -rf /var/lib/apt/lists/*
+    libyaml-cpp-dev
 
 # install bootstrap tools
 RUN apt-get install --no-install-recommends -qy \
     python3-rosdep \
     python3-rosinstall \
-    python3-vcstools \
-    && rm -rf /var/lib/apt/lists/*
+    python3-vcstools
 
 # setup environment
 ENV LANG C.UTF-8
@@ -245,8 +238,7 @@ RUN apt-get install -y \
     python-catkin-tools \
     usbutils \
     software-properties-common \
-    iputils-ping \
-    && rm -rf /var/lib/apt/lists/*
+    iputils-ping
 
 # install cv_bridge to /opt/ros/melodic from source
 SHELL ["/bin/bash", "-c"]
@@ -339,8 +331,7 @@ RUN apt-key adv --keyserver keys.gnupg.net --recv-key C8B3A55A6F3EFCDE \
     librealsense2-utils \
     librealsense2-dev \
     librealsense2-dbg \
-    librealsense2 \
-    && rm -rf /var/lib/apt/lists/*
+    librealsense2
 
 # install LCM system-wide
 RUN cd $HOME && git clone https://github.com/lcm-proj/lcm \
@@ -358,6 +349,7 @@ RUN cd $HOME && git clone https://github.com/frankaemika/libfranka.git \
 ########################################################
 
 # install nice-to-have some dev tools
+# only clear apt lists at the last apt call
 RUN apt-get install -qy \
     htop \
     nano \
