@@ -43,7 +43,7 @@ RUN apt-get install kitware-archive-keyring \
     && rm /etc/apt/trusted.gpg.d/kitware.gpg
 
 # setup timezone, install python3 and essential with apt and others with pip
-# Install Protobuf Compiler, asked for by Cmake Find for protobuf. Installation suppresses a warning in camke.
+# Install Protobuf Compiler, asked for by Cmake Find for protobuf. Installation suppresses a warning in cmake.
 # Drake needs protobuf, but not the protobuf compiler, therefore "install_prereqs" does not ask for it.
 RUN set -eux \
     && echo 'etc/UTC' > /etc/timezone && \
@@ -78,29 +78,10 @@ RUN set -eux \
     python3 \
     python3-dev \
     python3-pip \
-    # python3-dbg \
-    # python3-tk \
-    # python3-numpy-dbg \
     && rm -rf /var/lib/apt/lists/*
 
 RUN python3 -m pip install --upgrade --no-cache-dir --compile \
     setuptools wheel pip
-
-# we have to apt-install cmake so the system thinks it is already installed
-# then update make to the latest version manually as apt is old
-# without the apt install, drake will install old apt version overwriting new one
-# # cmake-3.17.3, download, build, install, and remove
-# RUN wget -q https://github.com/Kitware/CMake/releases/download/v3.17.3/cmake-3.17.3-Linux-x86_64.tar.gz \
-#     && wget -q https://github.com/Kitware/CMake/releases/download/v3.17.3/cmake-3.17.3-SHA-256.txt \
-#     && cat cmake-3.17.3-SHA-256.txt | grep cmake-3.17.3-Linux-x86_64.tar.gz | sha256sum --check \
-#     && tar -xzf cmake-3.17.3-Linux-x86_64.tar.gz \
-#     && cp -r cmake-3.17.3-Linux-x86_64/bin /usr/ \
-#     && cp -r cmake-3.17.3-Linux-x86_64/share /usr/ \
-#     && cp -r cmake-3.17.3-Linux-x86_64/doc /usr/share/ \
-#     && cp -r cmake-3.17.3-Linux-x86_64/man /usr/share/ \
-#     && cd $HOME && rm -rf  cmake-3.17.3-Linux-x86_64.tar.gz \
-#     && rm -rf cmake-3.17.3-Linux-x86_64
-# RUN cmake --version
 
 # gtest per recommended method
 RUN set -eux \
@@ -108,7 +89,7 @@ RUN set -eux \
     && cp *.a /usr/local/lib \
     && cd $HOME && rm -rf gtest
 
-# python packages for toppra, qpOASES, pytorch etc.
+# python packages for toppra, qpOASES, etc.
 RUN python3 -m pip install --upgrade --no-cache-dir --compile \
     typing \
     decorator \
@@ -142,28 +123,10 @@ RUN python3 -m pip install --upgrade --no-cache-dir --compile \
     jupyterlab \
     import-ipynb
 
-########################################################
-# drake
-########################################################
-# install the latest stable drake release (dependencies and the binary)
-# see https://drake.mit.edu/from_binary.html
-# and https://github.com/RobotLocomotion/drake/releases
-RUN set -eux \
-    && mkdir -p /opt \
-    && if [ $BUILD_CHANNEL = "stable" ] ; \
-    then curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-20200514-bionic.tar.gz | tar -xzC /opt; \
-    else curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-bionic.tar.gz | tar -xzC /opt; fi \
-    && cd /opt/drake/share/drake/setup && yes | ./install_prereqs \
-    && rm -rf /var/lib/apt/lists/* \
-    && cd $HOME && rm -rf drake*bionic.tar.gz
 
-# pip install pydrake using the /opt/drake directory in develop mode
-COPY scripts/setup_pydrake.py /opt/drake/lib/python3.6/site-packages/setup.py
-RUN python3 -m pip install -e /opt/drake/lib/python3.6/site-packages
-
-########################################################
-# intel MKL
-########################################################
+##############################################################
+# libtorch and pytorch, torchvision with intel MKL support
+##############################################################
 
 RUN wget -q https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
 RUN apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB && rm GPG-PUB*
@@ -180,16 +143,48 @@ ENV _GLIBCXX_USE_CXX11_ABI=1
 
 RUN echo "Using BUILD_TYPE=${BUILD_TYPE}"
 RUN set -eux && cd $HOME \
-    && if [ $BUILD_TYPE = "cpu" ] ; \
-    then wget -q https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared-with-deps-latest.zip \
-    && unzip libtorch-cxx11-abi-shared-with-deps-latest.zip \
+    && \
+        if [ $BUILD_TYPE = "cpu" ]; then \
+            if [ $BUILD_CHANNEL = "stable" ]; then \
+                wget -q https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.5.1%2Bcpu.zip \
+                && python3 -m pip install --upgrade --no-cache-dir --compile torch==1.5.1+cpu torchvision==0.6.1+cpu -f https://download.pytorch.org/whl/torch_stable.html; \
+            else \
+                wget -q https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared-with-deps-latest.zip \
+                && python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html; \
+            fi; \
+        else \
+            if [ $BUILD_CHANNEL = "stable" ]; then \
+                wget -q https://download.pytorch.org/libtorch/cu102/libtorch-cxx11-abi-shared-with-deps-1.5.1.zip \
+                && python3 -m pip install --upgrade --no-cache-dir --compile torch torchvision; \
+            else \
+                wget -q https://download.pytorch.org/libtorch/nightly/cu102/libtorch-cxx11-abi-shared-with-deps-latest.zip \
+                && python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cu102/torch_nightly.html; \
+            fi; \
+        fi \
+    && unzip libtorch-cxx11-abi-shared-with-deps-*.zip \
     && mv libtorch /usr/local/lib/libtorch \
-    && python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html -I; \
-    else wget -q https://download.pytorch.org/libtorch/nightly/cu101/libtorch-cxx11-abi-shared-with-deps-latest.zip \
-    && unzip libtorch-cxx11-abi-shared-with-deps-latest.zip \
-    && mv libtorch /usr/local/lib/libtorch \
-    && python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cu101/torch_nightly.html -I; fi \
     && rm $HOME/libtorch*.zip
+
+########################################################
+# drake
+########################################################
+# install the latest stable drake release (dependencies and the binary)
+# see https://drake.mit.edu/from_binary.html
+# and https://github.com/RobotLocomotion/drake/releases
+RUN set -eux \
+    && mkdir -p /opt \
+    && \
+        if [ $BUILD_CHANNEL = "stable" ] ; \
+        then curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-20200514-bionic.tar.gz | tar -xzC /opt; \
+        else curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-bionic.tar.gz | tar -xzC /opt; \
+        fi \
+    && cd /opt/drake/share/drake/setup && yes | ./install_prereqs \
+    && rm -rf /var/lib/apt/lists/* \
+    && cd $HOME && rm -rf drake*bionic.tar.gz
+
+# pip install pydrake using the /opt/drake directory in develop mode
+COPY scripts/setup_pydrake.py /opt/drake/lib/python3.6/site-packages/setup.py
+RUN python3 -m pip install -e /opt/drake/lib/python3.6/site-packages
 
 ########################################################
 # ROS
@@ -375,13 +370,6 @@ RUN apt-get update && apt-get install git-lfs -y \
 RUN apt-get update && apt-get install -y \
     doxygen \
     && rm -rf /var/lib/apt/lists/*
-
-# RUN cd $HOME && git clone https://github.com/google/protobuf.git \
-#     && cd protobuf && git submodule update --init --recursive \
-#     && ./autogen.sh \
-#     && ./configure \
-#     && make && make check && make install && ldconfig \
-#     && cd $HOME && rm -rf protobuf
 
 # Taken from - https://docs.docker.com/engine/examples/running_ssh_service/#environment-variables
 RUN mkdir /var/run/sshd
