@@ -23,13 +23,12 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
 # without the apt install, drake will install old apt version overwriting new one
 
 RUN apt-get update \
-    && apt-get upgrade -qy \
     && apt-get install -qy \
-    gnupg2 \
-    apt-transport-https \
-    ca-certificates \
-    software-properties-common \
-    wget
+        gnupg2 \
+        apt-transport-https \
+        ca-certificates \
+        software-properties-common \
+        wget
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
 RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
 RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null \
@@ -48,41 +47,41 @@ RUN apt-get install -qy kitware-archive-keyring \
 # Install Protobuf Compiler, asked for by Cmake Find for protobuf. Installation suppresses a warning in cmake.
 # Drake needs protobuf, but not the protobuf compiler, therefore "install_prereqs" does not ask for it.
 RUN set -eux \
-    && echo 'etc/UTC' > /etc/timezone && \
-    ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime && \
-    apt-get update && apt-get install -qy \
-    apt-utils \
-    openssh-server \
-    curl \
-    gcc-9 \
-    g++-9 \
-    gcc-10 \
-    g++-10 \
-    cmake \
-    gdb \
-    gdbserver \
-    rsync \
-    git \
-    gzip \
-    jq \
-    vim \
-    tzdata \
-    unzip \
-    x11vnc \
-    xvfb \
-    xz-utils \
-    libgflags-dev \
-    libgoogle-glog-dev \
-    libgtest-dev \
-    libhidapi-dev \
-    libiomp-dev \
-    libopenmpi-dev \
-    libudev-dev \
-    libusb-1.0-0-dev \
-    protobuf-compiler \
-    python3 \
-    python3-dev \
-    python3-pip
+    && echo 'etc/UTC' > /etc/timezone \
+    && ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime \
+    && apt-get update && apt-get install -qy \
+        apt-utils \
+        openssh-server \
+        curl \
+        gcc-9 \
+        g++-9 \
+        gcc-10 \
+        g++-10 \
+        cmake \
+        gdb \
+        gdbserver \
+        rsync \
+        git \
+        gzip \
+        jq \
+        vim \
+        tzdata \
+        unzip \
+        x11vnc \
+        xvfb \
+        xz-utils \
+        libgflags-dev \
+        libgoogle-glog-dev \
+        libgtest-dev \
+        libhidapi-dev \
+        libiomp-dev \
+        libopenmpi-dev \
+        libudev-dev \
+        libusb-1.0-0-dev \
+        protobuf-compiler \
+        python3 \
+        python3-dev \
+        python3-pip
 
 RUN update-alternatives \
         --install /usr/bin/gcc gcc /usr/bin/gcc-10 90 \
@@ -90,7 +89,7 @@ RUN update-alternatives \
         --slave /usr/bin/gcov gcov /usr/bin/gcov-10
 
 RUN python3 -m pip install --upgrade --no-cache-dir --compile \
-    setuptools wheel pip
+        setuptools wheel pip
 
 # gtest per recommended method
 RUN set -eux \
@@ -100,37 +99,37 @@ RUN set -eux \
 
 # python packages for toppra, qpOASES, etc.
 RUN python3 -m pip install --upgrade --no-cache-dir --compile \
-    typing \
-    decorator \
-    cython \
-    numpy \
-    scipy \
-    defusedxml \
-    empy \
-    nose2 \
-    netifaces \
-    cpppo \
-    pyyaml \
-    pyserial \
-    pyzmq \
-    pyside2 \
-    msgpack \
-    rospkg \
-    mkl \
-    mkl-include \
-    cffi \
-    ecos \
-    tqdm \
-    visdom \
-    scikit-image \
-    opencv-python \
-    munch \
-    supervisor \
-    sphinx \
-    sphinx_rtd_theme \
-    breathe \
-    jupyterlab \
-    import-ipynb
+        typing \
+        decorator \
+        cython \
+        numpy \
+        scipy \
+        defusedxml \
+        empy \
+        nose2 \
+        netifaces \
+        cpppo \
+        pyyaml \
+        pyserial \
+        pyzmq \
+        pyside2 \
+        msgpack \
+        rospkg \
+        mkl \
+        mkl-include \
+        cffi \
+        ecos \
+        tqdm \
+        visdom \
+        scikit-image \
+        opencv-python \
+        munch \
+        supervisor \
+        sphinx \
+        sphinx_rtd_theme \
+        breathe \
+        jupyterlab \
+        import-ipynb
 
 
 ##############################################################
@@ -201,18 +200,18 @@ RUN python3 -m pip install -e /opt/drake/lib/python3.6/site-packages
 RUN echo "deb http://packages.ros.org/ros/ubuntu `lsb_release -sc` main" > /etc/apt/sources.list.d/ros-latest.list
 
 # install needed ROS packages
-RUN apt-get update && apt-get install -qy \
-    dirmngr \
-    librosconsole-dev \
-    libxmlrpcpp-dev \
-    lsb-release \
-    libyaml-cpp-dev
+    RUN apt-get update && apt-get install -qy \
+        dirmngr \
+        librosconsole-dev \
+        libxmlrpcpp-dev \
+        lsb-release \
+        libyaml-cpp-dev
 
 # install bootstrap tools
 RUN apt-get install --no-install-recommends -qy \
-    python3-rosdep \
-    python3-rosinstall \
-    python3-vcstools
+        python3-rosdep \
+        python3-rosinstall \
+        python3-vcstools
 
 # setup environment
 ENV LANG C.UTF-8
@@ -225,24 +224,24 @@ RUN rosdep init \
 # install ros packages
 ENV ROS_DISTRO melodic
 RUN apt-get install -qy \
-    ros-melodic-ros-base \
-    ros-melodic-geometry2 \
-    libpcl-dev \
-    ros-melodic-pcl-ros \
-    libopencv-dev \
-    ros-melodic-vision-opencv \
-    ros-melodic-xacro \
-    ros-melodic-rospy-message-converter \
-    ros-melodic-image-transport \
-    ros-melodic-rgbd-launch \
-    ros-melodic-ddynamic-reconfigure \
-    ros-melodic-diagnostic-updater \
-    ros-melodic-robot-state-publisher \
-    ros-melodic-joint-state-publisher \
-    python-catkin-tools \
-    usbutils \
-    software-properties-common \
-    iputils-ping
+        ros-melodic-ros-base \
+        ros-melodic-geometry2 \
+        libpcl-dev \
+        ros-melodic-pcl-ros \
+        libopencv-dev \
+        ros-melodic-vision-opencv \
+        ros-melodic-xacro \
+        ros-melodic-rospy-message-converter \
+        ros-melodic-image-transport \
+        ros-melodic-rgbd-launch \
+        ros-melodic-ddynamic-reconfigure \
+        ros-melodic-diagnostic-updater \
+        ros-melodic-robot-state-publisher \
+        ros-melodic-joint-state-publisher \
+        python-catkin-tools \
+        usbutils \
+        software-properties-common \
+        iputils-ping
 
 # install cv_bridge to /opt/ros/melodic from source
 SHELL ["/bin/bash", "-c"]
@@ -251,9 +250,9 @@ RUN cd $HOME && mkdir -p py3_ws/src && cd py3_ws/src \
     && git clone -b melodic-devel https://github.com/ros/ros_comm.git \
     && cd $HOME/py3_ws \
     && python3 -m pip install --upgrade --no-cache-dir --compile \
-    catkin_tools \
-    pycryptodomex \
-    gnupg \
+        catkin_tools \
+        pycryptodomex \
+        gnupg \
     && source /opt/ros/melodic/setup.bash \
     && export ROS_PYTHON_VERSION=3 \
     && catkin config --install \
@@ -331,11 +330,11 @@ RUN apt-key adv --keyserver keys.gnupg.net --recv-key C8B3A55A6F3EFCDE \
     || apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key C8B3A55A6F3EFCDE \
     && add-apt-repository "deb http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo bionic main" -u \
     && apt-get update && apt-get install -qy \
-    librealsense2-dkms \
-    librealsense2-utils \
-    librealsense2-dev \
-    librealsense2-dbg \
-    librealsense2
+        librealsense2-dkms \
+        librealsense2-utils \
+        librealsense2-dev \
+        librealsense2-dbg \
+        librealsense2
 
 # install LCM system-wide
 RUN cd $HOME && git clone https://github.com/lcm-proj/lcm \
@@ -356,19 +355,20 @@ RUN cd $HOME && git clone https://github.com/frankaemika/libfranka.git \
 
 # install nice-to-have some dev tools
 # only clear apt lists at the last apt call
-RUN apt-get install -qy \
-    htop \
-    nano \
-    tig \
-    tmux \
-    tree \
-    git-extras \
-    clang-format-8 \
-    espeak-ng-espeak \
-    iwyu \
-    ros-melodic-tf-conversions \
-    git-lfs \
-    doxygen \
+RUN apt-get upgrade -qy \
+    && apt-get install -qy \
+        htop \
+        nano \
+        tig \
+        tmux \
+        tree \
+        git-extras \
+        clang-format-8 \
+        espeak-ng-espeak \
+        iwyu \
+        ros-melodic-tf-conversions \
+        git-lfs \
+        doxygen \
     && rm -rf /var/lib/apt/lists/*
 
 RUN git lfs install
