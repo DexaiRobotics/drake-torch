@@ -23,7 +23,7 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
 # without the apt install, drake will install old apt version overwriting new one
 
 RUN apt-get update \
-    && apt-get upgrade -y \
+    && apt-get upgrade -qy \
     && apt-get install -qy \
     gnupg2 \
     apt-transport-https \
