@@ -72,7 +72,7 @@ RUN set -eux \
         xz-utils \
         libgflags-dev \
         libgoogle-glog-dev \
-        libgtest-dev \
+        # libgtest-dev \
         libhidapi-dev \
         libiomp-dev \
         libopenmpi-dev \
@@ -92,10 +92,17 @@ RUN python3 -m pip install --upgrade --no-cache-dir --compile \
         setuptools wheel pip
 
 # gtest per recommended method
-RUN set -eux \
-    && mkdir ~/gtest && cd ~/gtest && cmake /usr/src/gtest && make \
-    && cp *.a /usr/local/lib \
-    && cd $HOME && rm -rf gtest
+RUN cd $HOME \
+    && wget -q https://github.com/google/googletest/archive/release-1.10.0.tar.gz \
+    && tar xzf release-1.10.0.tar.gz \
+    && cd googletest-release-1.10.0 \
+    && mkdir build \
+    && cd build \
+    && cmake .. \
+    && make -j \
+    && cp -r ../googletest/include /usr/local/include \
+    && cp lib/*.a /usr/local/lib \
+    && cd $HOME && rm -rf googletest-release-1.10.0
 
 # python packages for toppra, qpOASES, etc.
 RUN python3 -m pip install --upgrade --no-cache-dir --compile \
