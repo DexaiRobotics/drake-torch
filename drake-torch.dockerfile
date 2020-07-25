@@ -91,18 +91,33 @@ RUN update-alternatives \
 RUN python3 -m pip install --upgrade --no-cache-dir --compile \
         setuptools wheel pip
 
-# gtest per recommended method
+# gtest per recommended method, needed by msgpack etc.
 RUN cd $HOME \
-    && wget -q https://github.com/google/googletest/archive/release-1.10.0.tar.gz \
-    && tar xzf release-1.10.0.tar.gz \
-    && cd googletest-release-1.10.0 \
-    && mkdir build \
-    && cd build \
-    && cmake .. \
-    && make -j \
-    && cp -r ../googletest/include /usr/local/include \
-    && cp lib/*.a /usr/local/lib \
-    && cd $HOME && rm -rf googletest-release-1.10.0
+    && \
+        if [ $BUILD_CHANNEL = "stable" ] ; \
+        then \
+            wget -q https://github.com/google/googletest/archive/release-1.8.1.tar.gz \
+            && tar -xzf release-1.8.1.tar.gz \
+            && cd googletest-release-1.8.1 \
+            && mkdir build \
+            && cd build \
+            && cmake .. \
+            && make -j \
+            && cp -r ../googletest/include /usr/local/include \
+            && cp googlemock/gtest/*.a /usr/local/lib \
+            && cd $HOME && rm -rf googletest-release-1.8.1 release-1.8.1.tar.gz; \
+        else \
+            wget -q https://github.com/google/googletest/archive/release-1.10.0.tar.gz \
+            && tar -xzf release-1.10.0.tar.gz \
+            && cd googletest-release-1.10.0 \
+            && mkdir build \
+            && cd build \
+            && cmake .. \
+            && make -j \
+            && cp -r ../googletest/include /usr/local/include \
+            && cp lib/*.a /usr/local/lib \
+            && cd $HOME && rm -rf googletest-release-1.10.0 release-1.10.0.tar.gz; \
+        fi
 
 # python packages for toppra, qpOASES, etc.
 RUN python3 -m pip install --upgrade --no-cache-dir --compile \
