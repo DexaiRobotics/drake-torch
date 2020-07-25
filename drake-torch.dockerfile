@@ -53,8 +53,8 @@ RUN set -eux \
         apt-utils \
         openssh-server \
         curl \
-        gcc-9 \
-        g++-9 \
+        gcc-8 \
+        g++-8 \
         gcc-10 \
         g++-10 \
         cmake \
