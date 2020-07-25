@@ -48,5 +48,6 @@ else
   TAG="dexai2/drake-torch:cuda"
 fi
 
+# --no-cache 
 echo "building drake-torch image, build type: $BUILD_TYPE, base image: $BASE_IMAGE, channel: $BUILD_CHANNEL"
-docker build -f drake-torch.dockerfile --no-cache --build-arg BUILD_TYPE=$BUILD_TYPE --build-arg BASE_IMAGE=$BASE_IMAGE --build-arg BUILD_CHANNEL=$BUILD_CHANNEL -t $TAG --cpuset-cpus "0-$LASTCORE" . > /dev/stderr
+docker build -f drake-torch.dockerfile --build-arg BUILD_TYPE=$BUILD_TYPE --build-arg BASE_IMAGE=$BASE_IMAGE --build-arg BUILD_CHANNEL=$BUILD_CHANNEL -t $TAG --cpuset-cpus "0-$LASTCORE" . > /dev/stderr
