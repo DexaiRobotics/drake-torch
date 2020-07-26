@@ -55,6 +55,8 @@ RUN set -eux \
         curl \
         gcc-8 \
         g++-8 \
+        gcc-9 \
+        g++-9 \
         gcc-10 \
         g++-10 \
         cmake \
@@ -364,11 +366,11 @@ RUN cd $HOME && git clone https://github.com/lcm-proj/lcm \
     && cd $HOME && rm -rf lcm
 
 # install libfranka system-wide, doesn't work with gcc10, so use 9 instead
-RUN cd $HOME && git clone https://github.com/frankaemika/libfranka.git \
+RUN cd $HOME && git clone --recursive https://github.com/frankaemika/libfranka.git \
     && cd libfranka && git checkout 0.8.0 && git submodule update --init \
     && mkdir -p build && cd build \
     && cmake -DCMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=gcc-9 -D CMAKE_CXX_COMPILER=g++-9 .. \
-    && make && make install \
+    && cmake --build . \
     && cd $HOME && rm -rf libfranka
 
 ########################################################
