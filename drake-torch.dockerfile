@@ -53,8 +53,6 @@ RUN set -eux \
         apt-utils \
         openssh-server \
         curl \
-        gcc-8 \
-        g++-8 \
         gcc-9 \
         g++-9 \
         gcc-10 \
@@ -74,7 +72,6 @@ RUN set -eux \
         xz-utils \
         libgflags-dev \
         libgoogle-glog-dev \
-        # libgtest-dev \
         libhidapi-dev \
         libiomp-dev \
         libopenmpi-dev \
