@@ -360,7 +360,9 @@ RUN apt-get update && apt-get install -qy \
     clang-format-8 \
     espeak-ng-espeak \
     iwyu \
+    screen \
     ros-melodic-tf-conversions \
+    ros-melodic-gazebo-ros \
     && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update && apt-get install git-lfs -y \
