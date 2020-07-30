@@ -363,6 +363,7 @@ RUN apt-get update && apt-get install -qy \
     screen \
     ros-melodic-tf-conversions \
     ros-melodic-gazebo-ros \
+    ros-melodic-rviz \
     && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update && apt-get install git-lfs -y \
