@@ -376,6 +376,7 @@ RUN cd $HOME && git clone --recursive https://github.com/frankaemika/libfranka.g
 
 # install nice-to-have some dev tools
 # only clear apt lists at the last apt call
+# gazebo and rviz needed for sim robot
 RUN apt-get upgrade -qy \
     && apt-get install -qy \
         htop \
@@ -387,7 +388,10 @@ RUN apt-get upgrade -qy \
         clang-format-8 \
         espeak-ng-espeak \
         iwyu \
+        screen \
         ros-melodic-tf-conversions \
+        ros-melodic-gazebo-ros \
+        ros-melodic-rviz \
         git-lfs \
         doxygen \
     && rm -rf /var/lib/apt/lists/*
