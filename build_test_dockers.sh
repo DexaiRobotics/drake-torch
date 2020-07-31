@@ -1,11 +1,11 @@
 #!/bin/bash
 build_cpu () {
     echo "building drake-torch:cpu_test"
-    docker build --no-cache -f test_python.dockerfile --build-arg BASE_IMAGE=drake-torch:cpu --cpuset-cpus 0-4 .
+    docker build --no-cache -f test_python.dockerfile --build-arg BASE_IMAGE=dexai2/drake-torch:cpu --cpuset-cpus 0-4 .
 }
 build_cuda () {
     echo "building drake-torch:cuda_test"
-    docker build --no-cache -f test_python.dockerfile --build-arg BASE_IMAGE=drake-torch:cuda --cpuset-cpus 0-4 .
+    docker build --no-cache -f test_python.dockerfile --build-arg BASE_IMAGE=dexai2/drake-torch:cuda --cpuset-cpus 0-4 .
 }
 if [[ $# -eq 0 ]]; then
     echo "no arguments supplied, defaulting to both cpu and cuda:"
