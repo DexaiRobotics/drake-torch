@@ -17,111 +17,140 @@ RUN echo "Oh dang look at that BUILD_CHANNEL=${BUILD_CHANNEL}"
 # https://github.com/phusion/baseimage-docker/issues/58#issuecomment-47995343
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
 
-RUN apt-get update \
-    && apt-get upgrade -y \
-    && rm -rf /var/lib/apt/lists/*
-
 # prerequisites for install other apt packages (GPG, keys, cert...)
-RUN apt-get update && apt-get install -qy \
-    gnupg2 \
-    apt-transport-https \
-    ca-certificates \
-    software-properties-common \
-    wget \
-    && rm -rf /var/lib/apt/lists/*
+# we have to apt-install cmake so the system thinks it is already installed
+# then update make to the latest version manually as apt is old
+# without the apt install, drake will install old apt version overwriting new one
+
+RUN apt-get update \
+    && apt-get install -qy \
+        gnupg2 \
+        apt-transport-https \
+        ca-certificates \
+        software-properties-common \
+        wget
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
 RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
 RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null \
     | gpg --dearmor - | tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
 
 # apt repo setup in addition to default (cmake etc.)
-RUN apt-add-repository 'deb https://apt.kitware.com/ubuntu/ bionic main' \
-    && apt-add-repository 'deb https://apt.kitware.com/ubuntu/ bionic-rc main'
+RUN add-apt-repository 'deb https://apt.kitware.com/ubuntu/ bionic main' \
+    && add-apt-repository 'deb https://apt.kitware.com/ubuntu/ bionic-rc main' \
+    && add-apt-repository ppa:ubuntu-toolchain-r/test -y
 
 # ensure keyring for cmake stays up to date as kitware rotates their keys
-RUN apt-get install kitware-archive-keyring \
+RUN apt-get install -qy kitware-archive-keyring \
     && rm /etc/apt/trusted.gpg.d/kitware.gpg
 
 # setup timezone, install python3 and essential with apt and others with pip
 # Install Protobuf Compiler, asked for by Cmake Find for protobuf. Installation suppresses a warning in cmake.
 # Drake needs protobuf, but not the protobuf compiler, therefore "install_prereqs" does not ask for it.
 RUN set -eux \
-    && echo 'etc/UTC' > /etc/timezone && \
-    ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime && \
-    apt-get update && apt-get install -qy \
-    apt-utils \
-    openssh-server \
-    curl \
-    g++ \
-    cmake \
-    gdb \
-    gdbserver \
-    rsync \
-    git \
-    gzip \
-    jq \
-    vim \
-    tzdata \
-    unzip \
-    x11vnc \
-    xvfb \
-    xz-utils \
-    libgflags-dev \
-    libgoogle-glog-dev \
-    libgtest-dev \
-    libhidapi-dev \
-    libiomp-dev \
-    libopenmpi-dev \
-    libudev-dev \
-    libusb-1.0-0-dev \
-    protobuf-compiler \
-    python3 \
-    python3-dev \
-    python3-pip \
-    && rm -rf /var/lib/apt/lists/*
+    && echo 'etc/UTC' > /etc/timezone \
+    && ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime \
+    && apt-get update && apt-get install -qy \
+        apt-utils \
+        openssh-server \
+        curl \
+        gcc-9 \
+        g++-9 \
+        gcc-10 \
+        g++-10 \
+        cmake \
+        gdb \
+        gdbserver \
+        rsync \
+        git \
+        gzip \
+        jq \
+        vim \
+        tzdata \
+        unzip \
+        x11vnc \
+        xvfb \
+        xz-utils \
+        libgflags-dev \
+        libgoogle-glog-dev \
+        libhidapi-dev \
+        libiomp-dev \
+        libopenmpi-dev \
+        libudev-dev \
+        libusb-1.0-0-dev \
+        protobuf-compiler \
+        python3 \
+        python3-dev \
+        python3-pip
+
+RUN update-alternatives \
+        --install /usr/bin/gcc gcc /usr/bin/gcc-10 90 \
+        --slave /usr/bin/g++ g++ /usr/bin/g++-10 \
+        --slave /usr/bin/gcov gcov /usr/bin/gcov-10
 
 RUN python3 -m pip install --upgrade --no-cache-dir --compile \
-    setuptools wheel pip
+        setuptools wheel pip
 
-# gtest per recommended method
-RUN set -eux \
-    && mkdir ~/gtest && cd ~/gtest && cmake /usr/src/gtest && make \
-    && cp *.a /usr/local/lib \
-    && cd $HOME && rm -rf gtest
+# gtest per recommended method, needed by msgpack etc.
+RUN cd $HOME \
+    && \
+        if [ $BUILD_CHANNEL = "stable" ] ; \
+        then \
+            wget -q https://github.com/google/googletest/archive/release-1.8.1.tar.gz \
+            && tar -xzf release-1.8.1.tar.gz \
+            && cd googletest-release-1.8.1 \
+            && mkdir build \
+            && cd build \
+            && cmake .. \
+            && make -j \
+            && cp -r ../googletest/include /usr/local/include \
+            && cp googlemock/gtest/*.a /usr/local/lib \
+            && cd $HOME && rm -rf googletest-release-1.8.1 release-1.8.1.tar.gz; \
+        else \
+            wget -q https://github.com/google/googletest/archive/release-1.10.0.tar.gz \
+            && tar -xzf release-1.10.0.tar.gz \
+            && cd googletest-release-1.10.0 \
+            && mkdir build \
+            && cd build \
+            && cmake .. \
+            && make -j \
+            && cp -r ../googletest/include /usr/local/include \
+            && cp lib/*.a /usr/local/lib \
+            && cd $HOME && rm -rf googletest-release-1.10.0 release-1.10.0.tar.gz; \
+        fi
 
 # python packages for toppra, qpOASES, etc.
 RUN python3 -m pip install --upgrade --no-cache-dir --compile \
-    typing \
-    decorator \
-    cython \
-    numpy \
-    scipy \
-    defusedxml \
-    empy \
-    nose2 \
-    netifaces \
-    cpppo \
-    pyyaml \
-    pyserial \
-    pyzmq \
-    pyside2 \
-    msgpack \
-    rospkg \
-    mkl \
-    mkl-include \
-    cffi \
-    ecos \
-    tqdm \
-    visdom \
-    scikit-image \
-    opencv-python \
-    munch \
-    supervisor \
-    sphinx \
-    sphinx_rtd_theme \
-    breathe \
-    jupyterlab \
-    import-ipynb
+        typing \
+        decorator \
+        cython \
+        numpy \
+        scipy \
+        defusedxml \
+        empy \
+        nose2 \
+        netifaces \
+        cpppo \
+        pyyaml \
+        pyserial \
+        pyzmq \
+        pyside2 \
+        msgpack \
+        rospkg \
+        mkl \
+        mkl-include \
+        cffi \
+        ecos \
+        tqdm \
+        visdom \
+        scikit-image \
+        opencv-python \
+        munch \
+        supervisor \
+        sphinx \
+        sphinx_rtd_theme \
+        breathe \
+        jupyterlab \
+        import-ipynb
 
 
 ##############################################################
@@ -131,8 +160,7 @@ RUN python3 -m pip install --upgrade --no-cache-dir --compile \
 RUN wget -q https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
 RUN apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB && rm GPG-PUB*
 RUN sh -c 'echo deb https://apt.repos.intel.com/mkl all main > /etc/apt/sources.list.d/intel-mkl.list'
-RUN apt-get update && apt-get -y install intel-mkl-64bit-2019.1-053 \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get -y install intel-mkl-64bit-2019.1-053
 RUN rm /opt/intel/mkl/lib/intel64/*.so
 
 # Download and build libtorch with MKL support
@@ -179,7 +207,6 @@ RUN set -eux \
         else curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-bionic.tar.gz | tar -xzC /opt; \
         fi \
     && cd /opt/drake/share/drake/setup && yes | ./install_prereqs \
-    && rm -rf /var/lib/apt/lists/* \
     && cd $HOME && rm -rf drake*bionic.tar.gz
 
 # pip install pydrake using the /opt/drake directory in develop mode
@@ -194,20 +221,18 @@ RUN python3 -m pip install -e /opt/drake/lib/python3.6/site-packages
 RUN echo "deb http://packages.ros.org/ros/ubuntu `lsb_release -sc` main" > /etc/apt/sources.list.d/ros-latest.list
 
 # install needed ROS packages
-RUN apt-get update && apt-get install -qy \
-    dirmngr \
-    librosconsole-dev \
-    libxmlrpcpp-dev \
-    lsb-release \
-    libyaml-cpp-dev \
-    && rm -rf /var/lib/apt/lists/*
+    RUN apt-get update && apt-get install -qy \
+        dirmngr \
+        librosconsole-dev \
+        libxmlrpcpp-dev \
+        lsb-release \
+        libyaml-cpp-dev
 
 # install bootstrap tools
-RUN apt-get update && apt-get install --no-install-recommends -qy \
-    python3-rosdep \
-    python3-rosinstall \
-    python3-vcstools \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get install --no-install-recommends -qy \
+        python3-rosdep \
+        python3-rosinstall \
+        python3-vcstools
 
 # setup environment
 ENV LANG C.UTF-8
@@ -219,26 +244,25 @@ RUN rosdep init \
 
 # install ros packages
 ENV ROS_DISTRO melodic
-RUN apt-get update && apt-get install -y \
-    ros-melodic-ros-base \
-    ros-melodic-geometry2 \
-    libpcl-dev \
-    ros-melodic-pcl-ros \
-    libopencv-dev \
-    ros-melodic-vision-opencv \
-    ros-melodic-xacro \
-    ros-melodic-rospy-message-converter \
-    ros-melodic-image-transport \
-    ros-melodic-rgbd-launch \
-    ros-melodic-ddynamic-reconfigure \
-    ros-melodic-diagnostic-updater \
-    ros-melodic-robot-state-publisher \
-    ros-melodic-joint-state-publisher \
-    python-catkin-tools \
-    usbutils \
-    software-properties-common \
-    iputils-ping \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get install -qy \
+        ros-melodic-ros-base \
+        ros-melodic-geometry2 \
+        libpcl-dev \
+        ros-melodic-pcl-ros \
+        libopencv-dev \
+        ros-melodic-vision-opencv \
+        ros-melodic-xacro \
+        ros-melodic-rospy-message-converter \
+        ros-melodic-image-transport \
+        ros-melodic-rgbd-launch \
+        ros-melodic-ddynamic-reconfigure \
+        ros-melodic-diagnostic-updater \
+        ros-melodic-robot-state-publisher \
+        ros-melodic-joint-state-publisher \
+        python-catkin-tools \
+        usbutils \
+        software-properties-common \
+        iputils-ping
 
 # install cv_bridge to /opt/ros/melodic from source
 SHELL ["/bin/bash", "-c"]
@@ -247,9 +271,9 @@ RUN cd $HOME && mkdir -p py3_ws/src && cd py3_ws/src \
     && git clone -b melodic-devel https://github.com/ros/ros_comm.git \
     && cd $HOME/py3_ws \
     && python3 -m pip install --upgrade --no-cache-dir --compile \
-    catkin_tools \
-    pycryptodomex \
-    gnupg \
+        catkin_tools \
+        pycryptodomex \
+        gnupg \
     && source /opt/ros/melodic/setup.bash \
     && export ROS_PYTHON_VERSION=3 \
     && catkin config --install \
@@ -326,23 +350,24 @@ RUN git clone https://github.com/rogersce/cnpy.git \
 RUN apt-key adv --keyserver keys.gnupg.net --recv-key C8B3A55A6F3EFCDE \
     || apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key C8B3A55A6F3EFCDE \
     && add-apt-repository "deb http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo bionic main" -u \
-    && apt-get update && apt-get install -y \
-    librealsense2-dkms \
-    librealsense2-utils \
-    librealsense2-dev \
-    librealsense2-dbg \
-    librealsense2 \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get update && apt-get install -qy \
+        librealsense2-dkms \
+        librealsense2-utils \
+        librealsense2-dev \
+        librealsense2-dbg \
+        librealsense2
 
 # install LCM system-wide
 RUN cd $HOME && git clone https://github.com/lcm-proj/lcm \
     && cd lcm && mkdir -p build && cd build && cmake .. && make && make install \
     && cd $HOME && rm -rf lcm
 
-# install libfranka system-wide
-RUN cd $HOME && git clone https://github.com/frankaemika/libfranka.git \
-    && cd libfranka && git checkout 0.5.0 && git submodule update --init \
-    && mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make && make install \
+# install libfranka system-wide, doesn't work with gcc10, so use 9 instead
+RUN cd $HOME && git clone --recursive https://github.com/frankaemika/libfranka.git \
+    && cd libfranka && git checkout 0.8.0 && git submodule update --init \
+    && mkdir -p build && cd build \
+    && cmake -DCMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=gcc-9 -D CMAKE_CXX_COMPILER=g++-9 .. \
+    && cmake --build . \
     && cd $HOME && rm -rf libfranka
 
 ########################################################
@@ -350,29 +375,35 @@ RUN cd $HOME && git clone https://github.com/frankaemika/libfranka.git \
 ########################################################
 
 # install nice-to-have some dev tools
-RUN apt-get update && apt-get install -qy \
-    htop \
-    nano \
-    tig \
-    tmux \
-    tree \
-    git-extras \
-    clang-format-8 \
-    espeak-ng-espeak \
-    iwyu \
-    screen \
-    ros-melodic-tf-conversions \
-    ros-melodic-gazebo-ros \
-    ros-melodic-rviz \
+# only clear apt lists at the last apt call
+# gazebo and rviz needed for sim robot
+RUN apt-get upgrade -qy \
+    && apt-get install -qy \
+        htop \
+        nano \
+        tig \
+        tmux \
+        tree \
+        git-extras \
+        clang-format-8 \
+        espeak-ng-espeak \
+        iwyu \
+        screen \
+        ros-melodic-tf-conversions \
+        ros-melodic-gazebo-ros \
+        ros-melodic-rviz \
+        git-lfs \
+        doxygen \
     && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && apt-get install git-lfs -y \
-    && git lfs install \
-    && rm -rf /var/lib/apt/lists/*
+RUN git lfs install
 
-RUN apt-get update && apt-get install -y \
-    doxygen \
-    && rm -rf /var/lib/apt/lists/*
+# RUN cd $HOME && git clone https://github.com/google/protobuf.git \
+#     && cd protobuf && git submodule update --init --recursive \
+#     && ./autogen.sh \
+#     && ./configure \
+#     && make && make check && make install && ldconfig \
+#     && cd $HOME && rm -rf protobuf
 
 # Taken from - https://docs.docker.com/engine/examples/running_ssh_service/#environment-variables
 RUN mkdir /var/run/sshd
