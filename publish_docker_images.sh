@@ -12,7 +12,7 @@ tag_and_push() {
     SUFFIX=$2
     echo "tagging and pushing image, build type $BUILD_TYPE, suffix $SUFFIX"
     docker tag \
-        dexai2/drake-torch:$BUILD_TYPE
+        dexai2/drake-torch:$BUILD_TYPE \
         dexai2/drake-torch:$BUILD_TYPE_$SUFFIX
 }
 
