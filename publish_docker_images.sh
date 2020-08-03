@@ -14,7 +14,10 @@ tag_and_push() {
     BUILD_TYPE=$1
     SUFFIX=$2
     echo "tagging and pushing image, build type $BUILD_TYPE, suffix $SUFFIX"
-    docker tag $REPO_STR:$BUILD_TYPE $REPO_STR:"${BUILD_TYPE}_${SUFFIX}"
+    CURRENT_TAG=$REPO_STR:$BUILD_TYPE
+    NEW_TAG=$REPO_STR:"${BUILD_TYPE}_${SUFFIX}"
+    docker tag $CURRENT_TAG $NEW_TAG
+    docker push $NEW_TAG
 }
 
 
