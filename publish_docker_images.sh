@@ -7,16 +7,17 @@
 # dexai2/drake-torch:cuda -> dexai2/drake-torch:cuda_YYMMDD
 #                         -> dexai2/drake-torch:cuda_latest
 
+repo_str=dexai2/drake-torch
+suffix_date=$(date +"%Y%m%d")
+
 tag_and_push() {
     BUILD_TYPE=$1
     SUFFIX=$2
     echo "tagging and pushing image, build type $BUILD_TYPE, suffix $SUFFIX"
-    docker tag \
-        dexai2/drake-torch:$BUILD_TYPE \
-        dexai2/drake-torch:$BUILD_TYPE_$SUFFIX
+    docker tag repo_str:$BUILD_TYPE repo_str:"${BUILD_TYPE}_${SUFFIX}"
 }
 
-suffix_date=$(date +"%Y%m%d")
+
 tag_and_push cpu date_string
 tag_and_push cpu latest
 tag_and_push cuda date_string
