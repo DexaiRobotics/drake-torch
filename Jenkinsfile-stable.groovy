@@ -40,6 +40,8 @@ pipeline {
                 // sh "./publish_docker_images.sh" // do not publish by default
             }
         }
+        // prerequisite for jenkins' docker plugin to login properly:
+        // sudo apt install gnupg2 pass
         stage('publish_images') {
             steps {
                 script {
