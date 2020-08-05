@@ -40,7 +40,15 @@ pipeline {
                 // sh "./publish_docker_images.sh" // do not publish by default
             }
         }
-
+        stage('publish_images') {
+            steps {
+                script {
+                    docker.withRegistry('', registryCredential) {
+                        sh "./publish_docker_images.sh"
+                    }
+                }
+            }
+        }
     }
 
     post { 
