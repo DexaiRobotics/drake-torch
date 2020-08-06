@@ -194,21 +194,22 @@ RUN set -eux && cd $HOME \
     && \
         if [ $BUILD_TYPE = "cpu" ]; then \
             if [ $BUILD_CHANNEL = "stable" ]; then \
-                curl -SL https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.5.1%2Bcpu.zip | tar -xz \
-                && python3 -m pip install --upgrade --no-cache-dir --compile torch==1.5.1+cpu torchvision==0.6.1+cpu -f https://download.pytorch.org/whl/torch_stable.html; \
+                wget -q https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.6.0%2Bcpu.zip \
+                && python3 -m pip install --upgrade --no-cache-dir --compile torch==1.6.0+cpu torchvision==0.7.0+cpu -f https://download.pytorch.org/whl/torch_stable.html; \
             else \
-                curl -SL https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared-with-deps-latest.zip | tar -xz \
+                wget -q https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared-with-deps-latest.zip \
                 && python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html; \
             fi; \
         else \
             if [ $BUILD_CHANNEL = "stable" ]; then \
-                curl -SL https://download.pytorch.org/libtorch/cu102/libtorch-cxx11-abi-shared-with-deps-1.5.1.zip | tar -xz \
+                wget -q https://download.pytorch.org/libtorch/cu102/libtorch-cxx11-abi-shared-with-deps-1.6.0.zip \
                 && python3 -m pip install --upgrade --no-cache-dir --compile torch torchvision; \
             else \
-                curl -SL https://download.pytorch.org/libtorch/nightly/cu102/libtorch-cxx11-abi-shared-with-deps-latest.zip | tar -xz \
+                wget -q https://download.pytorch.org/libtorch/nightly/cu102/libtorch-cxx11-abi-shared-with-deps-latest.zip \
                 && python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cu102/torch_nightly.html; \
             fi; \
         fi \
+    && unzip libtorch-cxx11-abi-shared-with-deps-*.zip \
     && mv libtorch /usr/local/lib/libtorch \
     && rm $HOME/libtorch*.zip
 
