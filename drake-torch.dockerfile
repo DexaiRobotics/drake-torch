@@ -151,8 +151,9 @@ RUN python3 -m pip install --upgrade --no-cache-dir --compile \
 
 # OpenCV 4.4.0 release library (for C++ and Python)
 RUN apt-get install -qy \
-    libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
-    libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev \
+        python-numpy \
+        libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
+        libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev \
     && cd $HOME \
     && curl -SL https://github.com/opencv/opencv/archive/4.4.0.tar.gz | tar -xz \
     && cd opencv-4.4.0 \
@@ -164,11 +165,14 @@ RUN apt-get install -qy \
         -D PYTHON3_EXECUTABLE=/usr/bin/python3 \
         -D PYTHON_INCLUDE_DIR=/usr/include/python3.6m \
         -D PYTHON_INCLUDE_DIR2=/usr/include/x86_64-linux-gnu/python3.6m \
+        -D PYTHON_INCLUDE_DIR3=/usr/lib/python3/dist-packages/numpy/core/include \
         -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so \
         -D PYTHON3_NUMPY_INCLUDE_DIRS=/usr/lib/python3/dist-packages/numpy/core/include \
         .. \
     && make -j12 \
-    && make install
+    && make install \
+    && cd $HOME \
+    && rm -rf 4.4.0.tar.gz opencv-4.4.0
 
 ##############################################################
 # libtorch and pytorch, torchvision with intel MKL support
