@@ -36,7 +36,6 @@ RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/nul
 
 # apt repo setup in addition to default (cmake etc.)
 RUN add-apt-repository 'deb https://apt.kitware.com/ubuntu/ bionic main' \
-    && add-apt-repository 'deb https://apt.kitware.com/ubuntu/ bionic-rc main' \
     && add-apt-repository ppa:ubuntu-toolchain-r/test -y
 
 # ensure keyring for cmake stays up to date as kitware rotates their keys
@@ -95,8 +94,7 @@ RUN cd $HOME \
     && \
         if [ $BUILD_CHANNEL = "stable" ] ; \
         then \
-            wget -q https://github.com/google/googletest/archive/release-1.8.1.tar.gz \
-            && tar -xzf release-1.8.1.tar.gz \
+            curl -SL https://github.com/google/googletest/archive/release-1.8.1.tar.gz | tar -xz \
             && cd googletest-release-1.8.1 \
             && mkdir build \
             && cd build \
@@ -106,8 +104,7 @@ RUN cd $HOME \
             && cp googlemock/gtest/*.a /usr/local/lib \
             && cd $HOME && rm -rf googletest-release-1.8.1 release-1.8.1.tar.gz; \
         else \
-            wget -q https://github.com/google/googletest/archive/release-1.10.0.tar.gz \
-            && tar -xzf release-1.10.0.tar.gz \
+            curl -SL https://github.com/google/googletest/archive/release-1.10.0.tar.gz | tar -xz \
             && cd googletest-release-1.10.0 \
             && mkdir build \
             && cd build \
@@ -140,18 +137,38 @@ RUN python3 -m pip install --upgrade --no-cache-dir --compile \
         mkl-include \
         cffi \
         ecos \
-        tqdm \
+        # tqdm \
         visdom \
-        scikit-image \
-        opencv-python \
+        # scikit-image \
+        # opencv-python \
         munch \
         supervisor \
         sphinx \
         sphinx_rtd_theme \
-        breathe \
-        jupyterlab \
-        import-ipynb
+        breathe
+        # jupyterlab \
+        # import-ipynb
 
+# OpenCV 4.4.0 release library (for C++ and Python)
+RUN apt-get install -qy \
+    libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
+    libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev \
+    && cd $HOME \
+    && curl -SL https://github.com/opencv/opencv/archive/4.4.0.tar.gz | tar -xz \
+    && cd opencv-4.4.0 \
+    && mkdir build \
+    && cd build \
+    && cmake \
+        -D CMAKE_BUILD_TYPE=Release \
+        -D CMAKE_INSTALL_PREFIX=/usr/local \
+        -D PYTHON3_EXECUTABLE=/usr/bin/python3 \
+        -D PYTHON_INCLUDE_DIR=/usr/include/python3.6m \
+        -D PYTHON_INCLUDE_DIR2=/usr/include/x86_64-linux-gnu/python3.6m \
+        -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so \
+        -D PYTHON3_NUMPY_INCLUDE_DIRS=/usr/lib/python3/dist-packages/numpy/core/include \
+        .. \
+    && make -j12 \
+    && make install
 
 ##############################################################
 # libtorch and pytorch, torchvision with intel MKL support
@@ -174,22 +191,21 @@ RUN set -eux && cd $HOME \
     && \
         if [ $BUILD_TYPE = "cpu" ]; then \
             if [ $BUILD_CHANNEL = "stable" ]; then \
-                wget -q https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.5.1%2Bcpu.zip \
+                curl -SL https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.5.1%2Bcpu.zip | tar -xz \
                 && python3 -m pip install --upgrade --no-cache-dir --compile torch==1.5.1+cpu torchvision==0.6.1+cpu -f https://download.pytorch.org/whl/torch_stable.html; \
             else \
-                wget -q https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared-with-deps-latest.zip \
+                curl -SL https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared-with-deps-latest.zip | tar -xz \
                 && python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html; \
             fi; \
         else \
             if [ $BUILD_CHANNEL = "stable" ]; then \
-                wget -q https://download.pytorch.org/libtorch/cu102/libtorch-cxx11-abi-shared-with-deps-1.5.1.zip \
+                curl -SL https://download.pytorch.org/libtorch/cu102/libtorch-cxx11-abi-shared-with-deps-1.5.1.zip | tar -xz \
                 && python3 -m pip install --upgrade --no-cache-dir --compile torch torchvision; \
             else \
-                wget -q https://download.pytorch.org/libtorch/nightly/cu102/libtorch-cxx11-abi-shared-with-deps-latest.zip \
+                curl -SL https://download.pytorch.org/libtorch/nightly/cu102/libtorch-cxx11-abi-shared-with-deps-latest.zip | tar -xz \
                 && python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cu102/torch_nightly.html; \
             fi; \
         fi \
-    && unzip libtorch-cxx11-abi-shared-with-deps-*.zip \
     && mv libtorch /usr/local/lib/libtorch \
     && rm $HOME/libtorch*.zip
 
@@ -221,12 +237,12 @@ RUN python3 -m pip install -e /opt/drake/lib/python3.6/site-packages
 RUN echo "deb http://packages.ros.org/ros/ubuntu `lsb_release -sc` main" > /etc/apt/sources.list.d/ros-latest.list
 
 # install needed ROS packages
-    RUN apt-get update && apt-get install -qy \
-        dirmngr \
-        librosconsole-dev \
-        libxmlrpcpp-dev \
-        lsb-release \
-        libyaml-cpp-dev
+RUN apt-get update && apt-get install -qy \
+    dirmngr \
+    librosconsole-dev \
+    libxmlrpcpp-dev \
+    lsb-release \
+    libyaml-cpp-dev
 
 # install bootstrap tools
 RUN apt-get install --no-install-recommends -qy \
@@ -249,7 +265,7 @@ RUN apt-get install -qy \
         ros-melodic-geometry2 \
         libpcl-dev \
         ros-melodic-pcl-ros \
-        libopencv-dev \
+        # libopencv-dev \
         ros-melodic-vision-opencv \
         ros-melodic-xacro \
         ros-melodic-rospy-message-converter \
@@ -386,6 +402,7 @@ RUN apt-get upgrade -qy \
         ros-melodic-rviz \
         git-lfs \
         doxygen \
+    && apt-get autoremove -qy \
     && rm -rf /var/lib/apt/lists/*
 
 RUN git lfs install
