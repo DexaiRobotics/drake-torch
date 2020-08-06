@@ -165,7 +165,6 @@ RUN apt-get install -qy \
         -D PYTHON3_EXECUTABLE=/usr/bin/python3 \
         -D PYTHON_INCLUDE_DIR=/usr/include/python3.6m \
         -D PYTHON_INCLUDE_DIR2=/usr/include/x86_64-linux-gnu/python3.6m \
-        -D PYTHON_INCLUDE_DIR3=/usr/lib/python3/dist-packages/numpy/core/include \
         -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so \
         -D PYTHON3_NUMPY_INCLUDE_DIRS=/usr/lib/python3/dist-packages/numpy/core/include \
         .. \
