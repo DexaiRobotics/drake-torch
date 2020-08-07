@@ -137,17 +137,12 @@ RUN python3 -m pip install --upgrade --no-cache-dir --compile \
         mkl-include \
         cffi \
         ecos \
-        # tqdm \
         visdom \
-        # scikit-image \
-        # opencv-python \
         munch \
         supervisor \
         sphinx \
         sphinx_rtd_theme \
         breathe
-        # jupyterlab \
-        # import-ipynb
 
 # OpenCV 4.4.0 release library (for C++ and Python)
 RUN apt-get install -qy \
@@ -269,7 +264,6 @@ RUN apt-get install -qy \
         ros-melodic-geometry2 \
         libpcl-dev \
         ros-melodic-pcl-ros \
-        # libopencv-dev \
         ros-melodic-vision-opencv \
         ros-melodic-xacro \
         ros-melodic-rospy-message-converter \
