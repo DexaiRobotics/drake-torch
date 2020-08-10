@@ -231,7 +231,7 @@ RUN python3 -m pip install -e /opt/drake/lib/python3.6/site-packages
 # install jupyter suite properly and update components
 RUN apt-get remove python3-terminado -qy \
     && python3 -m pip install --upgrade --no-cache-dir --compile \
-        jupyterlab ipykernel nbconvert
+        ipython ipykernel jupyterlab nbconvert
 
 ########################################################
 # ROS
