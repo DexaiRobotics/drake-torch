@@ -166,7 +166,7 @@ RUN apt-get install -qy \
     && make -j12 \
     && make install \
     && cd $HOME \
-    && rm -rf 4.4.0.tar.gz opencv-4.4.0
+    && rm -rf 4.4.0.tar.gz
 
 ##############################################################
 # libtorch and pytorch, torchvision with intel MKL support
@@ -296,6 +296,7 @@ RUN cd $HOME && mkdir -p py3_ws/src && cd py3_ws/src \
             -DPYTHON_EXECUTABLE=/usr/bin/python3 \
             -DPYTHON_INCLUDE_DIR=/usr/include/python3.6m \
             -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so \
+            -DOPENCV_VERSION_MAJOR=4 \
     && catkin build && rm -rf $HOME/py3_ws
 
 # install ccd & octomap && fcl
@@ -326,6 +327,12 @@ RUN ./install-ompl-ubuntu.sh \
 RUN cd $HOME && git clone https://github.com/ros/urdf_parser_py && cd urdf_parser_py \
     && python3 setup.py install \
     && cd $HOME && rm -rf urdf_parser_py
+
+# reinstall opencv 4 to fix symlinks
+RUN cd $HOME/opencv-4.4.0/build \
+    && make install \
+    && cd $HOME \
+    && rm -rf opencv-4.4.0
 
 ########################################################
 # bash fix: for broken interactive shell detection
