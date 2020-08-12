@@ -36,7 +36,8 @@ RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/nul
 
 # apt repo setup in addition to default (cmake etc.)
 RUN add-apt-repository 'deb https://apt.kitware.com/ubuntu/ bionic main' \
-    && add-apt-repository ppa:ubuntu-toolchain-r/test -y
+    && add-apt-repository ppa:ubuntu-toolchain-r/test -y \
+    && add-apt-repository ppa:git-core/ppa -y
 
 # ensure keyring for cmake stays up to date as kitware rotates their keys
 RUN apt-get install -qy kitware-archive-keyring \
