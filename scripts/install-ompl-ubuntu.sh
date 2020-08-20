@@ -5,8 +5,8 @@ ubuntu_version=`lsb_release -rs | sed 's/\.//'`
 install_common_dependencies()
 {
     # install most dependencies via apt-get
-    apt-get -y update
-    apt-get -y upgrade
+    # apt-get -y update
+    # apt-get -y upgrade
     # On Ubuntu 14.04 we need to add a PPA to get a recent compiler (g++-4.8 is too old).
     # We also need to specify a Boost version, since the default Boost is too old.
     #
@@ -61,16 +61,16 @@ install_app_dependencies()
     if [[ $ubuntu_version > 1410 ]]; then
         apt-get -y install libccd-dev
     else
-        wget -O - https://github.com/danfis/libccd/archive/v2.0.tar.gz | tar zxf -
-        cd libccd-2.0; cmake .; sudo -E make install; cd ..
+        wget -O - https://github.com/danfis/libccd/archive/v2.1.tar.gz | tar zxf -
+        cd libccd-2.1; cmake .; sudo -E make install; cd ..
     fi
     # install fcl
     if ! pkg-config --atleast-version=0.5.0 fcl; then
         if [[ $ubuntu_version > 1604 ]]; then
             sudo apt-get -y install libfcl-dev
         else
-            wget -O - https://github.com/flexible-collision-library/fcl/archive/0.5.0.tar.gz | tar zxf -
-            cd fcl-0.5.0; cmake .; sudo -E make install; cd ..
+            wget -O - https://github.com/flexible-collision-library/fcl/archive/0.6.1.tar.gz | tar zxf -
+            cd fcl-0.6.1; cmake .; sudo -E make install; cd ..
         fi
     fi
 }
@@ -82,8 +82,8 @@ install_ompl()
     else
         OMPL="omplapp"
     fi
-    wget -O - https://bitbucket.org/ompl/ompl/downloads/$OMPL-1.4.2-Source.tar.gz | tar zxf -
-    cd $OMPL-1.4.2-Source
+    wget -O - https://github.com/ompl/ompl/archive/1.5.0.tar.gz | tar zxf -
+    cd $OMPL-1.5.0-Source
     mkdir -p build/Release
     cd build/Release
     cmake ../.. -DPYTHON_EXEC=/usr/bin/python${PYTHONV}
