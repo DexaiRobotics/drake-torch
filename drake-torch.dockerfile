@@ -351,7 +351,7 @@ RUN cd $HOME/opencv-4.4.0/build \
     && make install \
     && cd $HOME \
     && rm -rf opencv-4.4.0
-`
+
 ########################################################
 # bash fix: for broken interactive shell detection
 ########################################################
