@@ -34,7 +34,7 @@ install_python_binding_dependencies()
     # install additional python dependencies via pip
     -H pip${PYTHONV} install -vU pygccxml pyplusplus
     # install castxml
-    wget -q -O- https://data.kitware.com/api/v1/file/5b68c2c28d777f06857c1f48/download | tar zxf - -C ${HOME}
+    curl -SL https://data.kitware.com/api/v1/file/5b68c2c28d777f06857c1f48/download | tar -xz -C ${HOME}
     export PATH=${HOME}/castxml/bin:${PATH}
     if [[ $ubuntu_version > 1410 ]]; then
         apt-get -y install libboost-python-dev
@@ -61,7 +61,7 @@ install_app_dependencies()
     if [[ $ubuntu_version > 1410 ]]; then
         apt-get -y install libccd-dev
     else
-        wget -O - https://github.com/danfis/libccd/archive/v2.1.tar.gz | tar zxf -
+        curl -SL https://github.com/danfis/libccd/archive/v2.1.tar.gz | tar -xz
         cd libccd-2.1; cmake .; sudo -E make install; cd ..
     fi
     # install fcl
@@ -69,7 +69,7 @@ install_app_dependencies()
         if [[ $ubuntu_version > 1604 ]]; then
             sudo apt-get -y install libfcl-dev
         else
-            wget -O - https://github.com/flexible-collision-library/fcl/archive/0.6.1.tar.gz | tar zxf -
+            curl -SL https://github.com/flexible-collision-library/fcl/archive/0.6.1.tar.gz | tar -xz
             cd fcl-0.6.1; cmake .; sudo -E make install; cd ..
         fi
     fi
@@ -82,11 +82,11 @@ install_ompl()
     else
         OMPL="omplapp"
     fi
-    wget -O - https://github.com/ompl/ompl/archive/1.5.0.tar.gz | tar zxf -
-    cd $OMPL-1.5.0-Source
-    mkdir -p build/Release
-    cd build/Release
-    cmake ../.. -DPYTHON_EXEC=/usr/bin/python${PYTHONV}
+    curl -SL https://github.com/ompl/ompl/archive/1.5.0.tar.gz | tar -xz
+    cd $OMPL-1.5.0
+    mkdir -p build
+    cd build
+    cmake .. -DPYTHON_EXEC=/usr/bin/python${PYTHONV}
     if [ ! -z $1 ]; then
         make update_bindings
     fi
