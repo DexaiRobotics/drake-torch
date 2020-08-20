@@ -119,12 +119,11 @@ RUN cd $HOME \
     && cd make-4.3 \
     && mkdir build \
     && cd build \
-    && ./configure --prefix=/usr \
+    && ../configure --prefix=/usr \
     && make \
     && make install \
     && cd $HOME \
     && rm -rf make-4.3
-
 # RUN apt-get install texinfo -qy
 RUN cd $HOME \
     && curl -SL https://ftp.gnu.org/gnu/gdb/gdb-9.2.tar.xz | tar -xJ \
