@@ -121,7 +121,7 @@ RUN cd $HOME \
     && cd build \
     && ../configure \
         --prefix=/usr \
-        --with-system-readline \
+        # --with-system-readline \
         --with-python=/usr/bin/python3 \
     && make \
     && make install
