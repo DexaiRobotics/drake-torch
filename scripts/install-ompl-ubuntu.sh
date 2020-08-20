@@ -84,9 +84,9 @@ install_ompl()
     fi
     curl -SL https://github.com/ompl/ompl/archive/1.5.0.tar.gz | tar -xz
     cd $OMPL-1.5.0
-    mkdir -p build
-    cd build
-    cmake .. -DPYTHON_EXEC=/usr/bin/python${PYTHONV}
+    mkdir -p build/Release
+    cd build/Release
+    cmake ../.. -DPYTHON_EXEC=/usr/bin/python${PYTHONV}
     if [ ! -z $1 ]; then
         make update_bindings
     fi
