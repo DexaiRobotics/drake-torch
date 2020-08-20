@@ -57,8 +57,6 @@ RUN set -eux \
         gcc-10 \
         g++-10 \
         cmake \
-        gdb \
-        gdbserver \
         rsync \
         git \
         gzip \
@@ -114,6 +112,20 @@ RUN cd $HOME \
             && cp lib/*.a /usr/local/lib \
             && cd $HOME && rm -rf googletest-release-1.10.0 release-1.10.0.tar.gz; \
         fi
+
+# install GDB 9.2
+RUN cd $HOME \
+    && curl -SL https://ftp.gnu.org/gnu/gdb/gdb-9.2.tar.xz | tar -xJ \
+    && cd gdb-9.2 \
+    && mkdir build \
+    && cd build \
+    && ../configure \
+        --prefix=/usr \
+        --with-system-readline \
+        --with-python=/usr/bin/python3 \
+    && make \
+    && make install
+
 
 # python packages for toppra, qpOASES, etc.
 RUN python3 -m pip install --upgrade --no-cache-dir --compile \
@@ -339,7 +351,7 @@ RUN cd $HOME/opencv-4.4.0/build \
     && make install \
     && cd $HOME \
     && rm -rf opencv-4.4.0
-
+`
 ########################################################
 # bash fix: for broken interactive shell detection
 ########################################################
