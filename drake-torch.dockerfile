@@ -352,8 +352,8 @@ RUN cd $HOME && git clone https://github.com/MobileManipulation/fcl.git \
 # this script was modifed to remove sudo to work in the docker; otherwise identical
 COPY scripts/install-ompl-ubuntu.sh $HOME
 RUN ./install-ompl-ubuntu.sh \
-    && cd ompl-1.4.2-Source/build/Release && make install \
-    && cd $HOME && rm -rf ompl-1.4.2-Source && rm install-ompl-ubuntu.sh
+    && cd $HOME \
+    && rm -rf ompl-1.5.0 && rm install-ompl-ubuntu.sh
 
 # Install python URDF parser
 RUN cd $HOME && git clone https://github.com/ros/urdf_parser_py && cd urdf_parser_py \

@@ -82,6 +82,7 @@ install_ompl()
     else
         OMPL="omplapp"
     fi
+    cd $HOME
     curl -SL https://github.com/ompl/ompl/archive/1.5.0.tar.gz | tar -xz
     cd $OMPL-1.5.0
     mkdir -p build/Release
@@ -129,6 +130,7 @@ if [[ ! -z $PYTHON ]]; then
     fi
 fi
 
+pushd $HOME
 install_common_dependencies
 if [ ! -z $PYTHON ]; then
     install_python_binding_dependencies
@@ -137,3 +139,4 @@ if [ ! -z $APP ]; then
     install_app_dependencies
 fi
 install_ompl $PYTHON $APP
+popd
