@@ -36,7 +36,8 @@ RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/nul
 
 # apt repo setup in addition to default (cmake etc.)
 RUN add-apt-repository 'deb https://apt.kitware.com/ubuntu/ bionic main' \
-    && add-apt-repository ppa:ubuntu-toolchain-r/test -y
+    && add-apt-repository ppa:ubuntu-toolchain-r/test -y \
+    && add-apt-repository ppa:git-core/ppa -y
 
 # ensure keyring for cmake stays up to date as kitware rotates their keys
 RUN apt-get install -qy kitware-archive-keyring \
@@ -56,8 +57,6 @@ RUN set -eux \
         gcc-10 \
         g++-10 \
         cmake \
-        gdb \
-        gdbserver \
         rsync \
         git \
         gzip \
@@ -98,7 +97,7 @@ RUN cd $HOME \
             && mkdir build \
             && cd build \
             && cmake .. \
-            && make -j \
+            && make -j 12 \
             && cp -r ../googletest/include /usr/local/include \
             && cp googlemock/gtest/*.a /usr/local/lib \
             && cd $HOME && rm -rf googletest-release-1.8.1 release-1.8.1.tar.gz; \
@@ -108,11 +107,38 @@ RUN cd $HOME \
             && mkdir build \
             && cd build \
             && cmake .. \
-            && make -j \
+            && make -j 12 \
             && cp -r ../googletest/include /usr/local/include \
             && cp lib/*.a /usr/local/lib \
             && cd $HOME && rm -rf googletest-release-1.10.0 release-1.10.0.tar.gz; \
         fi
+
+# install make 4.3 and GDB 9.2
+RUN cd $HOME \
+    && curl -SL https://ftp.gnu.org/gnu/make/make-4.3.tar.gz | tar -xz \
+    && cd make-4.3 \
+    && mkdir build \
+    && cd build \
+    && ../configure --prefix=/usr \
+    && make -j 12 \
+    && make install \
+    && cd $HOME \
+    && rm -rf make-4.3
+# texinfo is needed for building gdb 9.2 even in the presence of make 4.3
+RUN apt-get install texinfo -qy
+RUN cd $HOME \
+    && curl -SL https://ftp.gnu.org/gnu/gdb/gdb-9.2.tar.xz | tar -xJ \
+    && cd gdb-9.2 \
+    && mkdir build \
+    && cd build \
+    && ../configure \
+        --prefix=/usr \
+        # --with-system-readline \
+        --with-python=/usr/bin/python3 \
+    && make -j 12 \
+    && make install \
+    && cd $HOME \
+    && rm -rf gdb-9.2
 
 # python packages for toppra, qpOASES, etc.
 RUN python3 -m pip install --upgrade --no-cache-dir --compile \
@@ -161,7 +187,7 @@ RUN apt-get install -qy \
         -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so \
         -D PYTHON3_NUMPY_INCLUDE_DIRS=/usr/lib/python3/dist-packages/numpy/core/include \
         .. \
-    && make -j12 \
+    && make -j 12 \
     && make install \
     && cd $HOME \
     && rm -rf 4.4.0.tar.gz
@@ -321,12 +347,10 @@ RUN cd $HOME && git clone https://github.com/MobileManipulation/fcl.git \
     && make -j 4 && make install \
     && cd $HOME && rm -rf fcl
 
-# note - install-ompl-ubuntu is copied from https://ompl.kavrakilab.org/install-ompl-ubuntu.sh
-# this script was modifed to remove sudo to work in the docker; otherwise identical
 COPY scripts/install-ompl-ubuntu.sh $HOME
-RUN ./install-ompl-ubuntu.sh \
-    && cd ompl-1.4.2-Source/build/Release && make install \
-    && cd $HOME && rm -rf ompl-1.4.2-Source && rm install-ompl-ubuntu.sh
+RUN cd $HOME \
+    && ./install-ompl-ubuntu.sh --python \
+    && rm -rf install-ompl-ubuntu.sh castxml fcl-0.6.1 ompl-1.4.2
 
 # Install python URDF parser
 RUN cd $HOME && git clone https://github.com/ros/urdf_parser_py && cd urdf_parser_py \
@@ -351,7 +375,7 @@ RUN ./fix_bashrc.sh && rm ./fix_bashrc.sh
 
 # qpOASES
 RUN cd $HOME && git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES \
-    && cd $HOME/qpOASES/ && mkdir -p bin && make\
+    && cd $HOME/qpOASES/ && mkdir -p bin && make -j 12 \
     && cd $HOME/qpOASES/interfaces/python/ && python3 setup.py install \
     && rm -rf $HOME/qpOASES
 
@@ -369,7 +393,7 @@ RUN cd $HOME && git clone -b cpp_master https://github.com/msgpack/msgpack-c.git
 # cnpy lets you read and write numpy formats in C++, needed by libstuffgetter.so
 RUN git clone https://github.com/rogersce/cnpy.git \
     && mkdir -p cnpy/build && cd cnpy/build \
-    && cmake .. && make -j 4 && make install \
+    && cmake .. && make -j 12 && make install \
     && cd $HOME && rm -rf cnpy
 
 # librealsense and the realsense SDK
@@ -385,7 +409,9 @@ RUN apt-key adv --keyserver keys.gnupg.net --recv-key C8B3A55A6F3EFCDE \
 
 # install LCM system-wide
 RUN cd $HOME && git clone https://github.com/lcm-proj/lcm \
-    && cd lcm && mkdir -p build && cd build && cmake .. && make && make install \
+    && cd lcm && mkdir -p build && cd build && cmake .. \
+    && make -j 12 \
+    && make install \
     && cd $HOME && rm -rf lcm
 
 ########################################################
