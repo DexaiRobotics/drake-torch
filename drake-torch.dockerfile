@@ -350,7 +350,7 @@ RUN cd $HOME && git clone https://github.com/MobileManipulation/fcl.git \
 COPY scripts/install-ompl-ubuntu.sh $HOME
 RUN cd $HOME \
     && ./install-ompl-ubuntu.sh --python \
-    && rm -rf install-ompl-ubuntu.sh fcl-0.6.1 ompl-1.4.2-Source
+    && rm -rf install-ompl-ubuntu.sh castxml fcl-0.6.1 ompl-1.4.2
 
 # Install python URDF parser
 RUN cd $HOME && git clone https://github.com/ros/urdf_parser_py && cd urdf_parser_py \
