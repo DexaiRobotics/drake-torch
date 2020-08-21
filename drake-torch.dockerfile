@@ -375,7 +375,7 @@ RUN ./fix_bashrc.sh && rm ./fix_bashrc.sh
 
 # qpOASES
 RUN cd $HOME && git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES \
-    && cd $HOME/qpOASES/ && mkdir -p bin && make -j 12\
+    && cd $HOME/qpOASES/ && mkdir -p bin && make -j 12 \
     && cd $HOME/qpOASES/interfaces/python/ && python3 setup.py install \
     && rm -rf $HOME/qpOASES
 
