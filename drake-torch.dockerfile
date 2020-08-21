@@ -140,7 +140,6 @@ RUN cd $HOME \
     && cd $HOME \
     && rm -rf gdb-9.2
 
-
 # python packages for toppra, qpOASES, etc.
 RUN python3 -m pip install --upgrade --no-cache-dir --compile \
         typing \
@@ -351,7 +350,7 @@ RUN cd $HOME && git clone https://github.com/MobileManipulation/fcl.git \
 COPY scripts/install-ompl-ubuntu.sh $HOME
 RUN cd $HOME \
     && ./install-ompl-ubuntu.sh --python \
-    && rm install-ompl-ubuntu.sh
+    && rm -rf install-ompl-ubuntu.sh fcl-0.6.1 ompl-1.4.2-Source
 
 # Install python URDF parser
 RUN cd $HOME && git clone https://github.com/ros/urdf_parser_py && cd urdf_parser_py \
