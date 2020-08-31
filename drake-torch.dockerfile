@@ -324,10 +324,12 @@ RUN cd $HOME && mkdir -p py3_ws/src && cd py3_ws/src \
     && catkin config --install \
         --install-space /opt/ros/melodic \
         --cmake-args \
-            -DPYTHON_EXECUTABLE=/usr/bin/python3 \
-            -DPYTHON_INCLUDE_DIR=/usr/include/python3.6m \
-            -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so \
-            -DOPENCV_VERSION_MAJOR=4 \
+            -D PYTHON_EXECUTABLE=/usr/bin/python3 \
+            -D PYTHON_INCLUDE_DIR=/usr/include/python3.6m \
+            -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so \
+            -D OPENCV_VERSION_MAJOR=4 \
+            -D CMAKE_BUILD_TYPE=Release \
+            -D SETUPTOOLS_DEB_LAYOUT=OFF \
     && catkin build && rm -rf $HOME/py3_ws
 
 # install ccd & octomap && fcl
