@@ -396,7 +396,10 @@ RUN git clone https://github.com/rogersce/cnpy.git \
     && cmake .. && make -j 12 && make install \
     && cd $HOME && rm -rf cnpy
 
-# realsense SDK
+# realsense SDK, apt install instructions take from
+# https://github.com/IntelRealSense/librealsense/blob/master/doc/distribution_linux.md
+# manual install instructions availabe at
+# https://github.com/IntelRealSense/librealsense/blob/master/doc/installation.md
 RUN apt-key adv --keyserver keys.gnupg.net --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE  \
     || apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE  \
     && add-apt-repository "deb http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo bionic main" -u \
