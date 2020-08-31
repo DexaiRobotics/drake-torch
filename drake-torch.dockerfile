@@ -310,6 +310,11 @@ RUN apt-get install -qy \
         iputils-ping
 
 # install cv_bridge to /opt/ros/melodic from source
+# --install-layout is a debian modification to Pythons "distutils" module.
+# That option is maintained by and only shipped with Debian(-derivates). 
+# It is not part of the official Python release (PyPI).
+# so we have to pass a cmake flag SETUPTOOLS_DEB_LAYOUT=OFF.
+
 SHELL ["/bin/bash", "-c"]
 RUN cd $HOME && mkdir -p py3_ws/src && cd py3_ws/src \
     && git clone -b melodic https://github.com/ros-perception/vision_opencv.git \
