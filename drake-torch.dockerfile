@@ -396,16 +396,30 @@ RUN git clone https://github.com/rogersce/cnpy.git \
     && cmake .. && make -j 12 && make install \
     && cd $HOME && rm -rf cnpy
 
-# librealsense and the realsense SDK
-RUN apt-key adv --keyserver keys.gnupg.net --recv-key C8B3A55A6F3EFCDE \
-    || apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key C8B3A55A6F3EFCDE \
-    && add-apt-repository "deb http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo bionic main" -u \
-    && apt-get update && apt-get install -qy \
-        librealsense2-dkms \
-        librealsense2-utils \
-        librealsense2-dev \
-        librealsense2-dbg \
-        librealsense2
+# realsense SDK, taken from
+# https://github.com/IntelRealSense/librealsense/blob/master/doc/installation.md
+
+RUN apt-get install -qy \
+        libssl-dev libusb-1.0-0-dev pkg-config libgtk-3-dev \
+        libglfw3-dev libgl1-mesa-dev libglu1-mesa-dev \
+    && curl -SL https://github.com/IntelRealSense/librealsense/archive/v2.38.1.tar.gz | tar -xz \
+    && cd librealsense-2.38.1 \
+    && ./scripts/setup_udev_rules.sh \
+    && ./scripts/patch-realsense-ubuntu-lts.sh \
+    && mkdir build \
+    && cd build \
+    && cmake .. -D CMAKE_BUILD_TYPE=Release \
+    && make uninstall && make clean && make -j 12 && make install
+
+# RUN apt-key adv --keyserver keys.gnupg.net --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE \
+#     || apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE \
+#     && add-apt-repository "deb http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo bionic main" -u \
+#     && apt-get update && apt-get install -qy \
+#         librealsense2-dkms \
+#         librealsense2-utils \
+#         librealsense2-dev \
+#         librealsense2-dbg \
+#         librealsense2
 
 # install LCM system-wide
 RUN cd $HOME && git clone https://github.com/lcm-proj/lcm \
