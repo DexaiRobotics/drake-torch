@@ -87,6 +87,10 @@ RUN update-alternatives \
 RUN python3 -m pip install --upgrade --no-cache-dir --compile \
         setuptools wheel pip
 
+# fix for python3.6 and setuptools 50
+# https://github.com/pypa/setuptools/issues/2350
+ENV SETUPTOOLS_USE_DISTUTILS=stdlib
+
 # gtest per recommended method, needed by msgpack etc.
 RUN cd $HOME \
     && \
@@ -310,6 +314,12 @@ RUN apt-get install -qy \
         iputils-ping
 
 # install cv_bridge to /opt/ros/melodic from source
+# --install-layout is a debian modification to Pythons "distutils" module.
+# That option is maintained by and only shipped with Debian(-derivates). 
+# It is not part of the official Python release (PyPI).
+# so we need pass a cmake flag SETUPTOOLS_DEB_LAYOUT=OFF.
+# try SETUPTOOLS_USE_DISTUTILS=stdlib instead
+
 SHELL ["/bin/bash", "-c"]
 RUN cd $HOME && mkdir -p py3_ws/src && cd py3_ws/src \
     && git clone -b melodic https://github.com/ros-perception/vision_opencv.git \
@@ -324,10 +334,12 @@ RUN cd $HOME && mkdir -p py3_ws/src && cd py3_ws/src \
     && catkin config --install \
         --install-space /opt/ros/melodic \
         --cmake-args \
-            -DPYTHON_EXECUTABLE=/usr/bin/python3 \
-            -DPYTHON_INCLUDE_DIR=/usr/include/python3.6m \
-            -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so \
-            -DOPENCV_VERSION_MAJOR=4 \
+            -D PYTHON_EXECUTABLE=/usr/bin/python3 \
+            -D PYTHON_INCLUDE_DIR=/usr/include/python3.6m \
+            -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so \
+            -D OPENCV_VERSION_MAJOR=4 \
+            -D CMAKE_BUILD_TYPE=Release \
+            # -D SETUPTOOLS_DEB_LAYOUT=OFF \
     && catkin build && rm -rf $HOME/py3_ws
 
 # install ccd & octomap && fcl
@@ -396,9 +408,12 @@ RUN git clone https://github.com/rogersce/cnpy.git \
     && cmake .. && make -j 12 && make install \
     && cd $HOME && rm -rf cnpy
 
-# librealsense and the realsense SDK
-RUN apt-key adv --keyserver keys.gnupg.net --recv-key C8B3A55A6F3EFCDE \
-    || apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key C8B3A55A6F3EFCDE \
+# realsense SDK, apt install instructions take from
+# https://github.com/IntelRealSense/librealsense/blob/master/doc/distribution_linux.md
+# manual install instructions availabe at
+# https://github.com/IntelRealSense/librealsense/blob/master/doc/installation.md
+RUN apt-key adv --keyserver keys.gnupg.net --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE  \
+    || apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE  \
     && add-apt-repository "deb http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo bionic main" -u \
     && apt-get update && apt-get install -qy \
         librealsense2-dkms \
