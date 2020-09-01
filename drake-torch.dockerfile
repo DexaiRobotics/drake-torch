@@ -87,6 +87,10 @@ RUN update-alternatives \
 RUN python3 -m pip install --upgrade --no-cache-dir --compile \
         setuptools wheel pip
 
+# fix for python3.6 and setuptools 50
+# https://github.com/pypa/setuptools/issues/2350
+ENV SETUPTOOLS_USE_DISTUTILS=stdlib
+
 # gtest per recommended method, needed by msgpack etc.
 RUN cd $HOME \
     && \
@@ -313,7 +317,8 @@ RUN apt-get install -qy \
 # --install-layout is a debian modification to Pythons "distutils" module.
 # That option is maintained by and only shipped with Debian(-derivates). 
 # It is not part of the official Python release (PyPI).
-# so we have to pass a cmake flag SETUPTOOLS_DEB_LAYOUT=OFF.
+# so we need pass a cmake flag SETUPTOOLS_DEB_LAYOUT=OFF.
+# try SETUPTOOLS_USE_DISTUTILS=stdlib instead
 
 SHELL ["/bin/bash", "-c"]
 RUN cd $HOME && mkdir -p py3_ws/src && cd py3_ws/src \
@@ -334,7 +339,7 @@ RUN cd $HOME && mkdir -p py3_ws/src && cd py3_ws/src \
             -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so \
             -D OPENCV_VERSION_MAJOR=4 \
             -D CMAKE_BUILD_TYPE=Release \
-            -D SETUPTOOLS_DEB_LAYOUT=OFF \
+            # -D SETUPTOOLS_DEB_LAYOUT=OFF \
     && catkin build && rm -rf $HOME/py3_ws
 
 # install ccd & octomap && fcl
