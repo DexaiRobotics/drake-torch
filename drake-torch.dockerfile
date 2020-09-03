@@ -172,8 +172,8 @@ RUN python3 -m pip install --upgrade --no-cache-dir --compile \
         sphinx \
         sphinx_rtd_theme \
         click \
-        pyrealsense2==2.38.1.2225 \
-        pyusb==1.0.2
+        pyrealsense2>=2.38.1.2225 \
+        pyusb>=1.0.2
 
 # OpenCV 4.4.0 release library (for C++ and Python)
 RUN apt-get install -qy \
