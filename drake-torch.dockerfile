@@ -323,7 +323,7 @@ RUN apt-get install -qy \
 
 SHELL ["/bin/bash", "-c"]
 RUN cd $HOME && mkdir -p py3_ws/src && cd py3_ws/src \
-    && git clone -b dyt.boost https://github.com/DexaiRobotics/vision_opencv \
+    && git clone -b melodic https://github.com/DexaiRobotics/vision_opencv \
     && git clone -b melodic-devel https://github.com/ros/ros_comm.git \
     && cd $HOME/py3_ws \
     && python3 -m pip install --upgrade --no-cache-dir --compile \
