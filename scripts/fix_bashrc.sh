@@ -39,8 +39,8 @@ if [[ -f $HOME/catkin_ws/devel/setup.bash ]]; then
 fi
 export ROS_PYTHON_VERSION=3
 
-# this always needs to be first in the path
+# prioritise python3 imports, then python2, apt installs to python2
 export PYTHONPATH=/opt/ros/melodic/lib/python3/dist-packages/:$PYTHONPATH
-
+export PYTHONPATH=$PYTHONPATH:/opt/ros/melodic/lib/python2.7/dist-packages/
 export PS1="\[\033[36m\]\u\[\033[m\]@\[\033[32m\] \[\033[33;1m\]\w\[\033[m\] (\$(git branch 2>/dev/null | grep '^*' | colrm 1 2)) \$ "
 EOF
