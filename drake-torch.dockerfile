@@ -340,7 +340,8 @@ RUN cd $HOME && mkdir -p py3_ws/src && cd py3_ws/src \
             -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so \
             -D OPENCV_VERSION_MAJOR=4 \
             -D CMAKE_BUILD_TYPE=Release \
-            # -D SETUPTOOLS_DEB_LAYOUT=OFF \
+            # needed to be generate $HOME/catkin_ws and be able to import
+            -D SETUPTOOLS_DEB_LAYOUT=OFF \
     && catkin build && rm -rf $HOME/py3_ws
 
 # install ccd & octomap && fcl
