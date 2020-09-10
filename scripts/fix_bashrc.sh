@@ -49,5 +49,4 @@ if [[ ! -v DEPLOYMENT_DOCKER ]]; then
 else
 	export PS1='🐳  \[\033[36m\]\h\[\e[0;49;91m\] (deploy) \[\033[33;1m\]\w\[\033[m\] '
 fi
-"
 EOF
