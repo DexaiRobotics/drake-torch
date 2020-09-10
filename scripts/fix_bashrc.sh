@@ -45,7 +45,7 @@ export PYTHONPATH=$PYTHONPATH:/opt/ros/melodic/lib/python2.7/dist-packages/
 
 # set prompt text/color based on type of container
 if [[ ! -v DEPLOYMENT_DOCKER ]]; then 
-	export PS1="🐳  \[\033[36m\]\h\[\033[32m\] (dev) \[\033[33;1m\]\w\[\033[m\] (\$(git branch 2>/dev/null | grep '^*' | colrm 1 2)) \$ "
+	export PS1="🐳  \[\033[36m\]\h\[\033[32m\] (dev) \[\033[33;1m\]\w\[\033[m\] (\$(git branch 2>/dev/null | grep '^*' | colrm 1 2)) "
 else
 	export PS1='🐳  \[\033[36m\]\h\[\e[0;49;91m\] (deploy) \[\033[33;1m\]\w\[\033[m\] '
 fi
