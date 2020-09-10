@@ -42,5 +42,12 @@ export ROS_PYTHON_VERSION=3
 # prioritise python3 imports, then python2, apt installs to python2
 export PYTHONPATH=/opt/ros/melodic/lib/python3/dist-packages/:$PYTHONPATH
 export PYTHONPATH=$PYTHONPATH:/opt/ros/melodic/lib/python2.7/dist-packages/
-export PS1="\[\033[36m\]\u\[\033[m\]@\[\033[32m\] \[\033[33;1m\]\w\[\033[m\] (\$(git branch 2>/dev/null | grep '^*' | colrm 1 2)) \$ "
+
+# set prompt text/color based on type of container
+if [[ ! -v DEPLOYMENT_DOCKER ]]; then 
+	export PS1="🐳  \[\033[36m\]\h\[\033[32m\] dev \[\033[33;1m\]\w\[\033[m\] (\$(git branch 2>/dev/null | grep '^*' | colrm 1 2)) \$ "
+else
+	export PS1='🐳  \[\033[36m\]\h\[\e[0;49;91m\] deploy \[\033[33;1m\]\w\[\033[m\] '
+fi
+"
 EOF
