@@ -102,7 +102,7 @@ RUN cd $HOME \
             && cd build \
             && cmake .. \
             && make -j 12 \
-            && cp -r ../googletest/include /usr/local/include \
+            && cp -r ../googletest/include/gtest /usr/local/include \
             && cp googlemock/gtest/*.a /usr/local/lib \
             && cd $HOME && rm -rf googletest-release-1.8.1 release-1.8.1.tar.gz; \
         else \
@@ -112,7 +112,7 @@ RUN cd $HOME \
             && cd build \
             && cmake .. \
             && make -j 12 \
-            && cp -r ../googletest/include /usr/local/include \
+            && cp -r ../googletest/include/gtest /usr/local/include \
             && cp lib/*.a /usr/local/lib \
             && cd $HOME && rm -rf googletest-release-1.10.0 release-1.10.0.tar.gz; \
         fi
@@ -170,10 +170,7 @@ RUN python3 -m pip install --upgrade --no-cache-dir --compile \
         munch \
         supervisor \
         sphinx \
-        sphinx_rtd_theme \
-        click \
-        pyrealsense2>=2.38.1.2225 \
-        pyusb>=1.0.2
+        sphinx_rtd_theme
 
 # OpenCV 4.4.0 release library (for C++ and Python)
 RUN apt-get install -qy \
