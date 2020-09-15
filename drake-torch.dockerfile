@@ -145,7 +145,7 @@ RUN cd $HOME \
     && rm -rf gdb-9.2
 
 # python packages for toppra, qpOASES, etc.
-RUN python3 -m pip install --upgrade --no-cache-dir --compile \
+RUN python3 -m pip install --upgrade --no-cache-dir --compile --use-feature=2020-resolver \
         typing \
         decorator \
         cython \
@@ -260,8 +260,9 @@ RUN python3 -m pip install -e /opt/drake/lib/python3.6/site-packages
 # incompatible with pip jupyter suite so get rid of it
 # install jupyter suite properly and update components
 RUN apt-get remove python3-terminado -qy \
-    && python3 -m pip install --upgrade --no-cache-dir --compile \
-        ipython ipykernel jupyterlab nbconvert
+    && python3 -m pip install \
+        --upgrade --no-cache-dir --compile --use-feature=2020-resolver \
+        ipython ipykernel jupyterlab matplotlib
 
 ########################################################
 # ROS
@@ -392,10 +393,9 @@ RUN cd $HOME && git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES 
     && rm -rf $HOME/qpOASES
 
 # toppra: Dexai fork
-RUN cd $HOME && git clone https://github.com/DexaiRobotics/toppra && cd toppra/ \
-    && python3 -m pip install --upgrade --no-cache-dir --compile -r requirements3.txt \
-    && python3 setup.py install \
-    && rm -rf $HOME/toppra
+RUN cd $HOME && git clone https://github.com/DexaiRobotics/toppra \
+    && python3 -m pip install --upgrade --no-cache-dir --compile ./toppra \
+    && rm -rf toppra
 
 # Install C++ branch of msgpack-c
 RUN cd $HOME && git clone -b cpp_master https://github.com/msgpack/msgpack-c.git \
