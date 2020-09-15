@@ -23,6 +23,7 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
 # without the apt install, drake will install old apt version overwriting new one
 
 RUN apt-get update \
+    && apt-get upgrade \
     && apt-get install -qy \
         gnupg2 \
         apt-transport-https \
@@ -436,8 +437,7 @@ RUN cd $HOME && git clone https://github.com/lcm-proj/lcm \
 # install nice-to-have some dev tools
 # only clear apt lists at the last apt call
 # gazebo and rviz needed for sim robot
-RUN apt-get upgrade -qy \
-    && apt-get install -qy \
+RUN apt-get install -qy \
         htop \
         nano \
         tig \
