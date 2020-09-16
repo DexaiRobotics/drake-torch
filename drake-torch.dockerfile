@@ -344,6 +344,27 @@ RUN cd $HOME && mkdir -p py3_ws/src && cd py3_ws/src \
             # -D SETUPTOOLS_DEB_LAYOUT=OFF \
     && catkin build && rm -rf $HOME/py3_ws
 
+# reinstall opencv 4 to fix symlinks
+RUN cd $HOME/opencv-4.4.0/build \
+    && make install \
+    && cd $HOME \
+    && rm -rf opencv-4.4.0
+
+########################################################
+# bash fix: for broken interactive shell detection
+########################################################
+COPY scripts/fix_bashrc.sh $HOME
+RUN ./fix_bashrc.sh && rm ./fix_bashrc.sh
+
+########################################################
+# other dexai stack dependencies
+########################################################
+
+# Install C++ branch of msgpack-c
+RUN cd $HOME && git clone -b cpp_master https://github.com/msgpack/msgpack-c.git \
+    && cd msgpack-c && cmake -DMSGPACK_CXX17=ON . && make install -j 12 \
+    && cd $HOME && rm -rf msgpack-c
+
 # install ccd & octomap && fcl
 RUN cd $HOME && git clone https://github.com/danfis/libccd.git \
     && cd libccd && mkdir -p build && cd build \
@@ -371,22 +392,6 @@ RUN cd $HOME && git clone https://github.com/ros/urdf_parser_py && cd urdf_parse
     && python3 setup.py install \
     && cd $HOME && rm -rf urdf_parser_py
 
-# reinstall opencv 4 to fix symlinks
-RUN cd $HOME/opencv-4.4.0/build \
-    && make install \
-    && cd $HOME \
-    && rm -rf opencv-4.4.0
-
-########################################################
-# bash fix: for broken interactive shell detection
-########################################################
-COPY scripts/fix_bashrc.sh $HOME
-RUN ./fix_bashrc.sh && rm ./fix_bashrc.sh
-
-########################################################
-# other dexai stack dependencies
-########################################################
-
 # qpOASES
 RUN cd $HOME && git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES \
     && cd $HOME/qpOASES/ && mkdir -p bin && make -j 12 \
@@ -397,11 +402,6 @@ RUN cd $HOME && git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES 
 RUN cd $HOME && git clone https://github.com/DexaiRobotics/toppra \
     && python3 -m pip install --upgrade --no-cache-dir --compile ./toppra \
     && rm -rf toppra
-
-# Install C++ branch of msgpack-c
-RUN cd $HOME && git clone -b cpp_master https://github.com/msgpack/msgpack-c.git \
-    && cd msgpack-c && cmake -DMSGPACK_CXX17=ON . && make install \
-    && cd $HOME && rm -rf msgpack-c
 
 # cnpy lets you read and write numpy formats in C++, needed by libstuffgetter.so
 RUN git clone https://github.com/rogersce/cnpy.git \
