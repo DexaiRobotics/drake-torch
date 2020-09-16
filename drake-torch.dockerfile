@@ -467,6 +467,7 @@ RUN apt-get install -qy \
         ros-melodic-rviz \
         git-lfs \
         doxygen \
+    && apt-get upgrade -qy \
     && apt-get autoremove -qy \
     && rm -rf /var/lib/apt/lists/*
 
