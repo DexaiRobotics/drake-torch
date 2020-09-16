@@ -156,8 +156,8 @@ RUN cd $HOME \
     && rm -rf $HOME/eigen-3.3.7
 
 # install latest boost
-RUN add-apt-repository ppa:mhier/libboost-latest -qy \
-    && apt install libboost1.74-dev -qy
+RUN add-apt-repository -y ppa:mhier/libboost-latest \
+    && apt install -qy libboost1.74-dev
 
 # python packages for toppra, qpOASES, etc.
 RUN python3 -m pip install --upgrade --no-cache-dir --compile --use-feature=2020-resolver \
