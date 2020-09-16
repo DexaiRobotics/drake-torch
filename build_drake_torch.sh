@@ -2,8 +2,7 @@
 
 set -eufo pipefail
 
-# parse arguments
-BUILD_TYPE="cpu"
+BUILD_TYPE="cuda"
 BUILD_CHANNEL="nightly"
 USE_CACHE=true
 while (( $# )); do
@@ -28,14 +27,9 @@ while (( $# )); do
       USE_CACHE=false
       shift 1
       ;;
-    -*|--*=) # unsupported options
+    *|-*|--*=) # unsupported options
       echo "Error: Unsupported option $1" >&2
       exit 1
-      ;;
-    *) # positional arg -- in this case, path to src directory
-      DEVICE_TYPE="$1"
-      shift
-      ;;
   esac
 done
 
@@ -68,15 +62,15 @@ declare -a ARGS=(
   -t $TAG
 )
 
-echo "Building drake-torch image"
-echo "Build type: $BUILD_TYPE"
-echo "Channel: $BUILD_CHANNEL"
-echo "Base image: $BASE_IMAGE"
-
 if [[ $USE_CACHE == false ]]; then
   ARGS+=( --no-cache )
   echo "Cache disabled"
 fi
+
+echo "Building drake-torch image"
+echo "Build type: $BUILD_TYPE"
+echo "Channel: $BUILD_CHANNEL"
+echo "Base image: $BASE_IMAGE"
 echo "build args: ${ARGS[@]}"
 
 docker build "${ARGS[@]}" . > /dev/stdout

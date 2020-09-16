@@ -8,7 +8,7 @@ WORKDIR /root
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get upgrade
-# OpenCV 4.4.0 for C++ and Python before ROS
+# OpenCV 4.4.0 for C++ and Python3 before ROS
 RUN apt-get install -qy \
         python-numpy \
         libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
@@ -257,3 +257,6 @@ RUN apt-get install -qy \
 
 # # start ssh daemon
 # CMD ["/usr/sbin/sshd", "-D"]
+
+RUN apt-get upgrade -qy \
+    && rm -rf /var/lib/apt/lists/*
