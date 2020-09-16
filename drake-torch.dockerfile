@@ -18,64 +18,39 @@ RUN echo "Oh dang look at that BUILD_CHANNEL=${BUILD_CHANNEL}"
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
 
 # prerequisites for install other apt packages (GPG, keys, cert...)
-# we have to apt-install cmake so the system thinks it is already installed
-# then update make to the latest version manually as apt is old
-# without the apt install, drake will install old apt version overwriting new one
-
+# set up apt for installing latest cmake, which is a drake dependency
 RUN apt-get update \
     && apt-get upgrade -qy \
     && apt-get install -qy \
-        gnupg2 \
+        apt-utils \
         apt-transport-https \
+        gnupg2 \
         ca-certificates \
         software-properties-common \
-        wget
+        curl \
+        wget 
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
 RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
 RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null \
     | gpg --dearmor - | tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
 
-# apt repo setup in addition to default (cmake etc.)
+# git repos for cmake
 RUN add-apt-repository 'deb https://apt.kitware.com/ubuntu/ bionic main' \
-    && add-apt-repository ppa:ubuntu-toolchain-r/test -y \
-    && add-apt-repository ppa:git-core/ppa -y
+    && add-apt-repository ppa:ubuntu-toolchain-r/test -y
 
 # ensure keyring for cmake stays up to date as kitware rotates their keys
 RUN apt-get install -qy kitware-archive-keyring \
     && rm /etc/apt/trusted.gpg.d/kitware.gpg
 
-# setup timezone, install python3 and essential with apt and others with pip
-# Install Protobuf Compiler, asked for by Cmake Find for protobuf. Installation suppresses a warning in cmake.
+# setup timezone, install cmake, python3 etc.
 RUN set -eux \
     && echo 'etc/UTC' > /etc/timezone \
     && ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime \
     && apt-get update && apt-get install -qy \
-        apt-utils \
-        openssh-server \
-        curl \
-        gcc-9 \
-        g++-9 \
         gcc-10 \
         g++-10 \
         cmake \
-        rsync \
-        git \
-        gzip \
-        jq \
-        vim \
-        tzdata \
         unzip \
-        x11vnc \
-        xvfb \
-        xz-utils \
-        libgflags-dev \
-        libgoogle-glog-dev \
-        libhidapi-dev \
-        libiomp-dev \
-        libopenmpi-dev \
-        libudev-dev \
-        libusb-1.0-0-dev \
-        protobuf-compiler \
         python3 \
         python3-dev \
         python3-pip
@@ -91,32 +66,6 @@ RUN python3 -m pip install --upgrade --no-cache-dir --compile \
 # fix for python3.6 and setuptools 50
 # https://github.com/pypa/setuptools/issues/2350
 ENV SETUPTOOLS_USE_DISTUTILS=stdlib
-
-# gtest per recommended method, needed by msgpack etc.
-RUN cd $HOME \
-    && \
-        if [ $BUILD_CHANNEL = "stable" ] ; \
-        then \
-            curl -SL https://github.com/google/googletest/archive/release-1.8.1.tar.gz | tar -xz \
-            && cd googletest-release-1.8.1 \
-            && mkdir build \
-            && cd build \
-            && cmake .. \
-            && make -j 12 \
-            && cp -r ../googletest/include/gtest /usr/local/include \
-            && cp googlemock/gtest/*.a /usr/local/lib \
-            && cd $HOME && rm -rf googletest-release-1.8.1 release-1.8.1.tar.gz; \
-        else \
-            curl -SL https://github.com/google/googletest/archive/release-1.10.0.tar.gz | tar -xz \
-            && cd googletest-release-1.10.0 \
-            && mkdir build \
-            && cd build \
-            && cmake .. \
-            && make -j 12 \
-            && cp -r ../googletest/include/gtest /usr/local/include \
-            && cp lib/*.a /usr/local/lib \
-            && cd $HOME && rm -rf googletest-release-1.10.0 release-1.10.0.tar.gz; \
-        fi
 
 # install make 4.3 and GDB 9.2
 RUN cd $HOME \
@@ -145,72 +94,6 @@ RUN cd $HOME \
     && cd $HOME \
     && rm -rf gdb-9.2
 
-# install latest eigen3
-RUN cd $HOME \
-    && curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.3.7/eigen-3.3.7.tar.bz2 | tar -xj \
-    && cd eigen-3.3.7 \
-    && mkdir build \
-    && cd build \
-    && cmake build .. -D CMAKE_INSTALL_PREFIX=/usr/local \
-    && make install \
-    && rm -rf $HOME/eigen-3.3.7
-
-# install latest boost
-RUN add-apt-repository -y ppa:mhier/libboost-latest \
-    && apt install -qy libboost1.74-dev
-
-# python packages for toppra, qpOASES, etc.
-RUN python3 -m pip install --upgrade --no-cache-dir --compile --use-feature=2020-resolver \
-        typing \
-        decorator \
-        cython \
-        numpy \
-        scipy \
-        defusedxml \
-        empy \
-        nose2 \
-        netifaces \
-        cpppo \
-        pyyaml \
-        pyserial \
-        pyzmq \
-        pyside2 \
-        msgpack \
-        rospkg \
-        mkl \
-        mkl-include \
-        cffi \
-        ecos \
-        visdom \
-        munch \
-        supervisor \
-        sphinx \
-        sphinx_rtd_theme
-
-# OpenCV 4.4.0 release library (for C++ and Python)
-RUN apt-get install -qy \
-        python-numpy \
-        libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
-        libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev \
-    && cd $HOME \
-    && curl -SL https://github.com/opencv/opencv/archive/4.4.0.tar.gz | tar -xz \
-    && cd opencv-4.4.0 \
-    && mkdir build \
-    && cd build \
-    && cmake \
-        -D CMAKE_BUILD_TYPE=Release \
-        -D CMAKE_INSTALL_PREFIX=/usr/local \
-        -D PYTHON3_EXECUTABLE=/usr/bin/python3 \
-        -D PYTHON_INCLUDE_DIR=/usr/include/python3.6m \
-        -D PYTHON_INCLUDE_DIR2=/usr/include/x86_64-linux-gnu/python3.6m \
-        -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so \
-        -D PYTHON3_NUMPY_INCLUDE_DIRS=/usr/lib/python3/dist-packages/numpy/core/include \
-        .. \
-    && make -j 12 \
-    && make install \
-    && cd $HOME \
-    && rm -rf 4.4.0.tar.gz
-
 ##############################################################
 # libtorch and pytorch, torchvision with intel MKL support
 ##############################################################
@@ -218,7 +101,7 @@ RUN apt-get install -qy \
 RUN wget -q https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
 RUN apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB && rm GPG-PUB*
 RUN sh -c 'echo deb https://apt.repos.intel.com/mkl all main > /etc/apt/sources.list.d/intel-mkl.list'
-RUN apt-get update && apt-get -qy install intel-mkl-64bit-2019.1-053
+RUN apt-get update && apt-get -qy install intel-mkl-64bit-2020.0-088
 RUN rm /opt/intel/mkl/lib/intel64/*.so
 
 # Download and build libtorch with MKL support
@@ -278,6 +161,150 @@ RUN apt-get remove python3-terminado -qy \
     && python3 -m pip install \
         --upgrade --no-cache-dir --compile --use-feature=2020-resolver \
         ipython ipykernel jupyterlab matplotlib
+
+# install latest boost after drake installs old boost through apt
+RUN add-apt-repository -y ppa:mhier/libboost-latest \
+    && apt-get install -y libboost1.74-dev
+
+# setup timezone, install python3 and essential with apt and others with pip
+# Install Protobuf Compiler, asked for by Cmake Find for protobuf. Installation suppresses a warning in cmake.
+RUN set -eux \
+    && echo 'etc/UTC' > /etc/timezone \
+    && ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime \
+    && apt-get update && apt-get install -qy \
+        apt-utils \
+        openssh-server \
+        curl \
+        gcc-9 \
+        g++-9 \
+        gcc-10 \
+        g++-10 \
+        cmake \
+        rsync \
+        git \
+        gzip \
+        jq \
+        vim \
+        tzdata \
+        unzip \
+        x11vnc \
+        xvfb \
+        xz-utils \
+        libgflags-dev \
+        libgoogle-glog-dev \
+        libhidapi-dev \
+        libiomp-dev \
+        libopenmpi-dev \
+        libudev-dev \
+        libusb-1.0-0-dev \
+        # protobuf-compiler \
+        python3 \
+        python3-dev \
+        python3-pip
+
+RUN update-alternatives \
+        --install /usr/bin/gcc gcc /usr/bin/gcc-10 90 \
+        --slave /usr/bin/g++ g++ /usr/bin/g++-10 \
+        --slave /usr/bin/gcov gcov /usr/bin/gcov-10
+
+RUN python3 -m pip install --upgrade --no-cache-dir --compile \
+        setuptools wheel pip
+
+# fix for python3.6 and setuptools 50
+# https://github.com/pypa/setuptools/issues/2350
+ENV SETUPTOOLS_USE_DISTUTILS=stdlib
+
+
+
+# gtest per recommended method, needed by msgpack etc.
+RUN cd $HOME \
+    && \
+        if [ $BUILD_CHANNEL = "stable" ] ; \
+        then \
+            curl -SL https://github.com/google/googletest/archive/release-1.8.1.tar.gz | tar -xz \
+            && cd googletest-release-1.8.1 \
+            && mkdir build \
+            && cd build \
+            && cmake .. \
+            && make -j 12 \
+            && cp -r ../googletest/include/gtest /usr/local/include \
+            && cp googlemock/gtest/*.a /usr/local/lib \
+            && cd $HOME && rm -rf googletest-release-1.8.1 release-1.8.1.tar.gz; \
+        else \
+            curl -SL https://github.com/google/googletest/archive/release-1.10.0.tar.gz | tar -xz \
+            && cd googletest-release-1.10.0 \
+            && mkdir build \
+            && cd build \
+            && cmake .. \
+            && make -j 12 \
+            && cp -r ../googletest/include/gtest /usr/local/include \
+            && cp lib/*.a /usr/local/lib \
+            && cd $HOME && rm -rf googletest-release-1.10.0 release-1.10.0.tar.gz; \
+        fi
+
+
+
+# install latest eigen3
+RUN cd $HOME \
+    && curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.3.7/eigen-3.3.7.tar.bz2 | tar -xj \
+    && cd eigen-3.3.7 \
+    && mkdir build \
+    && cd build \
+    && cmake build .. -D CMAKE_INSTALL_PREFIX=/usr/local \
+    && make install \
+    && rm -rf $HOME/eigen-3.3.7
+
+# python packages for toppra, qpOASES, etc.
+RUN python3 -m pip install --upgrade --no-cache-dir --compile --use-feature=2020-resolver \
+        typing \
+        decorator \
+        cython \
+        numpy \
+        scipy \
+        defusedxml \
+        empy \
+        nose2 \
+        netifaces \
+        cpppo \
+        pyyaml \
+        pyserial \
+        pyzmq \
+        pyside2 \
+        msgpack \
+        rospkg \
+        mkl \
+        mkl-include \
+        cffi \
+        ecos \
+        visdom \
+        munch \
+        supervisor \
+        sphinx \
+        sphinx_rtd_theme
+
+# OpenCV 4.4.0 release library (for C++ and Python)
+RUN apt-get install -qy \
+        python-numpy \
+        libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
+        libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev \
+    && cd $HOME \
+    && curl -SL https://github.com/opencv/opencv/archive/4.4.0.tar.gz | tar -xz \
+    && cd opencv-4.4.0 \
+    && mkdir build \
+    && cd build \
+    && cmake \
+        -D CMAKE_BUILD_TYPE=Release \
+        -D CMAKE_INSTALL_PREFIX=/usr/local \
+        -D PYTHON3_EXECUTABLE=/usr/bin/python3 \
+        -D PYTHON_INCLUDE_DIR=/usr/include/python3.6m \
+        -D PYTHON_INCLUDE_DIR2=/usr/include/x86_64-linux-gnu/python3.6m \
+        -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so \
+        -D PYTHON3_NUMPY_INCLUDE_DIRS=/usr/lib/python3/dist-packages/numpy/core/include \
+        .. \
+    && make -j 12 \
+    && make install \
+    && cd $HOME \
+    && rm -rf 4.4.0.tar.gz
 
 ########################################################
 # ROS
