@@ -190,7 +190,7 @@ RUN python3 -m pip install --upgrade --no-cache-dir --compile --use-feature=2020
 # OpenCV 4.4.0 release library (for C++ and Python)
 RUN apt-get install -qy \
         python-numpy \
-        libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
+        libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
         libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev \
     && cd $HOME \
     && curl -SL https://github.com/opencv/opencv/archive/4.4.0.tar.gz | tar -xz \
