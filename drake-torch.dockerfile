@@ -275,10 +275,6 @@ RUN apt-get remove python3-terminado -qy \
         --upgrade --no-cache-dir --compile --use-feature=2020-resolver \
         ipython ipykernel jupyterlab matplotlib
 
-# install latest boost only after drake installs old boost
-RUN add-apt-repository -y ppa:mhier/libboost-latest \
-    && apt install -qy libboost1.74-dev
-
 ########################################################
 # ROS
 ########################################################
