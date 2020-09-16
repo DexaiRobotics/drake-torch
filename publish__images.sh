@@ -20,8 +20,8 @@ tag_and_push() {
     docker push $NEW_TAG
 }
 
-
+# suspend publishing until 20.04 upgrade is done and working
 tag_and_push cpu $SUFFIX_DATE
-tag_and_push cpu latest
+# tag_and_push cpu latest
 tag_and_push cuda $SUFFIX_DATE
-tag_and_push cuda latest
+# tag_and_push cuda latest
