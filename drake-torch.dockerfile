@@ -125,8 +125,8 @@ RUN cd $HOME \
     && mkdir build \
     && cd build \
     && ../configure --prefix=/usr \
-    && make -j 12 \
-    && make install \
+    && make --quiet -j 12 \
+    && make --quiet install \
     && cd $HOME \
     && rm -rf make-4.3
 # texinfo is needed for building gdb 9.2 even in the presence of make 4.3
@@ -140,10 +140,23 @@ RUN cd $HOME \
         --prefix=/usr \
         # --with-system-readline \
         --with-python=/usr/bin/python3 \
-    && make -j 12 \
-    && make install \
+    && make --quiet -j 12 \
+    && make --quiet install \
     && cd $HOME \
     && rm -rf gdb-9.2
+
+# install latest eigen3
+RUN cd $HOME \
+    && curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.3.7/eigen-3.3.7.tar.bz2 | tar -xj \
+    && cd eigen-3.3.7 \
+    && mkdir build \
+    && cmake build .. -D CMAKE_INSTALL_PREFIX=/usr/local \
+    && make install \
+    && rm -rf $HOME/eigen-3.3.7
+
+# install latest boost
+RUN add-apt-repository ppa:mhier/libboost-latest -qy \
+    && apt install libboost1.74-dev -qy
 
 # python packages for toppra, qpOASES, etc.
 RUN python3 -m pip install --upgrade --no-cache-dir --compile --use-feature=2020-resolver \
