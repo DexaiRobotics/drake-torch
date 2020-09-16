@@ -1,0 +1,7 @@
+ARG BASE_IMAGE
+FROM $BASE_IMAGE
+USER root
+WORKDIR /root
+
+ARG BUILD_TYPE
+RUN echo "Oh dang look at that BUILD_TYPE=${BUILD_TYPE}"

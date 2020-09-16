@@ -111,7 +111,6 @@ ENV TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
 ENV BUILD_CAFFE2_OPS=1
 ENV _GLIBCXX_USE_CXX11_ABI=1
 
-RUN echo "Using BUILD_TYPE=${BUILD_TYPE}"
 RUN set -eux && cd $HOME \
     && \
         if [ $BUILD_TYPE = "cpu" ]; then \
@@ -151,7 +150,7 @@ RUN set -eux \
     && cd $HOME && rm -rf drake*.tar.gz
 
 # pip install pydrake using the /opt/drake directory in develop mode
-COPY scripts/setup_pydrake.py setup_pydrake.py
+COPY in_container_scripts/setup_pydrake.py setup_pydrake.py
 RUN if [ $BUILD_CHANNEL = "stable" ]; \
     then mv setup_pydrake.py /opt/drake/lib/python3.6/site-packages/setup.py \
         && python3 -m pip install -e /opt/drake/lib/python3.6/site-packages; \
@@ -169,3 +168,6 @@ RUN apt-get purge libboost-dev -qy \
     && apt-get autoremove -qy \
     && add-apt-repository -y ppa:mhier/libboost-latest \
     && apt-get install -y libboost1.74-dev
+
+RUN apt-get upgrade -qy \
+    && rm -rf /var/lib/apt/lists/*

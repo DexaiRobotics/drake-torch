@@ -1,8 +1,11 @@
 #!/bin/bash
 
+set -eufo pipefail
+
 # parse arguments
 BUILD_TYPE="cpu"
 BUILD_CHANNEL="nightly"
+USE_CACHE=true
 while (( $# )); do
   case "$1" in
     --cuda)
@@ -19,6 +22,10 @@ while (( $# )); do
       ;;
     --nightly)
       BUILD_CHANNEL="nightly"
+      shift 1
+      ;;
+    --nocache)
+      USE_CACHE=false
       shift 1
       ;;
     -*|--*=) # unsupported options
@@ -52,6 +59,24 @@ else
   TAG="dexai2/drake-torch:cuda"
 fi
 
-echo "building drake-torch image, build type: $BUILD_TYPE, base image: $BASE_IMAGE, channel: $BUILD_CHANNEL"
-docker build -f drake-torch.dockerfile --build-arg BUILD_TYPE=$BUILD_TYPE --build-arg BASE_IMAGE=$BASE_IMAGE --build-arg BUILD_CHANNEL=$BUILD_CHANNEL -t $TAG --cpuset-cpus "0-$LASTCORE" . > /dev/stdout
-# docker build -f drake-torch.dockerfile --no-cache --build-arg BUILD_TYPE=$BUILD_TYPE --build-arg BASE_IMAGE=$BASE_IMAGE --build-arg BUILD_CHANNEL=$BUILD_CHANNEL -t $TAG --cpuset-cpus "0-$LASTCORE" . > /dev/stdout
+declare -a ARGS=(
+  -f drake-torch.dockerfile
+  --build-arg BUILD_TYPE=$BUILD_TYPE
+  --build-arg BASE_IMAGE=$BASE_IMAGE
+  --build-arg BUILD_CHANNEL=$BUILD_CHANNEL
+  --cpuset-cpus "0-$LASTCORE"
+  -t $TAG
+)
+
+echo "Building drake-torch image"
+echo "Build type: $BUILD_TYPE"
+echo "Channel: $BUILD_CHANNEL"
+echo "Base image: $BASE_IMAGE"
+
+if [[$USE_CACHE == false]]; then
+  ARGS+=( --no-cache )
+  echo "Cache disabled"
+fi
+echo "build args: ${ARGS[@]}"
+
+docker build "${ARGS[@]}" . > /dev/stdout
