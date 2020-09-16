@@ -15,12 +15,12 @@ while (( $# )); do
       BUILD_TYPE="cpu"
       shift 1
       ;;
-    --stable)
-      BUILD_CHANNEL="stable"
-      shift 1
-      ;;
     --nightly)
       BUILD_CHANNEL="nightly"
+      shift 1
+      ;;
+    --stable)
+      BUILD_CHANNEL="stable"
       shift 1
       ;;
     --nocache)
@@ -55,11 +55,11 @@ fi
 
 declare -a ARGS=(
   -f drake-torch.dockerfile
-  --build-arg BUILD_TYPE="$BUILD_TYPE"
-  --build-arg BASE_IMAGE="$BASE_IMAGE"
-  --build-arg BUILD_CHANNEL="$BUILD_CHANNEL"
+  --build-arg BUILD_TYPE=$BUILD_TYPE
+  --build-arg BASE_IMAGE=$BASE_IMAGE
+  --build-arg BUILD_CHANNEL=$BUILD_CHANNEL
   --cpuset-cpus "0-$LASTCORE"
-  -t "dexai2/drake-torch:${BUILD_TYPE}_${BUILD_CHANNEL}"
+  -t $TAG
 )
 
 if [[ $USE_CACHE == false ]]; then
