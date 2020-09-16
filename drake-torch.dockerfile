@@ -150,6 +150,7 @@ RUN cd $HOME \
     && curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.3.7/eigen-3.3.7.tar.bz2 | tar -xj \
     && cd eigen-3.3.7 \
     && mkdir build \
+    && cd build \
     && cmake build .. -D CMAKE_INSTALL_PREFIX=/usr/local \
     && make install \
     && rm -rf $HOME/eigen-3.3.7
