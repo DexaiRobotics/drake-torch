@@ -145,11 +145,6 @@ RUN cd $HOME \
     && cd $HOME \
     && rm -rf gdb-9.2
 
-# Install C++ branch of msgpack-c
-RUN cd $HOME && git clone -b cpp_master https://github.com/msgpack/msgpack-c.git \
-    && cd msgpack-c && cmake -DMSGPACK_CXX17=ON . && make install -j 12 \
-    && cd $HOME && rm -rf msgpack-c
-
 # python packages for toppra, qpOASES, etc.
 RUN python3 -m pip install --upgrade --no-cache-dir --compile --use-feature=2020-resolver \
         typing \
