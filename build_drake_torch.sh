@@ -4,6 +4,7 @@ set -eufo pipefail
 
 BUILD_TYPE="cuda"
 BUILD_CHANNEL="nightly"
+BUILD_ROS=false
 USE_CACHE=true
 while (( $# )); do
   case "$1" in
@@ -27,6 +28,10 @@ while (( $# )); do
       USE_CACHE=false
       shift 1
       ;;
+    --ros)
+      BUILD_ROS=true
+      shift 1
+      ;;
     *|-*|--*=) # unsupported options
       echo "Error: Unsupported option $1" >&2
       exit 1
@@ -37,29 +42,49 @@ NUMTHREADS=$(grep ^cpu\\scores /proc/cpuinfo | uniq |  awk '{print $4}')
 LASTCORE=$((NUMTHREADS - 1))
 echo "Using all $NUMTHREADS cores: 0-$LASTCORE for the --cpuset-cpus option"
 
-if [[ $BUILD_TYPE == "cpu" ]]; then
+if [[ $BUILD_ROS = true ]]; then
   if [[ $BUILD_CHANNEL == 'stable' ]]; then
-    BASE_IMAGE="ubuntu:bionic"
+    DOCKERFILE="drake-torch-melodic.dockerfile"
+    if [[ $BUILD_TYPE == "cpu" ]]; then
+      BASE_IMAGE="dexai2/drake-torch:cpu-stable"
+    else
+      BASE_IMAGE="dexai2/drake-torch:cuda-stable"
+    fi
   else
-    BASE_IMAGE="ubuntu:focal"
+    DOCKERFILE="drake-torch-noetic.dockerfile"
+    if [[ $BUILD_TYPE == "cpu" ]]; then
+      BASE_IMAGE="dexai2/drake-torch:cpu-nightly"
+    else
+      BASE_IMAGE="dexai2/drake-torch:cuda-nightly"
+    fi
   fi
-  TAG="dexai2/drake-torch:cpu"
+  TAG="${BASE_IMAGE}-ros"
 else
-  if [[ $BUILD_CHANNEL == 'stable' ]]; then
-    BASE_IMAGE="nvidia/cuda:10.2-cudnn7-devel-ubuntu18.04"
+  DOCKERFILE="drake-torch.dockerfile"
+  if [[ $BUILD_TYPE == "cpu" ]]; then
+    if [[ $BUILD_CHANNEL == 'stable' ]]; then
+      BASE_IMAGE="ubuntu:bionic"
+    else
+      BASE_IMAGE="ubuntu:focal"
+    fi
   else
-    BASE_IMAGE="nvidia/cuda:11.0-devel-ubuntu20.04"
+    if [[ $BUILD_CHANNEL == 'stable' ]]; then
+      BASE_IMAGE="nvidia/cuda:10.2-cudnn7-devel-ubuntu18.04"
+    else
+      BASE_IMAGE="nvidia/cuda:11.0-devel-ubuntu20.04"
+    fi
   fi
-  TAG="dexai2/drake-torch:cuda"
+  TAG="dexai2/drake-torch:${BUILD_TYPE}-${BUILD_CHANNEL}"
 fi
 
+
 declare -a ARGS=(
-  -f drake-torch.dockerfile
+  -f "$DOCKERFILE"
   --build-arg BUILD_TYPE="$BUILD_TYPE"
   --build-arg BASE_IMAGE="$BASE_IMAGE"
   --build-arg BUILD_CHANNEL="$BUILD_CHANNEL"
   --cpuset-cpus "0-$LASTCORE"
-  -t "dexai2/drake-torch:${BUILD_TYPE}_${BUILD_CHANNEL}"
+  -t "$TAG"
 )
 
 if [[ $USE_CACHE == false ]]; then
@@ -67,10 +92,11 @@ if [[ $USE_CACHE == false ]]; then
   echo "Cache disabled"
 fi
 
-echo "Building drake-torch image"
+echo "Building image"
 echo "Build type: $BUILD_TYPE"
 echo "Channel: $BUILD_CHANNEL"
 echo "Base image: $BASE_IMAGE"
+echo "Build ROS: $BUILD_ROS"
 echo "build args: ${ARGS[@]}"
 
 docker build "${ARGS[@]}" . > /dev/stdout
