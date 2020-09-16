@@ -26,9 +26,9 @@ RUN apt-get update \
         curl \
         wget
 
-# Set debconf to noninteractive mode.
+# Set debconf to noninteractive mode
 # https://github.com/phusion/baseimage-docker/issues/58#issuecomment-47995343
-RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+ARG DEBIAN_FRONTEND=noninteractive
 
 # apt repo for cmake
 RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null \

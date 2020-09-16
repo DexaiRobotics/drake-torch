@@ -73,7 +73,7 @@ echo "Build type: $BUILD_TYPE"
 echo "Channel: $BUILD_CHANNEL"
 echo "Base image: $BASE_IMAGE"
 
-if [[$USE_CACHE == false]]; then
+if [[ $USE_CACHE == false ]]; then
   ARGS+=( --no-cache )
   echo "Cache disabled"
 fi
