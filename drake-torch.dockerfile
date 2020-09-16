@@ -155,10 +155,6 @@ RUN cd $HOME \
     && make install \
     && rm -rf $HOME/eigen-3.3.7
 
-# install latest boost
-RUN add-apt-repository -y ppa:mhier/libboost-latest \
-    && apt install -qy libboost1.74-dev
-
 # python packages for toppra, qpOASES, etc.
 RUN python3 -m pip install --upgrade --no-cache-dir --compile --use-feature=2020-resolver \
         typing \
@@ -278,6 +274,10 @@ RUN apt-get remove python3-terminado -qy \
     && python3 -m pip install \
         --upgrade --no-cache-dir --compile --use-feature=2020-resolver \
         ipython ipykernel jupyterlab matplotlib
+
+# install latest boost only after drake installs old boost
+RUN add-apt-repository -y ppa:mhier/libboost-latest \
+    && apt install -qy libboost1.74-dev
 
 ########################################################
 # ROS
