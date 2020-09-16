@@ -51,6 +51,6 @@ parse_git_branch() {
 if [[ ! -v DEPLOYMENT_DOCKER ]]; then 
 	export PS1="\[\033[32m\]\h🐳 \[\033[36m\]\u@dev\[\033[m\]:\[\033[33;1m\]\w\[\033[m\]\$(parse_git_branch) $ "
 else
-	export PS1="\[\e[0;49;91m\]\h🐳 \[\033[36m\]\u@deploy\[\033[m\]:\[\033[33;1m\]\w\[\033[m\]\$(parse_git_branch) $ "
+	export PS1="\[\e[0;49;91m\]\h🐳 \[\033[36m\]\u@deploy\[\033[m\]:\[\033[33;1m\]\w\[\033[m\] $ "
 fi
 EOF
