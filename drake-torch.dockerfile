@@ -23,6 +23,7 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
 # without the apt install, drake will install old apt version overwriting new one
 
 RUN apt-get update \
+    && apt-get upgrade -qy \
     && apt-get install -qy \
         gnupg2 \
         apt-transport-https \
@@ -124,8 +125,8 @@ RUN cd $HOME \
     && mkdir build \
     && cd build \
     && ../configure --prefix=/usr \
-    && make -j 12 \
-    && make install \
+    && make --quiet -j 12 \
+    && make --quiet install \
     && cd $HOME \
     && rm -rf make-4.3
 # texinfo is needed for building gdb 9.2 even in the presence of make 4.3
@@ -139,13 +140,23 @@ RUN cd $HOME \
         --prefix=/usr \
         # --with-system-readline \
         --with-python=/usr/bin/python3 \
-    && make -j 12 \
-    && make install \
+    && make --quiet -j 12 \
+    && make --quiet install \
     && cd $HOME \
     && rm -rf gdb-9.2
 
+# install latest eigen3
+RUN cd $HOME \
+    && curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.3.7/eigen-3.3.7.tar.bz2 | tar -xj \
+    && cd eigen-3.3.7 \
+    && mkdir build \
+    && cd build \
+    && cmake build .. -D CMAKE_INSTALL_PREFIX=/usr/local \
+    && make install \
+    && rm -rf $HOME/eigen-3.3.7
+
 # python packages for toppra, qpOASES, etc.
-RUN python3 -m pip install --upgrade --no-cache-dir --compile \
+RUN python3 -m pip install --upgrade --no-cache-dir --compile --use-feature=2020-resolver \
         typing \
         decorator \
         cython \
@@ -175,7 +186,7 @@ RUN python3 -m pip install --upgrade --no-cache-dir --compile \
 # OpenCV 4.4.0 release library (for C++ and Python)
 RUN apt-get install -qy \
         python-numpy \
-        libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
+        libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
         libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev \
     && cd $HOME \
     && curl -SL https://github.com/opencv/opencv/archive/4.4.0.tar.gz | tar -xz \
@@ -203,7 +214,7 @@ RUN apt-get install -qy \
 RUN wget -q https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
 RUN apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB && rm GPG-PUB*
 RUN sh -c 'echo deb https://apt.repos.intel.com/mkl all main > /etc/apt/sources.list.d/intel-mkl.list'
-RUN apt-get update && apt-get -y install intel-mkl-64bit-2019.1-053
+RUN apt-get update && apt-get -qy install intel-mkl-64bit-2019.1-053
 RUN rm /opt/intel/mkl/lib/intel64/*.so
 
 # Download and build libtorch with MKL support
@@ -260,8 +271,9 @@ RUN python3 -m pip install -e /opt/drake/lib/python3.6/site-packages
 # incompatible with pip jupyter suite so get rid of it
 # install jupyter suite properly and update components
 RUN apt-get remove python3-terminado -qy \
-    && python3 -m pip install --upgrade --no-cache-dir --compile \
-        ipython ipykernel jupyterlab nbconvert
+    && python3 -m pip install \
+        --upgrade --no-cache-dir --compile --use-feature=2020-resolver \
+        ipython ipykernel jupyterlab matplotlib
 
 ########################################################
 # ROS
@@ -342,6 +354,27 @@ RUN cd $HOME && mkdir -p py3_ws/src && cd py3_ws/src \
             # -D SETUPTOOLS_DEB_LAYOUT=OFF \
     && catkin build && rm -rf $HOME/py3_ws
 
+# reinstall opencv 4 to fix symlinks
+RUN cd $HOME/opencv-4.4.0/build \
+    && make install \
+    && cd $HOME \
+    && rm -rf opencv-4.4.0
+
+########################################################
+# bash fix: for broken interactive shell detection
+########################################################
+COPY scripts/fix_bashrc.sh $HOME
+RUN ./fix_bashrc.sh && rm ./fix_bashrc.sh
+
+########################################################
+# other dexai stack dependencies
+########################################################
+
+# Install C++ branch of msgpack-c
+RUN cd $HOME && git clone -b cpp_master https://github.com/msgpack/msgpack-c.git \
+    && cd msgpack-c && cmake -DMSGPACK_CXX17=ON . && make install -j 12 \
+    && cd $HOME && rm -rf msgpack-c
+
 # install ccd & octomap && fcl
 RUN cd $HOME && git clone https://github.com/danfis/libccd.git \
     && cd libccd && mkdir -p build && cd build \
@@ -369,22 +402,6 @@ RUN cd $HOME && git clone https://github.com/ros/urdf_parser_py && cd urdf_parse
     && python3 setup.py install \
     && cd $HOME && rm -rf urdf_parser_py
 
-# reinstall opencv 4 to fix symlinks
-RUN cd $HOME/opencv-4.4.0/build \
-    && make install \
-    && cd $HOME \
-    && rm -rf opencv-4.4.0
-
-########################################################
-# bash fix: for broken interactive shell detection
-########################################################
-COPY scripts/fix_bashrc.sh $HOME
-RUN ./fix_bashrc.sh && rm ./fix_bashrc.sh
-
-########################################################
-# other dexai stack dependencies
-########################################################
-
 # qpOASES
 RUN cd $HOME && git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES \
     && cd $HOME/qpOASES/ && mkdir -p bin && make -j 12 \
@@ -392,15 +409,9 @@ RUN cd $HOME && git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES 
     && rm -rf $HOME/qpOASES
 
 # toppra: Dexai fork
-RUN cd $HOME && git clone https://github.com/DexaiRobotics/toppra && cd toppra/ \
-    && python3 -m pip install --upgrade --no-cache-dir --compile -r requirements3.txt \
-    && python3 setup.py install \
-    && rm -rf $HOME/toppra
-
-# Install C++ branch of msgpack-c
-RUN cd $HOME && git clone -b cpp_master https://github.com/msgpack/msgpack-c.git \
-    && cd msgpack-c && cmake -DMSGPACK_CXX17=ON . && make install \
-    && cd $HOME && rm -rf msgpack-c
+RUN cd $HOME && git clone https://github.com/DexaiRobotics/toppra \
+    && python3 -m pip install --upgrade --no-cache-dir --compile ./toppra \
+    && rm -rf toppra
 
 # cnpy lets you read and write numpy formats in C++, needed by libstuffgetter.so
 RUN git clone https://github.com/rogersce/cnpy.git \
@@ -436,8 +447,7 @@ RUN cd $HOME && git clone https://github.com/lcm-proj/lcm \
 # install nice-to-have some dev tools
 # only clear apt lists at the last apt call
 # gazebo and rviz needed for sim robot
-RUN apt-get upgrade -qy \
-    && apt-get install -qy \
+RUN apt-get install -qy \
         htop \
         nano \
         tig \
@@ -453,6 +463,7 @@ RUN apt-get upgrade -qy \
         ros-melodic-rviz \
         git-lfs \
         doxygen \
+    && apt-get upgrade -qy \
     && apt-get autoremove -qy \
     && rm -rf /var/lib/apt/lists/*
 
