@@ -51,7 +51,7 @@ if [[ $BUILD_ROS = true ]]; then
       BASE_IMAGE="dexai2/drake-torch:cuda-stable"
     fi
   else
-    DOCKERFILE="drake-torch-noetic.dockerfile"
+    DOCKERFILE="drake-torch-melodic.dockerfile"
     if [[ $BUILD_TYPE == "cpu" ]]; then
       BASE_IMAGE="dexai2/drake-torch:cpu-nightly"
     else
