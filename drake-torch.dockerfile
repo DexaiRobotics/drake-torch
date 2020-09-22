@@ -98,10 +98,7 @@ RUN curl -SL https://github.com/google/googletest/archive/release-1.10.0.tar.gz 
     && mkdir build \
     && cd build \
     && cmake .. \
-    && make -j 12 \
-    && cp -r ../googletest/include/gtest /usr/local/include \
-    && cp lib/*.a /usr/local/lib \
-    && cd $HOME && rm -rf googletest-release-1.10.0 release-1.10.0.tar.gz
+    && make install -j 12
 
 # install make 4.3 and GDB 9.2
 RUN cd $HOME \
@@ -261,7 +258,7 @@ RUN apt-get remove python3-terminado -qy \
         ipython ipykernel jupyterlab matplotlib
 
 ########################################################
-# ROS
+# ROS melodic
 ########################################################
 
 # setup sources.list
@@ -309,6 +306,18 @@ RUN apt-get install -qy \
         usbutils \
         software-properties-common \
         iputils-ping
+
+# post-melodic cleanup
+# reinstall googletest to overwrite old version that's part of rosdep
+RUN cd /usr/src \
+    && rm -rf gtest gmock googletest \
+    && cd /usr/include \
+    && rm -rf gtest gmock \
+    && cd /usr/local/lib \
+    && rm -rf libgtest* libgtest*
+RUN cd $HOME/googletest-release-1.10.0/build \
+    && make install \
+    && rm -rf googletest-release-1.10.0 release-1.10.0.tar.gz
 
 # install cv_bridge to /opt/ros/melodic from source
 # --install-layout is a debian modification to Pythons "distutils" module.
