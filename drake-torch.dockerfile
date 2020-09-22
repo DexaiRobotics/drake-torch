@@ -93,30 +93,15 @@ RUN python3 -m pip install --upgrade --no-cache-dir --compile \
 ENV SETUPTOOLS_USE_DISTUTILS=stdlib
 
 # gtest per recommended method, needed by msgpack etc.
-RUN cd $HOME \
-    && \
-        if [ $BUILD_CHANNEL = "stable" ] ; \
-        then \
-            curl -SL https://github.com/google/googletest/archive/release-1.8.1.tar.gz | tar -xz \
-            && cd googletest-release-1.8.1 \
-            && mkdir build \
-            && cd build \
-            && cmake .. \
-            && make -j 12 \
-            && cp -r ../googletest/include/gtest /usr/local/include \
-            && cp googlemock/gtest/*.a /usr/local/lib \
-            && cd $HOME && rm -rf googletest-release-1.8.1 release-1.8.1.tar.gz; \
-        else \
-            curl -SL https://github.com/google/googletest/archive/release-1.10.0.tar.gz | tar -xz \
-            && cd googletest-release-1.10.0 \
-            && mkdir build \
-            && cd build \
-            && cmake .. \
-            && make -j 12 \
-            && cp -r ../googletest/include/gtest /usr/local/include \
-            && cp lib/*.a /usr/local/lib \
-            && cd $HOME && rm -rf googletest-release-1.10.0 release-1.10.0.tar.gz; \
-        fi
+RUN curl -SL https://github.com/google/googletest/archive/release-1.10.0.tar.gz | tar -xz \
+    && cd googletest-release-1.10.0 \
+    && mkdir build \
+    && cd build \
+    && cmake .. \
+    && make -j 12 \
+    && cp -r ../googletest/include/gtest /usr/local/include \
+    && cp lib/*.a /usr/local/lib \
+    && cd $HOME && rm -rf googletest-release-1.10.0 release-1.10.0.tar.gz
 
 # install make 4.3 and GDB 9.2
 RUN cd $HOME \
