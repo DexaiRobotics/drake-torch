@@ -317,6 +317,7 @@ RUN cd /usr/src \
     && rm -rf libgtest* libgtest*
 RUN cd $HOME/googletest-release-1.10.0/build \
     && make install \
+    && cd $HOME \
     && rm -rf googletest-release-1.10.0 release-1.10.0.tar.gz
 
 # install cv_bridge to /opt/ros/melodic from source
