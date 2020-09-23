@@ -11,18 +11,18 @@
 REPOSITORY=drake-torch
 SUFFIX_DATE=$(date +"%Y%m%d")
 
-OPT_CPU=false
-OPT_CUDA=false
+OPT_CPU=true
+OPT_CUDA=true
 
 # Parse any arguments.
 while (( $# )); do
   case "$1" in
     --cpu)
-      OPT_CPU=true
+      OPT_CUDA=false
       shift 1
       ;;
     --cuda)
-      OPT_CUDA=true
+      OPT_CPU=false
       shift 1
       ;;
     -r|--repo)
