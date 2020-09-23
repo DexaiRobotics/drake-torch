@@ -50,11 +50,11 @@ REPO_STR="dexai2/${REPOSITORY}"
 tag_and_push() {
     BUILD_TYPE=$1
     SUFFIX=$2
-    echo "tagging and pushing image, build type $BUILD_TYPE, suffix $SUFFIX"
+    echo "tagging and pushing image to dexai2/$REPOSITORY, build type $BUILD_TYPE, suffix $SUFFIX"
     CURRENT_TAG=$REPO_STR:$BUILD_TYPE
     NEW_TAG=$REPO_STR:"${BUILD_TYPE}_${SUFFIX}"
-    echo docker tag $CURRENT_TAG $NEW_TAG
-    echo docker push $NEW_TAG
+    docker tag $CURRENT_TAG $NEW_TAG
+    docker push $NEW_TAG
 }
 
 if [[ $OPT_CPU == true ]]; then
