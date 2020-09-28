@@ -155,7 +155,7 @@ RUN set -eux \
         else curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-focal.tar.gz | tar -xzC /opt; \
         fi \
     && cd /opt/drake/share/drake/setup && yes | ./install_prereqs \
-    && cd $HOME && rm -rf drake*.tar.gz
+    && rm -rf $HOME/drake*.tar.gz
 
 # pip install pydrake using the /opt/drake directory in develop mode
 COPY in_container_scripts/setup_pydrake.py setup_pydrake.py

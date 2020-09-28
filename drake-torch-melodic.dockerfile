@@ -139,24 +139,24 @@ RUN cd $HOME && git clone -b cpp_master https://github.com/msgpack/msgpack-c.git
 # install ccd & octomap && fcl
 RUN cd $HOME && git clone https://github.com/danfis/libccd.git \
     && cd libccd && mkdir -p build && cd build \
-    && cmake -G "Unix Makefiles" .. && make -j 4 && make install \
-    && cd $HOME && rm -rf libccd
+    && cmake -G "Unix Makefiles" .. && make install -j 12 \
+    && rm -rf $HOME/libccd
 
 RUN cd $HOME && git clone https://github.com/OctoMap/octomap.git \
     && cd octomap && mkdir -p build && cd build \
-    && cmake -DBUILD_SHARED_LIBS=ON .. && make -j 4 && make install \
-    && cd $HOME && rm -rf octomap
+    && cmake -DBUILD_SHARED_LIBS=ON .. && make install -j 12 \
+    && && rm -rf $HOME/octomap
 
 RUN cd $HOME && git clone https://github.com/MobileManipulation/fcl.git \
     && cd fcl && mkdir -p build && cd build \
     && cmake -DBUILD_SHARED_LIBS=ON -DFCL_WITH_OCTOMAP=ON -DFCL_HAVE_OCTOMAP=1 .. \
-    && make -j 4 && make install \
-    && cd $HOME && rm -rf fcl
+    && make install -j 12 \
+    && rm -rf $HOME/fcl
 
-COPY scripts/install-ompl-ubuntu.sh $HOME
-RUN cd $HOME \
-    && ./install-ompl-ubuntu.sh --python \
-    && rm -rf install-ompl-ubuntu.sh castxml fcl-0.6.1 ompl-1.4.2
+RUN wget https://ompl.kavrakilab.org/install-ompl-ubuntu.sh \
+    && sh install-ompl-ubuntu.sh \
+    rm -rf /usr/local/include/ompl && ln -s /usr/local/include/ompl-1.5/ompl /usr/local/include/ompl \
+    && rm $HOME/install-ompl-ubuntu.sh
 
 # Install python URDF parser
 RUN cd $HOME && git clone https://github.com/ros/urdf_parser_py && cd urdf_parser_py \
