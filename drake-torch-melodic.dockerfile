@@ -3,42 +3,43 @@ FROM $BASE_IMAGE
 USER root
 WORKDIR /root
 
+ARG BUILD_CHANNEL
+
 # Set debconf to noninteractive mode
 # https://github.com/phusion/baseimage-docker/issues/58#issuecomment-47995343
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get upgrade -qy
 
-# install latest eigen3
-RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.3.7/eigen-3.3.7.tar.bz2 | tar -xj \
-    && cd eigen-3.3.7 \
-    && mkdir build \
-    && cd build \
-    && cmake build .. -D CMAKE_INSTALL_PREFIX=/usr/local \
-    && make install \
-    && rm -rf $HOME/eigen-3.3.7
-
 # OpenCV 4.4.0 for C++ and Python3 before ROS
 RUN apt-get install -qy \
         python3-numpy \
         libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
-        libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev \
-    && cd $HOME \
-    && curl -SL https://github.com/opencv/opencv/archive/4.4.0.tar.gz | tar -xz \
+        libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev
+RUN curl -SL https://github.com/opencv/opencv/archive/4.4.0.tar.gz | tar -xz \
     && cd opencv-4.4.0 \
-    && mkdir build \
-    && cd build \
-    && cmake \
-        -D CMAKE_BUILD_TYPE=Release \
-        -D CMAKE_INSTALL_PREFIX=/usr/local \
-        -D PYTHON3_EXECUTABLE=/usr/bin/python3 \
-        -D PYTHON_INCLUDE_DIR=/usr/include/python3.6m \
-        -D PYTHON_INCLUDE_DIR2=/usr/include/x86_64-linux-gnu/python3.6m \
-        -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so \
-        -D PYTHON3_NUMPY_INCLUDE_DIRS=/usr/lib/python3/dist-packages/numpy/core/include \
-        .. \
-    && make -j 12 \
-    && make install \
+    && mkdir build
+RUN set -eux && cd opencv-4.4.0/build \
+    && \
+        if [ $BUILD_CHANNEL = "stable" ]; \
+        then cmake .. \
+            -D CMAKE_BUILD_TYPE=Release \
+            -D CMAKE_INSTALL_PREFIX=/usr/local \
+            -D PYTHON3_EXECUTABLE=/usr/bin/python3 \
+            -D PYTHON_INCLUDE_DIR=/usr/include/python3.6m \
+            -D PYTHON_INCLUDE_DIR2=/usr/include/x86_64-linux-gnu/python3.6m \
+            -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so \
+            -D PYTHON3_NUMPY_INCLUDE_DIRS=/usr/lib/python3/dist-packages/numpy/core/include; \
+        else cmake .. \
+            -D CMAKE_BUILD_TYPE=Release \
+            -D CMAKE_INSTALL_PREFIX=/usr/local \
+            -D PYTHON3_EXECUTABLE=/usr/bin/python3 \
+            -D PYTHON_INCLUDE_DIR=/usr/include/python3.8 \
+            -D PYTHON_INCLUDE_DIR2=/usr/include/x86_64-linux-gnu/python3.8 \
+            -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.8.so \
+            -D PYTHON3_NUMPY_INCLUDE_DIRS=/usr/lib/python3/dist-packages/numpy/core/include; \
+        fi \
+    && make install -j 12 \
     && rm -rf $HOME/4.4.0.tar.gz
 
 # ########################################################
@@ -67,6 +68,7 @@ RUN apt-get update && apt-get install -qy \
     ros-melodic-diagnostic-updater \
     ros-melodic-robot-state-publisher \
     ros-melodic-joint-state-publisher \
+    ros-melodic-tf-conversions \
     ros-melodic-gazebo-ros \
     ros-melodic-rviz \
     dirmngr \
@@ -120,6 +122,19 @@ RUN apt-get install -qy \
 #             -D CMAKE_BUILD_TYPE=Release \
 #             # -D SETUPTOOLS_DEB_LAYOUT=OFF \
 #     && catkin build && rm -rf $HOME/py3_ws
+
+# post-melodic cleanup
+# reinstall googletest to overwrite old version that's part of rosdep
+RUN cd /usr/src \
+    && rm -rf gtest gmock googletest \
+    && cd /usr/include \
+    && rm -rf gtest gmock \
+    && cd /usr/local/lib \
+    && rm -rf libgtest* libgtest*
+RUN cd $HOME/googletest-release-1.10.0/build \
+    && make install \
+    && cd $HOME \
+    && rm -rf googletest-release-1.10.0 release-1.10.0.tar.gz
 
 # reinstall opencv 4 to fix symlinks
 RUN cd $HOME/opencv-4.4.0/build \
@@ -180,19 +195,20 @@ RUN git clone https://github.com/rogersce/cnpy.git \
     && cmake .. && make -j 12 && make install \
     && cd $HOME && rm -rf cnpy
 
+# TODO: fix this for 20.04
 # realsense SDK, apt install instructions take from
 # https://github.com/IntelRealSense/librealsense/blob/master/doc/distribution_linux.md
 # manual install instructions availabe at
 # https://github.com/IntelRealSense/librealsense/blob/master/doc/installation.md
-RUN apt-key adv --keyserver keys.gnupg.net --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE  \
-    || apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE  \
-    && add-apt-repository "deb http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo bionic main" -u \
-    && apt-get update && apt-get install -qy \
-        librealsense2-dkms \
-        librealsense2-utils \
-        librealsense2-dev \
-        librealsense2-dbg \
-        librealsense2
+# RUN apt-key adv --keyserver keys.gnupg.net --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE  \
+#     || apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE  \
+#     && add-apt-repository "deb http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo bionic main" -u \
+#     && apt-get update && apt-get install -qy \
+#         librealsense2-dkms \
+#         librealsense2-utils \
+#         librealsense2-dev \
+#         librealsense2-dbg \
+#         librealsense2
 
 # install LCM system-wide
 RUN cd $HOME && git clone https://github.com/lcm-proj/lcm \
@@ -209,19 +225,14 @@ RUN cd $HOME && git clone https://github.com/lcm-proj/lcm \
 # only clear apt lists at the last apt call
 # gazebo and rviz needed for sim robot
 RUN apt-get install -qy \
+        screen \
         htop \
-        nano \
         tig \
         tmux \
         tree \
         git-extras \
-        clang-format-8 \
-        espeak-ng-espeak \
+        clang-format-10 \
         iwyu \
-        screen \
-        ros-melodic-tf-conversions \
-        ros-melodic-gazebo-ros \
-        ros-melodic-rviz \
         git-lfs \
         doxygen \
     && apt-get upgrade -qy \

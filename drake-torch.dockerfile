@@ -172,10 +172,17 @@ RUN python3 -m pip install \
         ipython ipykernel jupyterlab matplotlib
 
 # install the latest libboost
-RUN apt-get purge libboost-dev -qy \
-    && apt-get autoremove -qy \
-    && add-apt-repository -y ppa:mhier/libboost-latest \
+RUN add-apt-repository -y ppa:mhier/libboost-latest \
     && apt-get install -y libboost1.74-dev
+
+# install latest eigen3
+RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.3.7/eigen-3.3.7.tar.bz2 | tar -xj \
+    && cd eigen-3.3.7 \
+    && mkdir build \
+    && cd build \
+    && cmake build .. -D CMAKE_INSTALL_PREFIX=/usr/local \
+    && make install -j 12 \
+    && rm -rf $HOME/eigen-3.3.7
 
 RUN apt-get upgrade -qy \
     && rm -rf /var/lib/apt/lists/*
