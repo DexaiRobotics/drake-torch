@@ -70,6 +70,14 @@ RUN python3 -m pip install --upgrade --no-cache-dir --compile \
 # https://github.com/pypa/setuptools/issues/2350
 ENV SETUPTOOLS_USE_DISTUTILS=stdlib
 
+# gtest per recommended method, needed by msgpack etc.
+RUN curl -SL https://github.com/google/googletest/archive/release-1.10.0.tar.gz | tar -xz \
+    && cd googletest-release-1.10.0 \
+    && mkdir build \
+    && cd build \
+    && cmake .. \
+    && make install -j 12
+
 # install make 4.3 and GDB 9.2
 RUN curl -SL https://ftp.gnu.org/gnu/make/make-4.3.tar.gz | tar -xz \
     && cd make-4.3 \
