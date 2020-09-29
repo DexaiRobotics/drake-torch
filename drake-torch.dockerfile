@@ -33,13 +33,10 @@ ARG DEBIAN_FRONTEND=noninteractive
 # apt repo for cmake
 RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null \
     | gpg --dearmor - | tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
-
-
 RUN if [ $BUILD_CHANNEL = "stable" ] ; \
     then add-apt-repository 'deb https://apt.kitware.com/ubuntu/ bionic main'; \
     else add-apt-repository 'deb https://apt.kitware.com/ubuntu/ focal main'; \
     fi
-
 # ensure keyring for cmake stays up to date as kitware rotates their keys
 RUN apt-get install -qy kitware-archive-keyring \
     && rm /etc/apt/trusted.gpg.d/kitware.gpg

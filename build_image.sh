@@ -52,7 +52,7 @@ if [[ $BUILD_ROS = true ]]; then
     fi
   else
     # use change to noetic after stable+melodic is in use
-    DOCKERFILE="drake-torch-melodic.dockerfile"
+    DOCKERFILE="drake-torch-noetic.dockerfile"
     if [[ $BUILD_TYPE == "cpu" ]]; then
       BASE_IMAGE="dexai2/drake-torch:cpu-nightly"
     else
