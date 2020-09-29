@@ -21,7 +21,7 @@ Then run the planner:
 ```
 
 ## Expected Output
-![Demo Output](simple_ompl_demo.gif)
+![Demo Output](simple_ompl_planning_demo.gif)
 
 ```bash
 RobotCollisionChecker: robot_dof_: 7
