@@ -2,6 +2,7 @@ ARG BASE_IMAGE
 FROM $BASE_IMAGE
 USER root
 WORKDIR /root
+ARG BUILD_TYPE
 
 # Set debconf to noninteractive mode
 # https://github.com/phusion/baseimage-docker/issues/58#issuecomment-47995343
@@ -67,12 +68,12 @@ RUN apt-get update && apt-get install -qy \
     lsb-release \
     libyaml-cpp-dev
 
-# # install cv_bridge to /opt/ros/melodic from source
-# # --install-layout is a debian modification to Pythons "distutils" module.
-# # That option is maintained by and only shipped with Debian(-derivates). 
-# # It is not part of the official Python release (PyPI).
-# # so we need pass a cmake flag SETUPTOOLS_DEB_LAYOUT=OFF.
-# # try SETUPTOOLS_USE_DISTUTILS=stdlib instead
+# install cv_bridge to /opt/ros/melodic from source
+# --install-layout is a debian modification to Pythons "distutils" module.
+# That option is maintained by and only shipped with Debian(-derivates). 
+# It is not part of the official Python release (PyPI).
+# so we need pass a cmake flag SETUPTOOLS_DEB_LAYOUT=OFF.
+# try SETUPTOOLS_USE_DISTUTILS=stdlib instead
 
 # SHELL ["/bin/bash", "-c"]
 # RUN cd $HOME && mkdir -p py3_ws/src && cd py3_ws/src \
@@ -161,8 +162,9 @@ RUN cd $HOME && git clone https://github.com/danfis/libccd.git \
 
 RUN cd $HOME && git clone https://github.com/OctoMap/octomap.git \
     && cd octomap && mkdir -p build && cd build \
-    && cmake -DBUILD_SHARED_LIBS=ON .. && make install -j 12 \
-    && && rm -rf $HOME/octomap
+    && cmake -D OpenGL_GL_PREFERENCE=LEGACY -D BUILD_SHARED_LIBS=ON .. \
+    && make install -j 12 \
+    && rm -rf $HOME/octomap
 
 RUN cd $HOME && git clone https://github.com/MobileManipulation/fcl.git \
     && cd fcl && mkdir -p build && cd build \
@@ -170,25 +172,29 @@ RUN cd $HOME && git clone https://github.com/MobileManipulation/fcl.git \
     && make install -j 12 \
     && rm -rf $HOME/fcl
 
+# RUN python3 -m pip install --upgrade --no-cache-dir --compile pyplusplus
+# RUN apt-get update && apt-get install -qy python-pip
+# COPY in_container_scripts/install-ompl-ubuntu.sh install-ompl-ubuntu.sh
 RUN wget https://ompl.kavrakilab.org/install-ompl-ubuntu.sh \
-    && sh install-ompl-ubuntu.sh \
+    && chmod +x install-ompl-ubuntu.sh \
+    && ./install-ompl-ubuntu.sh --python \
     && rm -rf /usr/local/include/ompl \
     && ln -s /usr/local/include/ompl-1.5/ompl /usr/local/include/ompl \
     && rm $HOME/install-ompl-ubuntu.sh
 
 # Install python URDF parser
-RUN cd $HOME && git clone https://github.com/ros/urdf_parser_py && cd urdf_parser_py \
+RUN git clone https://github.com/ros/urdf_parser_py && cd urdf_parser_py \
     && python3 setup.py install \
     && cd $HOME && rm -rf urdf_parser_py
 
 # qpOASES
-RUN cd $HOME && git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES \
+RUN git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES \
     && cd $HOME/qpOASES/ && mkdir -p bin && make -j 12 \
     && cd $HOME/qpOASES/interfaces/python/ && python3 setup.py install \
     && rm -rf $HOME/qpOASES
 
 # toppra: Dexai fork
-RUN cd $HOME && git clone https://github.com/DexaiRobotics/toppra \
+RUN git clone https://github.com/DexaiRobotics/toppra \
     && python3 -m pip install --upgrade --no-cache-dir --compile ./toppra \
     && rm -rf toppra
 
@@ -197,6 +203,14 @@ RUN git clone https://github.com/rogersce/cnpy.git \
     && mkdir -p cnpy/build && cd cnpy/build \
     && cmake .. && make -j 12 && make install \
     && cd $HOME && rm -rf cnpy
+
+# install LCM system-wide
+RUN git clone https://github.com/lcm-proj/lcm \
+    && cd lcm && mkdir -p build && cd build && cmake .. \
+    && make -j 12 \
+    && make install \
+    && cd $HOME && rm -rf lcm
+
 
 # TODO: fix this for 20.04
 # realsense SDK, apt install instructions take from
@@ -213,12 +227,35 @@ RUN git clone https://github.com/rogersce/cnpy.git \
 #         librealsense2-dbg \
 #         librealsense2
 
-# install LCM system-wide
-RUN cd $HOME && git clone https://github.com/lcm-proj/lcm \
-    && cd lcm && mkdir -p build && cd build && cmake .. \
-    && make -j 12 \
-    && make install \
-    && cd $HOME && rm -rf lcm
+RUN apt-get install -qy \
+        libssl-dev \
+        libusb-1.0-0-dev \
+        pkg-config \
+        libgtk-3-dev \
+        libglfw3-dev \
+        libgl1-mesa-dev \
+        libglu1-mesa-dev
+RUN git clone https://github.com/IntelRealSense/librealsense.git \
+    && cd librealsense \
+    && ./scripts/setup_udev_rules.sh \
+    && mkdir build \
+    && cd build \
+    && \
+        if [ $BUILD_TYPE = "cpu" ]; then \
+            cmake .. \
+                -D CMAKE_BUILD_TYPE=Release \
+                -D PYTHON_EXECUTABLE=/usr/bin/python3 \
+                -D DBUILD_PYTHON_BINDINGS:bool=true; \
+        else \
+            cmake .. \
+                -D CMAKE_BUILD_TYPE=Release \
+                -D PYTHON_EXECUTABLE=/usr/bin/python3 \
+                -D DBUILD_PYTHON_BINDINGS:bool=true \
+                -D BUILD_WITH_CUDA:bool=true; \
+        fi \
+    && make uninstall \
+    && make clean \
+    && make install
 
 ########################################################
 # final steps

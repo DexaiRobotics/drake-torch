@@ -181,5 +181,7 @@ RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.3.7/eigen-3.3.7.tar.b
     && make install -j 12 \
     && rm -rf $HOME/eigen-3.3.7
 
+RUN apt-get install -qy openssh-client openssh-server
+
 RUN apt-get upgrade -qy \
     && rm -rf /var/lib/apt/lists/*
