@@ -2,8 +2,7 @@ ARG BASE_IMAGE
 FROM $BASE_IMAGE
 USER root
 WORKDIR /root
-
-ARG BUILD_CHANNEL
+ARG BUILD_TYPE
 
 # Set debconf to noninteractive mode
 # https://github.com/phusion/baseimage-docker/issues/58#issuecomment-47995343
@@ -18,27 +17,16 @@ RUN apt-get install -qy \
         libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev
 RUN curl -SL https://github.com/opencv/opencv/archive/4.4.0.tar.gz | tar -xz \
     && cd opencv-4.4.0 \
-    && mkdir build
-RUN set -eux && cd opencv-4.4.0/build \
-    && \
-        if [ $BUILD_CHANNEL = "stable" ]; \
-        then cmake .. \
-            -D CMAKE_BUILD_TYPE=Release \
-            -D CMAKE_INSTALL_PREFIX=/usr/local \
-            -D PYTHON3_EXECUTABLE=/usr/bin/python3 \
-            -D PYTHON_INCLUDE_DIR=/usr/include/python3.6m \
-            -D PYTHON_INCLUDE_DIR2=/usr/include/x86_64-linux-gnu/python3.6m \
-            -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so \
-            -D PYTHON3_NUMPY_INCLUDE_DIRS=/usr/lib/python3/dist-packages/numpy/core/include; \
-        else cmake .. \
-            -D CMAKE_BUILD_TYPE=Release \
-            -D CMAKE_INSTALL_PREFIX=/usr/local \
-            -D PYTHON3_EXECUTABLE=/usr/bin/python3 \
-            -D PYTHON_INCLUDE_DIR=/usr/include/python3.8 \
-            -D PYTHON_INCLUDE_DIR2=/usr/include/x86_64-linux-gnu/python3.8 \
-            -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.8.so \
-            -D PYTHON3_NUMPY_INCLUDE_DIRS=/usr/lib/python3/dist-packages/numpy/core/include; \
-        fi \
+    && mkdir build \
+    && cd build \
+    && cmake .. \
+        -D CMAKE_BUILD_TYPE=Release \
+        -D CMAKE_INSTALL_PREFIX=/usr/local \
+        -D PYTHON3_EXECUTABLE=/usr/bin/python3 \
+        -D PYTHON_INCLUDE_DIR=/usr/include/python3.6 \
+        -D PYTHON_INCLUDE_DIR2=/usr/include/x86_64-linux-gnu/python3.6 \
+        -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6.so \
+        -D PYTHON3_NUMPY_INCLUDE_DIRS=/usr/lib/python3/dist-packages/numpy/core/include \
     && make install -j 12 \
     && rm -rf $HOME/4.4.0.tar.gz
 
@@ -54,10 +42,12 @@ RUN echo "deb http://packages.ros.org/ros/ubuntu `lsb_release -sc` main" > /etc/
 # setup keys
 RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
 
+# uninstall latest libboost before ROS attemps to install the old version
+RUN apt-get purge -qy libboost1.74-dev
+
 RUN apt-get update && apt-get install -qy \
     ros-melodic-ros-base \
     ros-melodic-geometry2 \
-    libpcl-dev \
     ros-melodic-pcl-ros \
     ros-melodic-vision-opencv \
     ros-melodic-xacro \
@@ -72,58 +62,28 @@ RUN apt-get update && apt-get install -qy \
     ros-melodic-gazebo-ros \
     ros-melodic-rviz \
     dirmngr \
+    libpcl-dev \
     librosconsole-dev \
     libxmlrpcpp-dev \
     lsb-release \
     libyaml-cpp-dev
 
-# install bootstrap tools
 RUN apt-get install --no-install-recommends -qy \
         python3-rosdep \
-        python3-rosinstall \
-        python3-vcstools
-
+        python3-rosinstall
+        # python-rosinstall-generator
+        # python3-vcstools
+        # python-wstool
 # bootstrap rosdep
-RUN rosdep init \
-    && rosdep update
+RUN rosdep init && rosdep update
 
-# install ros packages
-ENV ROS_DISTRO melodic
-RUN apt-get install -qy \
-        python-catkin-tools \
-        usbutils \
-        iputils-ping
+# install boost 1.74 without removing libboost 1.71 on which ROS depends
+RUN curl -SL https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.bz2 | tar -xj \
+    && cd boost_1_74_0 \
+    && ./bootstrap.sh --prefix=/usr --with-python=python3 \
+    && ./b2 stage -j 12 threading=multi link=shared \
+    && ./b2 install threading=multi link=shared
 
-# # install cv_bridge to /opt/ros/melodic from source
-# # --install-layout is a debian modification to Pythons "distutils" module.
-# # That option is maintained by and only shipped with Debian(-derivates). 
-# # It is not part of the official Python release (PyPI).
-# # so we need pass a cmake flag SETUPTOOLS_DEB_LAYOUT=OFF.
-# # try SETUPTOOLS_USE_DISTUTILS=stdlib instead
-
-# SHELL ["/bin/bash", "-c"]
-# RUN cd $HOME && mkdir -p py3_ws/src && cd py3_ws/src \
-#     && git clone -b melodic https://github.com/DexaiRobotics/vision_opencv.git \
-#     && git clone -b melodic-devel https://github.com/ros/ros_comm.git \
-#     && cd $HOME/py3_ws \
-#     && python3 -m pip install --upgrade --no-cache-dir --compile \
-#         catkin_tools \
-#         pycryptodomex \
-#         gnupg \
-#     && source /opt/ros/melodic/setup.bash \
-#     && export ROS_PYTHON_VERSION=3 \
-#     && catkin config --install \
-#         --install-space /opt/ros/melodic \
-#         --cmake-args \
-#             -D PYTHON_EXECUTABLE=/usr/bin/python3 \
-#             -D PYTHON_INCLUDE_DIR=/usr/include/python3.6m \
-#             -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so \
-#             -D OPENCV_VERSION_MAJOR=4 \
-#             -D CMAKE_BUILD_TYPE=Release \
-#             # -D SETUPTOOLS_DEB_LAYOUT=OFF \
-#     && catkin build && rm -rf $HOME/py3_ws
-
-# post-melodic cleanup
 # reinstall googletest to overwrite old version that's part of rosdep
 RUN cd /usr/src \
     && rm -rf gtest gmock googletest \
@@ -139,12 +99,29 @@ RUN cd $HOME/googletest-release-1.10.0/build \
 # reinstall opencv 4 to fix symlinks
 RUN cd $HOME/opencv-4.4.0/build \
     && make install \
-    && cd $HOME \
-    && rm -rf opencv-4.4.0
+    && rm -rf $HOME/opencv-4.4.0
 
 ########################################################
-# other dexai stack dependencies
+# dev essentials and other dependencies
 ########################################################
+
+RUN apt-get install -qy \
+        libgflags-dev \
+        git \
+        git-extras \
+        git-lfs \
+        tig \
+        htop \
+        screen \
+        xvfb \
+        x11vnc \
+        tmux \
+        tree \
+        clang-format-10 \
+        iwyu \
+        doxygen
+
+RUN git lfs install
 
 # Install C++ branch of msgpack-c
 RUN cd $HOME && git clone -b cpp_master https://github.com/msgpack/msgpack-c.git \
@@ -159,8 +136,9 @@ RUN cd $HOME && git clone https://github.com/danfis/libccd.git \
 
 RUN cd $HOME && git clone https://github.com/OctoMap/octomap.git \
     && cd octomap && mkdir -p build && cd build \
-    && cmake -DBUILD_SHARED_LIBS=ON .. && make install -j 12 \
-    && && rm -rf $HOME/octomap
+    && cmake -D OpenGL_GL_PREFERENCE=LEGACY -D BUILD_SHARED_LIBS=ON .. \
+    && make install -j 12 \
+    && rm -rf $HOME/octomap
 
 RUN cd $HOME && git clone https://github.com/MobileManipulation/fcl.git \
     && cd fcl && mkdir -p build && cd build \
@@ -168,24 +146,29 @@ RUN cd $HOME && git clone https://github.com/MobileManipulation/fcl.git \
     && make install -j 12 \
     && rm -rf $HOME/fcl
 
+# RUN python3 -m pip install --upgrade --no-cache-dir --compile pyplusplus
+# RUN apt-get update && apt-get install -qy python-pip
+# COPY in_container_scripts/install-ompl-ubuntu.sh install-ompl-ubuntu.sh
 RUN wget https://ompl.kavrakilab.org/install-ompl-ubuntu.sh \
-    && sh install-ompl-ubuntu.sh \
-    rm -rf /usr/local/include/ompl && ln -s /usr/local/include/ompl-1.5/ompl /usr/local/include/ompl \
+    && chmod +x install-ompl-ubuntu.sh \
+    && ./install-ompl-ubuntu.sh --python \
+    && rm -rf /usr/local/include/ompl \
+    && ln -s /usr/local/include/ompl-1.5/ompl /usr/local/include/ompl \
     && rm $HOME/install-ompl-ubuntu.sh
 
 # Install python URDF parser
-RUN cd $HOME && git clone https://github.com/ros/urdf_parser_py && cd urdf_parser_py \
+RUN git clone https://github.com/ros/urdf_parser_py && cd urdf_parser_py \
     && python3 setup.py install \
     && cd $HOME && rm -rf urdf_parser_py
 
 # qpOASES
-RUN cd $HOME && git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES \
+RUN git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES \
     && cd $HOME/qpOASES/ && mkdir -p bin && make -j 12 \
     && cd $HOME/qpOASES/interfaces/python/ && python3 setup.py install \
     && rm -rf $HOME/qpOASES
 
 # toppra: Dexai fork
-RUN cd $HOME && git clone https://github.com/DexaiRobotics/toppra \
+RUN git clone https://github.com/DexaiRobotics/toppra \
     && python3 -m pip install --upgrade --no-cache-dir --compile ./toppra \
     && rm -rf toppra
 
@@ -195,51 +178,58 @@ RUN git clone https://github.com/rogersce/cnpy.git \
     && cmake .. && make -j 12 && make install \
     && cd $HOME && rm -rf cnpy
 
-# TODO: fix this for 20.04
-# realsense SDK, apt install instructions take from
-# https://github.com/IntelRealSense/librealsense/blob/master/doc/distribution_linux.md
-# manual install instructions availabe at
-# https://github.com/IntelRealSense/librealsense/blob/master/doc/installation.md
-# RUN apt-key adv --keyserver keys.gnupg.net --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE  \
-#     || apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE  \
-#     && add-apt-repository "deb http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo bionic main" -u \
-#     && apt-get update && apt-get install -qy \
-#         librealsense2-dkms \
-#         librealsense2-utils \
-#         librealsense2-dev \
-#         librealsense2-dbg \
-#         librealsense2
-
 # install LCM system-wide
-RUN cd $HOME && git clone https://github.com/lcm-proj/lcm \
+RUN git clone https://github.com/lcm-proj/lcm \
     && cd lcm && mkdir -p build && cd build && cmake .. \
     && make -j 12 \
     && make install \
     && cd $HOME && rm -rf lcm
 
-########################################################
-# Essential packages for remote debugging and login in
-########################################################
-
-# install nice-to-have some dev tools
-# only clear apt lists at the last apt call
-# gazebo and rviz needed for sim robot
+# build librealsense from source since there's no 20.04 support
 RUN apt-get install -qy \
-        screen \
-        htop \
-        tig \
-        tmux \
-        tree \
-        git-extras \
-        clang-format-10 \
-        iwyu \
-        git-lfs \
-        doxygen \
-    && apt-get upgrade -qy \
+        libssl-dev \
+        libusb-1.0-0-dev \
+        pkg-config \
+        libgtk-3-dev \
+        libglfw3-dev \
+        libgl1-mesa-dev \
+        libglu1-mesa-dev \
+    && git clone https://github.com/IntelRealSense/librealsense.git \
+    && cd librealsense \
+    && scripts/setup_udev_rules.sh
+RUN cd librealsense \
+    && mkdir build \
+    && cd build \
+    && \
+        if [ $BUILD_TYPE = "cpu" ]; then \
+            cmake .. \
+                -D CMAKE_BUILD_TYPE=Release \
+                -D BUILD_PYTHON_BINDINGS:bool=true \
+                -D PYTHON_EXECUTABLE=/usr/bin/python3; \
+        else \
+            cmake .. \
+                -D CMAKE_BUILD_TYPE=Release \
+                -D BUILD_PYTHON_BINDINGS:bool=true \
+                -D PYTHON_EXECUTABLE=/usr/bin/python3 \
+                -D BUILD_WITH_CUDA:bool=true \
+                -D CMAKE_CUDA_ARCHITECTURES="75" \
+                -D CMAKE_CUDA_HOST_COMPILER=gcc-9 \
+                -D OpenGL_GL_PREFERENCE=GLVND; \
+        fi \
+    && make uninstall \
+    && make clean \
+    && make install \
+    && rm -rf $HOME/librealsense
+
+########################################################
+# final steps
+########################################################
+RUN apt-get upgrade -qy \
     && apt-get autoremove -qy \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git lfs install
+COPY in_container_scripts/mod_bashrc.sh $HOME
+RUN ./mod_bashrc.sh && rm mod_bashrc.sh
 
 # Taken from - https://docs.docker.com/engine/examples/running_ssh_service/#environment-variables
 RUN mkdir /var/run/sshd
@@ -261,10 +251,6 @@ EXPOSE 7776 7777
 
 # RUN useradd -ms /bin/bash debugger
 # RUN echo 'debugger:pwd' | chpasswd
-
-########################################################
-# final steps
-########################################################
 
 # necessary to make all installed libraries available for linking
 RUN ldconfig
