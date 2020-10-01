@@ -1,6 +1,28 @@
 A Simple Example using OMPL and Drake in a CMake project
+## Instructions
+Build as a standard CMake project, assuming that you have `drake` installed where it can be found (e.g. `/opt/drake`) and `OMPL` installed per their instructions (e.g. `/usr/local/include/ompl-1.5`). 
+```bash
+cd <install_location>
+mkdir -p build
+cd build
+cmake ..
+make
+```
+To run the project and see the output, first start up a `drake-visualizer` (located in `/opt/drake/bin/drake-visualizer`). If running inside a docker, use `VNC` like so:
+```bash
+export DISPLAY=:20
+Xvfb :20 -screen 0 1366x768x16 &
+x11vnc -passwd TestVNC -display :20 -N -forever &
+/opt/drake/bin/drake-visualizer &
+```
+Then run the planner:
+```bash
+./drake_ompl_demo
+```
 
-### Expected Output
+## Expected Output
+![Demo Output](simple_ompl_planning_demo.gif)
+
 ```bash
 RobotCollisionChecker: robot_dof_: 7
 Debug:   RRTConnect: Planner range detected to be 2.797105
