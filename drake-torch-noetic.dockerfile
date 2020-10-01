@@ -234,24 +234,28 @@ RUN apt-get install -qy \
         libgtk-3-dev \
         libglfw3-dev \
         libgl1-mesa-dev \
-        libglu1-mesa-dev
-RUN git clone https://github.com/IntelRealSense/librealsense.git \
+        libglu1-mesa-dev \
+    && git clone https://github.com/IntelRealSense/librealsense.git \
     && cd librealsense \
-    && ./scripts/setup_udev_rules.sh \
+    && scripts/setup_udev_rules.sh
+RUN cd librealsense \
     && mkdir build \
     && cd build \
     && \
         if [ $BUILD_TYPE = "cpu" ]; then \
             cmake .. \
                 -D CMAKE_BUILD_TYPE=Release \
-                -D PYTHON_EXECUTABLE=/usr/bin/python3 \
-                -D DBUILD_PYTHON_BINDINGS:bool=true; \
+                -D BUILD_PYTHON_BINDINGS:bool=true \
+                -D PYTHON_EXECUTABLE=/usr/bin/python3; \
         else \
             cmake .. \
                 -D CMAKE_BUILD_TYPE=Release \
+                -D BUILD_PYTHON_BINDINGS:bool=true \
                 -D PYTHON_EXECUTABLE=/usr/bin/python3 \
-                -D DBUILD_PYTHON_BINDINGS:bool=true \
-                -D BUILD_WITH_CUDA:bool=true; \
+                -D BUILD_WITH_CUDA:bool=true \
+                -D CMAKE_CUDA_ARCHITECTURES="75" \
+                -D CMAKE_CUDA_HOST_COMPILER=gcc-9 \
+                -D OpenGL_GL_PREFERENCE=GLVND; \
         fi \
     && make uninstall \
     && make clean \
