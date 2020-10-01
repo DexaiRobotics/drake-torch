@@ -11,18 +11,32 @@
 REPOSITORY=drake-torch
 SUFFIX_DATE=$(date +"%Y%m%d")
 
-OPT_CPU=true
-OPT_CUDA=true
+BUILD_TYPE=cuda
+BUILD_CHANNEL=nightly
+OPT_ROS=false
+OPT_NIGHTLY=false
 
 # Parse any arguments.
 while (( $# )); do
   case "$1" in
     --cpu)
-      OPT_CUDA=false
+      BUILD_TYPE=cpu
       shift 1
       ;;
     --cuda)
-      OPT_CPU=false
+      BUILD_TYPE=cuda
+      shift 1
+      ;;
+    --stable)
+      BUILD_CHANNEL=stable
+      shift 1
+      ;;
+    --nightly)
+      BUILD_CHANNEL=nightly
+      shift 1
+      ;;
+    --ros)
+      OPT_ROS=true
       shift 1
       ;;
     -r|--repo)
@@ -30,17 +44,13 @@ while (( $# )); do
       REPOSITORY="$1"
       shift 1
       ;;
-    --) # end argument parsing
-      shift
-      break
-      ;;
     -*|--*=) # unsupported options
       echo "Error: Unsupported option $1" >&2
       exit 1
       ;;
-    *) # positional arg -- in this case, path to src directory
-      SRC_PATH="$1"
-      shift
+    *) # positional arg
+      echo "Error: Unsupported option $1" >&2
+      exit 1
       ;;
   esac
 done
@@ -48,17 +58,20 @@ done
 REPO_STR="dexai2/${REPOSITORY}"
 
 tag_and_push() {
-    BUILD_TYPE=$1
-    SUFFIX=$2
-    echo "tagging and pushing image to dexai2/$REPOSITORY, build type $BUILD_TYPE, suffix $SUFFIX"
-    CURRENT_TAG=$REPO_STR:$BUILD_TYPE
-    NEW_TAG=$REPO_STR:"${BUILD_TYPE}_${SUFFIX}"
-    docker tag $CURRENT_TAG $NEW_TAG
-    docker push $NEW_TAG
+  CURRENT_TAG=$1
+  SUFFIX=$2
+  NEW_TAG="${CURRENT_TAG}-${SUFFIX}"
+  echo "tagging and pushing, current tag: ${CURRENT_TAG}, new tag: ${NEW_TAG}"
+  docker tag $CURRENT_TAG $NEW_TAG
+  docker push $NEW_TAG
 }
 
+if [[ $OPT_ROS == true ]]; then
+  CURRENT_TAG="${REPO_STR}:${BUILD_TYPE}-${BUILD_CHANNEL}-ros"
+else
+  CURRENT_TAG="${REPO_STR}:${BUILD_TYPE}-${BUILD_CHANNEL}"
+fi
+
 # suspend publishing until 20.04 upgrade is done and working
-tag_and_push cpu $SUFFIX_DATE
-# tag_and_push cpu latest
-tag_and_push cuda $SUFFIX_DATE
-# tag_and_push cuda latest
+tag_and_push $CURRENT_TAG $SUFFIX_DATE
+tag_and_push $CURRENT_TAG latest
