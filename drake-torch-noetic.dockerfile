@@ -251,7 +251,7 @@ RUN apt-get upgrade -qy \
     && rm -rf /var/lib/apt/lists/*
 
 COPY in_container_scripts/mod_bashrc.sh $HOME
-RUN ./fix_bashrc.sh && rm fix_bashrc.sh
+RUN ./mod_bashrc.sh && rm mod_bashrc.sh
 
 # Taken from - https://docs.docker.com/engine/examples/running_ssh_service/#environment-variables
 RUN mkdir /var/run/sshd
