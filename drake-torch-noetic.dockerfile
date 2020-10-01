@@ -124,30 +124,26 @@ RUN cd $HOME/opencv-4.4.0/build \
     && rm -rf $HOME/opencv-4.4.0
 
 ########################################################
-# Essential packages for remote debugging and login in
+# dev essentials and other dependencies
 ########################################################
 
 RUN apt-get install -qy \
+        libgflags-dev \
         git \
-        screen \
-        htop \
+        git-extras \
+        git-lfs \
         tig \
+        htop \
+        screen \
+        xvfb \
+        x11vnc \
         tmux \
         tree \
-        git-extras \
         clang-format-10 \
         iwyu \
-        git-lfs \
-        doxygen \
-    && apt-get upgrade -qy \
-    && apt-get autoremove -qy \
-    && rm -rf /var/lib/apt/lists/*
+        doxygen
 
 RUN git lfs install
-
-########################################################
-# other dexai stack dependencies
-########################################################
 
 # Install C++ branch of msgpack-c
 RUN cd $HOME && git clone -b cpp_master https://github.com/msgpack/msgpack-c.git \
@@ -211,22 +207,7 @@ RUN git clone https://github.com/lcm-proj/lcm \
     && make install \
     && cd $HOME && rm -rf lcm
 
-
-# TODO: fix this for 20.04
-# realsense SDK, apt install instructions take from
-# https://github.com/IntelRealSense/librealsense/blob/master/doc/distribution_linux.md
-# manual install instructions availabe at
-# https://github.com/IntelRealSense/librealsense/blob/master/doc/installation.md
-# RUN apt-key adv --keyserver keys.gnupg.net --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE  \
-#     || apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE  \
-#     && add-apt-repository "deb http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo bionic main" -u \
-#     && apt-get update && apt-get install -qy \
-#         librealsense2-dkms \
-#         librealsense2-utils \
-#         librealsense2-dev \
-#         librealsense2-dbg \
-#         librealsense2
-
+# build librealsense from source since there's no 20.04 support
 RUN apt-get install -qy \
         libssl-dev \
         libusb-1.0-0-dev \
@@ -259,11 +240,18 @@ RUN cd librealsense \
         fi \
     && make uninstall \
     && make clean \
-    && make install
+    && make install \
+    && rm -rf $HOME/librealsense
 
 ########################################################
 # final steps
 ########################################################
+RUN apt-get upgrade -qy \
+    && apt-get autoremove -qy \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY in_container_scripts/mod_bashrc.sh $HOME
+RUN ./fix_bashrc.sh && rm fix_bashrc.sh
 
 # Taken from - https://docs.docker.com/engine/examples/running_ssh_service/#environment-variables
 RUN mkdir /var/run/sshd
