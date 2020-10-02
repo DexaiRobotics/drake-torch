@@ -99,13 +99,6 @@ RUN apt-get update && apt-get install -qy \
 
 # post-ROS cleanup, check if still needed for noetic
 
-# install boost 1.74 without removing libboost 1.71 on which ROS depends
-RUN curl -SL https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.bz2 | tar -xj \
-    && cd boost_1_74_0 \
-    && ./bootstrap.sh --prefix=/usr --with-python=python3 \
-    && ./b2 stage -j 12 threading=multi link=shared \
-    && ./b2 install threading=multi link=shared
-
 # reinstall googletest to overwrite old version that's part of rosdep
 RUN cd /usr/src \
     && rm -rf gtest gmock googletest \
@@ -117,6 +110,13 @@ RUN cd $HOME/googletest-release-1.10.0/build \
     && make install \
     && cd $HOME \
     && rm -rf googletest-release-1.10.0 release-1.10.0.tar.gz
+
+# install boost 1.74 without removing libboost 1.71 on which ROS depends
+RUN curl -SL https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.bz2 | tar -xj \
+    && cd boost_1_74_0 \
+    && ./bootstrap.sh --prefix=/usr --with-python=python3 \
+    && ./b2 stage -j 12 threading=multi link=shared \
+    && ./b2 install threading=multi link=shared
 
 # reinstall opencv 4 to fix symlinks
 RUN cd $HOME/opencv-4.4.0/build \
