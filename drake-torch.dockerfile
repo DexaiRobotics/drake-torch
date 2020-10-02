@@ -169,8 +169,10 @@ RUN python3 -m pip install \
         ipython ipykernel jupyterlab matplotlib
 
 # install the latest libboost
+RUN apt-get purge -qy libboost1.65-dev \
+    && apt-get autoremove -qy
 RUN add-apt-repository -y ppa:mhier/libboost-latest \
-    && apt-get install -y libboost1.74-dev
+    && apt-get install -qy libboost1.74-dev
 
 # install latest eigen3
 RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.3.7/eigen-3.3.7.tar.bz2 | tar -xj \
@@ -184,4 +186,5 @@ RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.3.7/eigen-3.3.7.tar.b
 RUN apt-get install -qy openssh-client openssh-server
 
 RUN apt-get upgrade -qy \
+    && apt-get autoremove -qy \
     && rm -rf /var/lib/apt/lists/*
