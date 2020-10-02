@@ -10,26 +10,6 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get upgrade -qy
 
-# OpenCV 4.4.0 for C++ and Python3 before ROS
-RUN apt-get install -qy \
-        python3-numpy \
-        libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
-        libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev
-RUN curl -SL https://github.com/opencv/opencv/archive/4.4.0.tar.gz | tar -xz \
-    && cd opencv-4.4.0 \
-    && mkdir build \
-    && cd build \
-    && cmake .. \
-        -D CMAKE_BUILD_TYPE=Release \
-        -D CMAKE_INSTALL_PREFIX=/usr/local \
-        -D PYTHON3_EXECUTABLE=/usr/bin/python3 \
-        -D PYTHON_INCLUDE_DIR=/usr/include/python3.6 \
-        -D PYTHON_INCLUDE_DIR2=/usr/include/x86_64-linux-gnu/python3.6 \
-        -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6.so \
-        -D PYTHON3_NUMPY_INCLUDE_DIRS=/usr/lib/python3/dist-packages/numpy/core/include \
-    && make install -j 12 \
-    && rm -rf $HOME/4.4.0.tar.gz
-
 # ########################################################
 # ROS
 # http://wiki.ros.org/noetic/Installation/Ubuntu
@@ -43,31 +23,19 @@ RUN echo "deb http://packages.ros.org/ros/ubuntu `lsb_release -sc` main" > /etc/
 RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
 
 # uninstall latest libboost before ROS attemps to install the old version
-RUN apt-get purge -qy libboost1.74 libboost1.74-dev
+RUN apt-get purge -qy libboost1.74*
 
 RUN apt-get update && apt-get install -qy \
     dirmngr \
     librosconsole-dev \
     libxmlrpcpp-dev \
     lsb-release \
-    libyaml-cpp-dev
-
-RUN apt-get install -qy \
-        # python3-catkin-pkg \
-        # python3-rosdistro \
-        # python3-rospkg \
-        # python3-rosdep-modules \
-        python3-rosdep \
-        python3-rosinstall
-        # python3-rosinstall-generator \
-        # python3-wstool \
-        # python3-vcstools \
-        # python-wstool
+    libyaml-cpp-dev \
+    python3-rosdep \
+    python3-rosinstall
 # bootstrap rosdep
 RUN rosdep init && rosdep update
-
 ENV ROS_DISTRO melodic
-
 RUN apt-get update && apt-get install -qy \
     ros-melodic-ros-base \
     ros-melodic-geometry2 \
@@ -85,6 +53,10 @@ RUN apt-get update && apt-get install -qy \
     ros-melodic-gazebo-ros \
     ros-melodic-rviz
 
+########################################################
+#### newer packages
+########################################################
+
 # reinstall googletest to overwrite old version that's part of rosdep
 RUN cd /usr/src \
     && rm -rf gtest gmock googletest \
@@ -95,17 +67,17 @@ RUN cd /usr/src \
 RUN cd $HOME/googletest-release-1.10.0/build \
     && make install \
     && cd $HOME \
-    && rm -rf googletest-release-1.10.0 release-1.10.0.tar.gz
+    && rm -rf googletest-release-1.10.0
 
-# install boost 1.74 without removing libboost 1.65 on which ROS depends
+# boost 1.74 without removing libboost 1.65 on which ROS depends
 RUN curl -SL https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.bz2 | tar -xj \
     && cd boost_1_74_0 \
     && ./bootstrap.sh --prefix=/usr --with-python=python3 \
     && ./b2 stage -j 12 threading=multi link=shared \
     && ./b2 install threading=multi link=shared
 
-# install yaml-cpp 0.6.3 which no longer depends on boost
-# 0.5.2.4 only works with boost <= 1.67
+# yaml-cpp 0.6.3 which no longer depends on boost
+# 0.5.2 only works with boost <= 1.67
 # https://github.com/precice/openfoam-adapter/issues/18
 RUN curl -SL https://github.com/jbeder/yaml-cpp/archive/yaml-cpp-0.6.3.tar.gz | tar -xz \
     && cd yaml-cpp-yaml-cpp-0.6.3 \
@@ -114,10 +86,27 @@ RUN curl -SL https://github.com/jbeder/yaml-cpp/archive/yaml-cpp-0.6.3.tar.gz | 
     && cmake .. -D YAML_BUILD_SHARED_LIBS=ON \
     && make install -j 12
 
-# reinstall opencv 4 to fix symlinks
-RUN cd $HOME/opencv-4.4.0/build \
-    && make install \
-    && rm -rf $HOME/opencv-4.4.0
+# OpenCV 4.4.0 for C++ and Python3 before ROS
+# do not delete yet because will need to re-install after ROS
+RUN apt-get install -qy \
+        python3-numpy \
+        libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
+        libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev
+RUN curl -SL https://github.com/opencv/opencv/archive/4.4.0.tar.gz | tar -xz \
+    && cd opencv-4.4.0 \
+    && mkdir build \
+    && cd build \
+    && cmake .. \
+        -D CMAKE_BUILD_TYPE=Release \
+        -D CMAKE_INSTALL_PREFIX=/usr/local \
+        -D PYTHON3_EXECUTABLE=/usr/bin/python3 \
+        -D PYTHON_INCLUDE_DIR=/usr/include/python3.6 \
+        -D PYTHON_INCLUDE_DIR2=/usr/include/x86_64-linux-gnu/python3.6 \
+        -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6.so \
+        -D PYTHON3_NUMPY_INCLUDE_DIRS=/usr/lib/python3/dist-packages/numpy/core/include \
+    && make install -j 12 \
+    && cd $HOME \
+    && rm -rf 4.4.0.tar.gz opencv-4.4.0
 
 ########################################################
 # dev essentials and other dependencies
@@ -146,27 +135,27 @@ RUN cd $HOME && git clone -b cpp_master https://github.com/msgpack/msgpack-c.git
     && cd msgpack-c && cmake -DMSGPACK_CXX17=ON . && make install -j 12 \
     && cd $HOME && rm -rf msgpack-c
 
-# install ccd & octomap && fcl
+# libccd
 RUN cd $HOME && git clone https://github.com/danfis/libccd.git \
     && cd libccd && mkdir -p build && cd build \
     && cmake -G "Unix Makefiles" .. && make install -j 12 \
     && rm -rf $HOME/libccd
 
+# octomap
 RUN cd $HOME && git clone https://github.com/OctoMap/octomap.git \
     && cd octomap && mkdir -p build && cd build \
     && cmake -D OpenGL_GL_PREFERENCE=LEGACY -D BUILD_SHARED_LIBS=ON .. \
     && make install -j 12 \
     && rm -rf $HOME/octomap
 
+# fcl
 RUN cd $HOME && git clone https://github.com/MobileManipulation/fcl.git \
     && cd fcl && mkdir -p build && cd build \
     && cmake -DBUILD_SHARED_LIBS=ON -DFCL_WITH_OCTOMAP=ON -DFCL_HAVE_OCTOMAP=1 .. \
     && make install -j 12 \
     && rm -rf $HOME/fcl
 
-# RUN python3 -m pip install --upgrade --no-cache-dir --compile pyplusplus
-# RUN apt-get update && apt-get install -qy python-pip
-# COPY in_container_scripts/install-ompl-ubuntu.sh install-ompl-ubuntu.sh
+# OMPL 1.5
 RUN wget https://ompl.kavrakilab.org/install-ompl-ubuntu.sh \
     && chmod +x install-ompl-ubuntu.sh \
     && ./install-ompl-ubuntu.sh --python \
@@ -236,7 +225,7 @@ RUN cd librealsense \
         fi \
     && make uninstall \
     && make clean \
-    && make install \
+    && make install -j 12 \
     && rm -rf $HOME/librealsense
 
 ########################################################
@@ -266,9 +255,6 @@ RUN sed -i 's/#Port 22/Port 7776/' /etc/ssh/sshd_config
 
 # Port 7776 for ssh server. 7777 for gdb server.
 EXPOSE 7776 7777
-
-# RUN useradd -ms /bin/bash debugger
-# RUN echo 'debugger:pwd' | chpasswd
 
 # necessary to make all installed libraries available for linking
 RUN ldconfig
