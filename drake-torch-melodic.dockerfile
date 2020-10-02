@@ -43,7 +43,30 @@ RUN echo "deb http://packages.ros.org/ros/ubuntu `lsb_release -sc` main" > /etc/
 RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
 
 # uninstall latest libboost before ROS attemps to install the old version
-RUN apt-get purge -qy libboost1.74-dev
+RUN apt-get purge -qy libboost1.74 libboost1.74-dev
+
+RUN apt-get update && apt-get install -qy \
+    dirmngr \
+    librosconsole-dev \
+    libxmlrpcpp-dev \
+    lsb-release \
+    libyaml-cpp-dev
+
+RUN apt-get install -qy \
+        # python3-catkin-pkg \
+        # python3-rosdistro \
+        # python3-rospkg \
+        # python3-rosdep-modules \
+        python3-rosdep \
+        python3-rosinstall
+        # python3-rosinstall-generator \
+        # python3-wstool \
+        # python3-vcstools \
+        # python-wstool
+# bootstrap rosdep
+RUN rosdep init && rosdep update
+
+ENV ROS_DISTRO melodic
 
 RUN apt-get update && apt-get install -qy \
     ros-melodic-ros-base \
@@ -60,29 +83,7 @@ RUN apt-get update && apt-get install -qy \
     ros-melodic-joint-state-publisher \
     ros-melodic-tf-conversions \
     ros-melodic-gazebo-ros \
-    ros-melodic-rviz \
-    dirmngr \
-    libpcl-dev \
-    librosconsole-dev \
-    libxmlrpcpp-dev \
-    lsb-release \
-    libyaml-cpp-dev
-
-RUN apt-get install --no-install-recommends -qy \
-        python3-rosdep \
-        python3-rosinstall
-        # python-rosinstall-generator
-        # python3-vcstools
-        # python-wstool
-# bootstrap rosdep
-RUN rosdep init && rosdep update
-
-# install boost 1.74 without removing libboost 1.71 on which ROS depends
-RUN curl -SL https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.bz2 | tar -xj \
-    && cd boost_1_74_0 \
-    && ./bootstrap.sh --prefix=/usr --with-python=python3 \
-    && ./b2 stage -j 12 threading=multi link=shared \
-    && ./b2 install threading=multi link=shared
+    ros-melodic-rviz
 
 # reinstall googletest to overwrite old version that's part of rosdep
 RUN cd /usr/src \
@@ -95,6 +96,23 @@ RUN cd $HOME/googletest-release-1.10.0/build \
     && make install \
     && cd $HOME \
     && rm -rf googletest-release-1.10.0 release-1.10.0.tar.gz
+
+# install boost 1.74 without removing libboost 1.65 on which ROS depends
+RUN curl -SL https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.bz2 | tar -xj \
+    && cd boost_1_74_0 \
+    && ./bootstrap.sh --prefix=/usr --with-python=python3 \
+    && ./b2 stage -j 12 threading=multi link=shared \
+    && ./b2 install threading=multi link=shared
+
+# install yaml-cpp 0.6.3 which no longer depends on boost
+# 0.5.2.4 only works with boost <= 1.67
+# https://github.com/precice/openfoam-adapter/issues/18
+RUN curl -SL https://github.com/jbeder/yaml-cpp/archive/yaml-cpp-0.6.3.tar.gz | tar -xz \
+    && cd yaml-cpp-yaml-cpp-0.6.3 \
+    && mkdir build \
+    && cd build \
+    && cmake .. -D YAML_BUILD_SHARED_LIBS=ON \
+    && make install -j 12
 
 # reinstall opencv 4 to fix symlinks
 RUN cd $HOME/opencv-4.4.0/build \
