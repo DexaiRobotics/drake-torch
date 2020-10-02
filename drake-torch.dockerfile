@@ -2,7 +2,6 @@ ARG BASE_IMAGE
 FROM $BASE_IMAGE
 USER root
 WORKDIR /root
-
 ARG BUILD_TYPE
 ARG BUILD_CHANNEL
 RUN echo "Oh dang look at that BUILD_TYPE=${BUILD_TYPE}"
@@ -67,7 +66,8 @@ RUN python3 -m pip install --upgrade --no-cache-dir --compile \
 # https://github.com/pypa/setuptools/issues/2350
 ENV SETUPTOOLS_USE_DISTUTILS=stdlib
 
-# gtest per recommended method, needed by msgpack etc.
+# googletest 1.10.0 including googlemock
+# do not delete yet because will need to re-install after ROS
 RUN curl -SL https://github.com/google/googletest/archive/release-1.10.0.tar.gz | tar -xz \
     && cd googletest-release-1.10.0 \
     && mkdir build \
@@ -169,7 +169,7 @@ RUN python3 -m pip install \
         ipython ipykernel jupyterlab matplotlib
 
 # install the latest libboost
-RUN apt-get purge -qy libboost1.65-dev \
+RUN apt-get purge -qy libboost1.65* libboost1.71* \
     && apt-get autoremove -qy
 RUN add-apt-repository -y ppa:mhier/libboost-latest \
     && apt-get install -qy libboost1.74-dev
