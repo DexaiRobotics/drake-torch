@@ -109,7 +109,7 @@ RUN cd /usr/src \
 RUN cd $HOME/googletest-release-1.10.0/build \
     && make install \
     && cd $HOME \
-    && rm -rf googletest-release-1.10.0 release-1.10.0.tar.gz
+    && rm -rf googletest-release-1.10.0
 
 # install boost 1.74 without removing libboost 1.71 on which ROS depends
 RUN curl -SL https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.bz2 | tar -xj \
