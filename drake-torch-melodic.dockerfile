@@ -91,7 +91,8 @@ RUN curl -SL https://github.com/jbeder/yaml-cpp/archive/yaml-cpp-0.6.3.tar.gz | 
 RUN apt-get install -qy \
         python3-numpy \
         libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
-        libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev
+        libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev \
+    && apt-get autoremove -qy
 RUN curl -SL https://github.com/opencv/opencv/archive/4.4.0.tar.gz | tar -xz \
     && cd opencv-4.4.0 \
     && mkdir build \
@@ -164,14 +165,17 @@ RUN wget https://ompl.kavrakilab.org/install-ompl-ubuntu.sh \
     && rm $HOME/install-ompl-ubuntu.sh
 
 # Install python URDF parser
-RUN git clone https://github.com/ros/urdf_parser_py && cd urdf_parser_py \
+RUN python3 -m pip install --upgrade --no-cache-dir --compile catkin-tools \
+    && git clone https://github.com/ros/urdf_parser_py && cd urdf_parser_py \
     && python3 setup.py install \
     && cd $HOME && rm -rf urdf_parser_py
 
 # qpOASES
-RUN git clone https://github.com/hungpham2511/qpOASES $HOME/qpOASES \
-    && cd $HOME/qpOASES/ && mkdir -p bin && make -j 12 \
-    && cd $HOME/qpOASES/interfaces/python/ && python3 setup.py install \
+RUN python3 -m pip install --upgrade --no-cache-dir --compile cython
+RUN git clone https://github.com/hungpham2511/qpOASES \
+    && cd qpOASES && mkdir -p bin && make -j 12 \
+    && cd interfaces/python \
+    && python3 setup.py install \
     && rm -rf $HOME/qpOASES
 
 # toppra: Dexai fork
@@ -220,7 +224,7 @@ RUN cd librealsense \
                 -D PYTHON_EXECUTABLE=/usr/bin/python3 \
                 -D BUILD_WITH_CUDA:bool=true \
                 -D CMAKE_CUDA_ARCHITECTURES="75" \
-                -D CMAKE_CUDA_HOST_COMPILER=gcc-9 \
+                -D CMAKE_CUDA_HOST_COMPILER=gcc-8 \
                 -D OpenGL_GL_PREFERENCE=GLVND; \
         fi \
     && make uninstall \
