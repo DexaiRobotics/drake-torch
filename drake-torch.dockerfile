@@ -46,13 +46,17 @@ RUN add-apt-repository ppa:ubuntu-toolchain-r/test -y
 # install gcc-10, cmake, python3 etc.
 RUN apt-get update \
     && apt-get install -qy \
-        gcc-10 \
-        g++-10 \
         cmake \
         unzip \
         python3 \
         python3-dev \
-        python3-pip
+        python3-pip \
+    && \
+        if [ $BUILD_CHANNEL = 'stable' ]; then \
+            apt-get install -qy gcc-8 g++-8 gcc-10 g++-10; \
+        else \
+            apt-get install -qy gcc-9 g++-9 gcc-10 g++-10; \
+        fi
 
 RUN update-alternatives \
         --install /usr/bin/gcc gcc /usr/bin/gcc-10 90 \
