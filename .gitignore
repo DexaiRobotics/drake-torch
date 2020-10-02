@@ -1,6 +1,7 @@
 # Ignore the build directory and compiled binaries
 bin
 build*/
+examples/drake-ompl/build
 
 # Ignore temp files
 temp/
