@@ -173,7 +173,7 @@ RUN python3 -m pip install \
         ipython ipykernel jupyterlab matplotlib
 
 # install the latest libboost
-RUN apt-get purge -qy libboost1.65* libboost1.71* \
+RUN apt-get purge -qy libboost* \
     && apt-get autoremove -qy
 RUN add-apt-repository -y ppa:mhier/libboost-latest \
     && apt-get install -qy libboost1.74-dev
