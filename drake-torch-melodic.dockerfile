@@ -50,8 +50,13 @@ RUN apt-get update && apt-get install -qy \
     ros-melodic-robot-state-publisher \
     ros-melodic-joint-state-publisher \
     ros-melodic-tf-conversions \
-    ros-melodic-gazebo-ros \
     ros-melodic-rviz
+
+# gazebo 9 depends on boost_signal which has been deprecated
+RUN sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list' \
+    && wget https://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add - \
+    && apt-get update \
+    && apt-get install -qy ros-melodic-gazebo11-ros-pkgs
 
 ########################################################
 #### newer packages
