@@ -109,11 +109,16 @@ RUN curl -SL https://github.com/opencv/opencv/archive/4.4.0.tar.gz | tar -xz \
     && cd $HOME \
     && rm -rf 4.4.0.tar.gz opencv-4.4.0
 
+RUN python3 -m pip install --upgrade --no-cache-dir --compile \
+    catkin-tools \
+    rospkg
+
 ########################################################
 # dev essentials and other dependencies
 ########################################################
 
 RUN apt-get install -qy \
+        vim \
         libgflags-dev \
         git \
         git-extras \
@@ -165,8 +170,7 @@ RUN wget https://ompl.kavrakilab.org/install-ompl-ubuntu.sh \
     && rm $HOME/install-ompl-ubuntu.sh
 
 # Install python URDF parser
-RUN python3 -m pip install --upgrade --no-cache-dir --compile catkin-tools \
-    && git clone https://github.com/ros/urdf_parser_py && cd urdf_parser_py \
+RUN git clone https://github.com/ros/urdf_parser_py && cd urdf_parser_py \
     && python3 setup.py install \
     && cd $HOME && rm -rf urdf_parser_py
 
@@ -235,6 +239,9 @@ RUN cd librealsense \
 ########################################################
 # final steps
 ########################################################
+
+RUN apt-get remove -qy python3-yaml python3-zmq \
+    && python3 -m pip install --upgrade --no-cache-dir --compile pyyaml pyzmq
 RUN apt-get upgrade -qy \
     && apt-get autoremove -qy \
     && rm -rf /var/lib/apt/lists/*
