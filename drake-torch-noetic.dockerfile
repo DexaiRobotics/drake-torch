@@ -128,20 +128,21 @@ RUN cd $HOME/opencv-4.4.0/build \
 ########################################################
 
 RUN apt-get install -qy \
-        libgflags-dev \
-        git \
-        git-extras \
-        git-lfs \
-        tig \
-        htop \
-        screen \
-        xvfb \
-        x11vnc \
-        tmux \
-        tree \
-        clang-format-10 \
-        iwyu \
-        doxygen
+    vim \
+    libgflags-dev \
+    git \
+    git-extras \
+    git-lfs \
+    tig \
+    htop \
+    screen \
+    xvfb \
+    x11vnc \
+    tmux \
+    tree \
+    clang-format-10 \
+    iwyu \
+    doxygen
 
 RUN git lfs install
 
