@@ -236,12 +236,13 @@ RUN cd librealsense \
     && make install -j 12 \
     && rm -rf $HOME/librealsense
 
+RUN apt-get remove -qy python3-yaml python3-zmq \
+    && python3 -m pip install --upgrade --no-cache-dir --compile pyyaml pyzmq
+
 ########################################################
 # final steps
 ########################################################
 
-RUN apt-get remove -qy python3-yaml python3-zmq \
-    && python3 -m pip install --upgrade --no-cache-dir --compile pyyaml pyzmq
 RUN apt-get upgrade -qy \
     && apt-get autoremove -qy \
     && rm -rf /var/lib/apt/lists/*
