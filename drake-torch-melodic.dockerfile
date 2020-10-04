@@ -75,21 +75,21 @@ RUN cd $HOME/googletest-release-1.10.0/build \
     && rm -rf googletest-release-1.10.0
 
 # boost 1.74 without removing libboost 1.65 on which ROS depends
-RUN curl -SL https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.bz2 | tar -xj \
-    && cd boost_1_74_0 \
-    && ./bootstrap.sh --prefix=/usr --with-python=python3 \
-    && ./b2 stage -j 12 threading=multi link=shared \
-    && ./b2 install threading=multi link=shared
+# RUN curl -SL https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.bz2 | tar -xj \
+#     && cd boost_1_74_0 \
+#     && ./bootstrap.sh --prefix=/usr --with-python=python3 \
+#     && ./b2 stage -j 12 threading=multi link=shared \
+#     && ./b2 install threading=multi link=shared
 
 # yaml-cpp 0.6.3 which no longer depends on boost
 # 0.5.2 only works with boost <= 1.67
 # https://github.com/precice/openfoam-adapter/issues/18
-RUN curl -SL https://github.com/jbeder/yaml-cpp/archive/yaml-cpp-0.6.3.tar.gz | tar -xz \
-    && cd yaml-cpp-yaml-cpp-0.6.3 \
-    && mkdir build \
-    && cd build \
-    && cmake .. -D YAML_BUILD_SHARED_LIBS=ON \
-    && make install -j 12
+# RUN curl -SL https://github.com/jbeder/yaml-cpp/archive/yaml-cpp-0.6.3.tar.gz | tar -xz \
+#     && cd yaml-cpp-yaml-cpp-0.6.3 \
+#     && mkdir build \
+#     && cd build \
+#     && cmake .. -D YAML_BUILD_SHARED_LIBS=ON \
+#     && make install -j 12
 
 # OpenCV 4.4.0 for C++ and Python3 before ROS
 # do not delete yet because will need to re-install after ROS
