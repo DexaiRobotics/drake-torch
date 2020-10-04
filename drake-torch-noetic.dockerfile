@@ -129,7 +129,6 @@ RUN cd $HOME/opencv-4.4.0/build \
 
 RUN apt-get install -qy \
     vim \
-    libgflags-dev \
     git \
     git-extras \
     git-lfs \
@@ -142,7 +141,9 @@ RUN apt-get install -qy \
     tree \
     clang-format-10 \
     iwyu \
-    doxygen
+    doxygen \
+    libgflags-dev \
+    libudev-dev
 
 RUN git lfs install
 

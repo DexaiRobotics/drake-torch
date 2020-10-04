@@ -123,21 +123,22 @@ RUN python3 -m pip install --upgrade --no-cache-dir --compile \
 ########################################################
 
 RUN apt-get install -qy \
-        vim \
-        libgflags-dev \
-        git \
-        git-extras \
-        git-lfs \
-        tig \
-        htop \
-        screen \
-        xvfb \
-        x11vnc \
-        tmux \
-        tree \
-        clang-format-10 \
-        iwyu \
-        doxygen
+    vim \
+    git \
+    git-extras \
+    git-lfs \
+    tig \
+    htop \
+    screen \
+    xvfb \
+    x11vnc \
+    tmux \
+    tree \
+    clang-format-10 \
+    iwyu \
+    doxygen \
+    libgflags-dev \
+    libudev-dev
 
 RUN git lfs install
 
