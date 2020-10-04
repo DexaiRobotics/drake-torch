@@ -1,4 +1,3 @@
-
 #! /bin/bash
 # image ID/tag is the required positional argument
 

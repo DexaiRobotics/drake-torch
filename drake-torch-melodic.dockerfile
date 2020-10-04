@@ -193,7 +193,7 @@ RUN git clone https://github.com/DexaiRobotics/toppra \
     && python3 -m pip install --upgrade --no-cache-dir --compile ./toppra \
     && rm -rf toppra
 
-# cnpy lets you read and write numpy formats in C++, needed by libstuffgetter.so
+# cnpy lets you read and write numpy formats in C++
 RUN git clone https://github.com/rogersce/cnpy.git \
     && mkdir -p cnpy/build && cd cnpy/build \
     && cmake .. && make -j 12 && make install \
