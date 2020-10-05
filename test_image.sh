@@ -3,5 +3,5 @@
 
 docker run \
     -itv "$(pwd)/in_container_scripts:/root/scripts" \
-    $1 \
+    "$1" \
     bash -ic "/root/scripts/run_tests.sh"
