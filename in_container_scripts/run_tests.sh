@@ -17,7 +17,7 @@ fi
 if ! python3 -c "import cv_bridge"; then
     echo "cv_bridge import failure" >&2
     exit 1
-elif python3 -c "import cv_bridge" 2>&1 > /dev/null| grep endian; then
+elif python3 -c "import cv_bridge" 2>&1 > /dev/null | grep endian; then
     echo "CV bridge endianness problem found." >&2
     exit 1
 else
