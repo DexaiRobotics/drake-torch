@@ -10,6 +10,8 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get upgrade -qy
 
+COPY in_container_scripts scripts
+
 # ########################################################
 # ROS
 # http://wiki.ros.org/noetic/Installation/Ubuntu
@@ -122,23 +124,24 @@ RUN python3 -m pip install --upgrade --no-cache-dir --compile \
 # dev essentials and other dependencies
 ########################################################
 
-RUN apt-get install -qy \
-    vim \
-    git \
-    git-extras \
-    git-lfs \
-    tig \
-    htop \
-    screen \
-    xvfb \
-    x11vnc \
-    tmux \
-    tree \
-    clang-format-10 \
-    iwyu \
-    doxygen \
-    libgflags-dev \
-    libudev-dev
+RUN add-apt-repository ppa:git-core/ppa \
+    && apt-get install -qy \
+        vim \
+        git \
+        git-extras \
+        git-lfs \
+        tig \
+        htop \
+        screen \
+        xvfb \
+        x11vnc \
+        tmux \
+        tree \
+        clang-format-10 \
+        iwyu \
+        doxygen \
+        libgflags-dev \
+        libudev-dev
 
 RUN git lfs install
 
@@ -168,12 +171,9 @@ RUN cd $HOME && git clone https://github.com/MobileManipulation/fcl.git \
     && rm -rf $HOME/fcl
 
 # OMPL 1.5
-RUN wget https://ompl.kavrakilab.org/install-ompl-ubuntu.sh \
-    && chmod +x install-ompl-ubuntu.sh \
-    && ./install-ompl-ubuntu.sh --python \
+RUN scripts/install-ompl-ubuntu.sh --python \
     && rm -rf /usr/local/include/ompl \
-    && ln -s /usr/local/include/ompl-1.5/ompl /usr/local/include/ompl \
-    && rm $HOME/install-ompl-ubuntu.sh
+    && ln -s /usr/local/include/ompl-1.5/ompl /usr/local/include/ompl
 
 # Install python URDF parser
 RUN git clone https://github.com/ros/urdf_parser_py && cd urdf_parser_py \
@@ -253,8 +253,7 @@ RUN apt-get upgrade -qy \
     && apt-get autoremove -qy \
     && rm -rf /var/lib/apt/lists/*
 
-COPY in_container_scripts/mod_bashrc.sh $HOME
-RUN ./mod_bashrc.sh && rm mod_bashrc.sh
+RUN scripts/mod_bashrc.sh && rm -rf scripts
 
 # Taken from - https://docs.docker.com/engine/examples/running_ssh_service/#environment-variables
 RUN mkdir /var/run/sshd
