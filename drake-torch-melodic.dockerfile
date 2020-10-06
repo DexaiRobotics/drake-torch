@@ -122,23 +122,24 @@ RUN python3 -m pip install --upgrade --no-cache-dir --compile \
 # dev essentials and other dependencies
 ########################################################
 
-RUN apt-get install -qy \
-    vim \
-    git \
-    git-extras \
-    git-lfs \
-    tig \
-    htop \
-    screen \
-    xvfb \
-    x11vnc \
-    tmux \
-    tree \
-    clang-format-10 \
-    iwyu \
-    doxygen \
-    libgflags-dev \
-    libudev-dev
+RUN add-apt-repository ppa:git-core/ppa \
+    && apt-get install -qy \
+        vim \
+        git \
+        git-extras \
+        git-lfs \
+        tig \
+        htop \
+        screen \
+        xvfb \
+        x11vnc \
+        tmux \
+        tree \
+        clang-format-10 \
+        iwyu \
+        doxygen \
+        libgflags-dev \
+        libudev-dev
 
 RUN git lfs install
 
