@@ -173,8 +173,7 @@ RUN cd $HOME && git clone https://github.com/MobileManipulation/fcl.git \
 # OMPL 1.5
 RUN scripts/install-ompl-ubuntu.sh --python \
     && rm -rf /usr/local/include/ompl \
-    && ln -s /usr/local/include/ompl-1.5/ompl /usr/local/include/ompl \
-    && rm $HOME/install-ompl-ubuntu.sh
+    && ln -s /usr/local/include/ompl-1.5/ompl /usr/local/include/ompl
 
 # Install python URDF parser
 RUN git clone https://github.com/ros/urdf_parser_py && cd urdf_parser_py \
