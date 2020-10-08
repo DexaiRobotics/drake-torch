@@ -54,12 +54,6 @@ RUN apt-get update && apt-get install -qy \
     ros-melodic-tf-conversions \
     ros-melodic-rviz
 
-# gazebo 9 depends on boost_signal which has been deprecated
-RUN sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list' \
-    && wget https://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add - \
-    && apt-get update \
-    && apt-get install -qy ros-melodic-gazebo11-ros-pkgs
-
 ########################################################
 #### newer packages
 ########################################################
@@ -162,6 +156,13 @@ RUN cd $HOME && git clone https://github.com/OctoMap/octomap.git \
     && cmake -D OpenGL_GL_PREFERENCE=LEGACY -D BUILD_SHARED_LIBS=ON .. \
     && make install -j 12 \
     && rm -rf $HOME/octomap
+
+# gazebo 9 depends on boost_signal which has been deprecated
+# gazebo 11 seems to have an octomap dependency
+RUN sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list' \
+    && wget https://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add - \
+    && apt-get update \
+    && apt-get install -qy ros-melodic-gazebo11-ros-pkgs
 
 # fcl
 RUN cd $HOME && git clone https://github.com/MobileManipulation/fcl.git \
