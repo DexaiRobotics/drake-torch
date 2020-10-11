@@ -131,8 +131,6 @@ RUN add-apt-repository ppa:git-core/ppa \
         x11vnc \
         tmux \
         tree \
-        clang-format-10 \
-        iwyu \
         doxygen \
         libgflags-dev \
         libudev-dev
