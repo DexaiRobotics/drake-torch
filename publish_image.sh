@@ -14,7 +14,6 @@ SUFFIX_DATE=$(date +"%Y%m%d")
 BUILD_TYPE=cuda
 BUILD_CHANNEL=nightly
 OPT_ROS=false
-OPT_NIGHTLY=false
 
 # Parse any arguments.
 while (( $# )); do
@@ -63,7 +62,7 @@ tag_and_push() {
   NEW_TAG="${CURRENT_TAG}-${SUFFIX}"
   echo "tagging and pushing, current tag: ${CURRENT_TAG}, new tag: ${NEW_TAG}"
   docker tag $CURRENT_TAG $NEW_TAG
-  docker push $NEW_TAG
+  docker push $NEW_TAG > /dev/null
 }
 
 if [[ $OPT_ROS == true ]]; then
