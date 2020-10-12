@@ -136,7 +136,8 @@ RUN add-apt-repository ppa:git-core/ppa \
         doxygen \
         libgflags-dev \
         libudev-dev
-
+RUN rm /etc/alternatives/editor \
+    && ln -s /usr/bin/vim /etc/alternatives/editor
 RUN git lfs install
 
 # Install C++ branch of msgpack-c
