@@ -71,11 +71,15 @@ RUN cd $HOME/googletest-release-1.10.0/build \
     && rm -rf googletest-release-1.10.0
 
 # boost 1.74 without removing libboost 1.65 on which ROS depends
-RUN curl -SL https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.bz2 | tar -xj \
-    && cd boost_1_74_0 \
-    && ./bootstrap.sh --prefix=/usr --with-python=python3 \
-    && ./b2 stage -j 12 threading=multi link=shared \
-    && ./b2 install threading=multi link=shared
+# RUN curl -SL https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.bz2 | tar -xj \
+#     && cd boost_1_74_0 \
+#     && ./bootstrap.sh \
+#         --prefix=/usr \
+#         --with-python=python3 \
+#         --with-python-version=3.6 \
+#         --with-python-root=/usr/local/lib/python3.6 \
+#     && ./b2 stage -j 12 threading=multi link=shared \
+#     && ./b2 install threading=multi link=shared
 
 # yaml-cpp 0.6.3 which no longer depends on boost
 # 0.5.2 only works with boost <= 1.67
@@ -158,7 +162,6 @@ RUN mkdir -p py3_ws/src \
             -D PYTHON_EXECUTABLE=/usr/bin/python3 \
             -D PYTHON_INCLUDE_DIR=/usr/include/python3.6m \
             -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so \
-            -D OPENCV_VERSION_MAJOR=4 \
             -D CMAKE_BUILD_TYPE=Release \
     && catkin build \
     && rm -rf $HOME/py3_ws
