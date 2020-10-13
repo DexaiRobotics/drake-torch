@@ -242,7 +242,7 @@ RUN cd librealsense \
         fi \
     && make uninstall \
     && make clean \
-    && make install \
+    && make install -j 12 \
     && rm -rf $HOME/librealsense
 
 ########################################################
