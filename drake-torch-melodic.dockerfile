@@ -87,8 +87,7 @@ RUN curl -SL https://github.com/jbeder/yaml-cpp/archive/yaml-cpp-0.6.3.tar.gz | 
     && cmake .. -D YAML_BUILD_SHARED_LIBS=ON \
     && make install -j 12
 
-# OpenCV 4.4.0 for C++ and Python3 before ROS
-# do not delete yet because will need to re-install after ROS
+# OpenCV 4.4.0 for C++ and Python3
 RUN apt-get install -qy \
         python3-numpy \
         libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
@@ -113,6 +112,30 @@ RUN curl -SL https://github.com/opencv/opencv/archive/4.4.0.tar.gz | tar -xz \
 RUN python3 -m pip install --upgrade --no-cache-dir --compile \
     catkin-tools \
     rospkg
+
+# install cv_bridge to /opt/ros/melodic from source for python3
+# the cv_bridge from apt is for python2 and will cause
+# an PyInit_cv_bridge_boost error
+# we already have SETUPTOOLS_USE_DISTUTILS=stdlib
+# so we don't need SETUPTOOLS_DEB_LAYOUT=OFF here
+SHELL ["/bin/bash", "-c"]
+RUN mkdir -p py3_ws/src \
+    && cd py3_ws/src \
+    && git clone -b melodic https://github.com/DexaiRobotics/vision_opencv.git \
+    && git clone -b melodic-devel https://github.com/ros/ros_comm.git \
+    && cd $HOME/py3_ws \
+    && source /opt/ros/melodic/setup.bash \
+    && export ROS_PYTHON_VERSION=3 \
+    && catkin config --install \
+        --install-space /opt/ros/melodic \
+        --cmake-args \
+            -D PYTHON_EXECUTABLE=/usr/bin/python3 \
+            -D PYTHON_INCLUDE_DIR=/usr/include/python3.6m \
+            -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so \
+            -D OPENCV_VERSION_MAJOR=4 \
+            -D CMAKE_BUILD_TYPE=Release \
+    && catkin build \
+    && rm -rf $HOME/py3_ws
 
 ########################################################
 # dev essentials and other dependencies
@@ -158,19 +181,19 @@ RUN cd $HOME && git clone https://github.com/OctoMap/octomap.git \
     && make install -j 12 \
     && rm -rf $HOME/octomap
 
-# gazebo 9 depends on boost_signal which has been deprecated
-# gazebo 11 seems to have an octomap dependency
-RUN sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list' \
-    && wget https://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add - \
-    && apt-get update \
-    && apt-get install -qy ros-melodic-gazebo11-ros-pkgs
-
 # fcl
 RUN cd $HOME && git clone https://github.com/MobileManipulation/fcl.git \
     && cd fcl && mkdir -p build && cd build \
     && cmake -DBUILD_SHARED_LIBS=ON -DFCL_WITH_OCTOMAP=ON -DFCL_HAVE_OCTOMAP=1 .. \
     && make install -j 12 \
     && rm -rf $HOME/fcl
+
+# gazebo 9 depends on boost_signal which has been deprecated
+# gazebo 11 seems to have an octomap dependency
+RUN sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list' \
+    && wget https://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add - \
+    && apt-get update \
+    && apt-get install -qy r
 
 # OMPL 1.5
 RUN scripts/install-ompl-ubuntu.sh --python \
