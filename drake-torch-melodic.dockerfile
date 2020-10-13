@@ -90,7 +90,7 @@ RUN curl -SL https://github.com/jbeder/yaml-cpp/archive/yaml-cpp-0.6.3.tar.gz | 
     && mkdir build \
     && cd build \
     && cmake .. -D YAML_BUILD_SHARED_LIBS=ON \
-    && make install -j 12
+    && make install -j 12 \
     && rm -rf $HOME/yaml-cpp-yaml-cpp-0.6.3
 
 # OpenCV 4.4.0 for C++ and Python3
