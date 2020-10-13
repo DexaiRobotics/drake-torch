@@ -113,30 +113,6 @@ RUN python3 -m pip install --upgrade --no-cache-dir --compile \
     catkin-tools \
     rospkg
 
-# install cv_bridge to /opt/ros/melodic from source for python3
-# the cv_bridge from apt is for python2 and will cause
-# an PyInit_cv_bridge_boost error
-# we already have SETUPTOOLS_USE_DISTUTILS=stdlib
-# so we don't need SETUPTOOLS_DEB_LAYOUT=OFF here
-SHELL ["/bin/bash", "-c"]
-RUN mkdir -p py3_ws/src \
-    && cd py3_ws/src \
-    && git clone -b melodic https://github.com/DexaiRobotics/vision_opencv.git \
-    && git clone -b melodic-devel https://github.com/ros/ros_comm.git \
-    && cd $HOME/py3_ws \
-    && source /opt/ros/melodic/setup.bash \
-    && export ROS_PYTHON_VERSION=3 \
-    && catkin config --install \
-        --install-space /opt/ros/melodic \
-        --cmake-args \
-            -D PYTHON_EXECUTABLE=/usr/bin/python3 \
-            -D PYTHON_INCLUDE_DIR=/usr/include/python3.6m \
-            -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so \
-            -D OPENCV_VERSION_MAJOR=4 \
-            -D CMAKE_BUILD_TYPE=Release \
-    && catkin build \
-    && rm -rf $HOME/py3_ws
-
 ########################################################
 # dev essentials and other dependencies
 ########################################################
@@ -162,6 +138,30 @@ RUN add-apt-repository -y ppa:git-core/ppa \
 RUN rm /etc/alternatives/editor \
     && ln -s /usr/bin/vim /etc/alternatives/editor
 RUN git lfs install
+
+# install cv_bridge to /opt/ros/melodic from source for python3
+# the cv_bridge from apt is for python2 and will cause
+# an PyInit_cv_bridge_boost error
+# we already have SETUPTOOLS_USE_DISTUTILS=stdlib
+# so we don't need SETUPTOOLS_DEB_LAYOUT=OFF here
+SHELL ["/bin/bash", "-c"]
+RUN mkdir -p py3_ws/src \
+    && cd py3_ws/src \
+    && git clone -b melodic https://github.com/DexaiRobotics/vision_opencv.git \
+    && git clone -b melodic-devel https://github.com/ros/ros_comm.git \
+    && cd $HOME/py3_ws \
+    && source /opt/ros/melodic/setup.bash \
+    && export ROS_PYTHON_VERSION=3 \
+    && catkin config --install \
+        --install-space /opt/ros/melodic \
+        --cmake-args \
+            -D PYTHON_EXECUTABLE=/usr/bin/python3 \
+            -D PYTHON_INCLUDE_DIR=/usr/include/python3.6m \
+            -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so \
+            -D OPENCV_VERSION_MAJOR=4 \
+            -D CMAKE_BUILD_TYPE=Release \
+    && catkin build \
+    && rm -rf $HOME/py3_ws
 
 # Install C++ branch of msgpack-c
 RUN cd $HOME && git clone -b cpp_master https://github.com/msgpack/msgpack-c.git \
@@ -231,41 +231,19 @@ RUN git clone https://github.com/lcm-proj/lcm \
     && make install \
     && cd $HOME && rm -rf lcm
 
-# build librealsense from source since there's no 20.04 support
-RUN apt-get install -qy \
-        libssl-dev \
-        libusb-1.0-0-dev \
-        pkg-config \
-        libgtk-3-dev \
-        libglfw3-dev \
-        libgl1-mesa-dev \
-        libglu1-mesa-dev \
-    && git clone https://github.com/IntelRealSense/librealsense.git \
-    && cd librealsense \
-    && scripts/setup_udev_rules.sh
-RUN cd librealsense \
-    && mkdir build \
-    && cd build \
-    && \
-        if [ $BUILD_TYPE = "cpu" ]; then \
-            cmake .. \
-                -D CMAKE_BUILD_TYPE=Release \
-                -D BUILD_PYTHON_BINDINGS:bool=true \
-                -D PYTHON_EXECUTABLE=/usr/bin/python3; \
-        else \
-            cmake .. \
-                -D CMAKE_BUILD_TYPE=Release \
-                -D BUILD_PYTHON_BINDINGS:bool=true \
-                -D PYTHON_EXECUTABLE=/usr/bin/python3 \
-                -D BUILD_WITH_CUDA:bool=true \
-                -D CMAKE_CUDA_ARCHITECTURES="75" \
-                -D CMAKE_CUDA_HOST_COMPILER=gcc-8 \
-                -D OpenGL_GL_PREFERENCE=GLVND; \
-        fi \
-    && make uninstall \
-    && make clean \
-    && make install -j 12 \
-    && rm -rf $HOME/librealsense
+# realsense SDK, apt install instructions take from
+# https://github.com/IntelRealSense/librealsense/blob/master/doc/distribution_linux.md
+# manual install instructions availabe at
+# https://github.com/IntelRealSense/librealsense/blob/master/doc/installation.md
+RUN apt-key adv --keyserver keys.gnupg.net --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE  \
+    || apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE  \
+    && add-apt-repository "deb http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo bionic main" -u \
+    && apt-get install -qy \
+        librealsense2-dkms \
+        librealsense2-utils \
+        librealsense2-dev \
+        librealsense2-dbg \
+        librealsense2
 
 RUN apt-get remove -qy python3-yaml python3-zmq \
     && python3 -m pip install --upgrade --no-cache-dir --compile pyyaml pyzmq
