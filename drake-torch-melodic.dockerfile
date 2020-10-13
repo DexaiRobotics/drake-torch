@@ -148,7 +148,7 @@ SHELL ["/bin/bash", "-c"]
 RUN mkdir -p py3_ws/src \
     && cd py3_ws/src \
     && git clone -b melodic https://github.com/DexaiRobotics/vision_opencv.git \
-    && git clone -b melodic-devel https://github.com/ros/ros_comm.git \
+    # && git clone -b melodic-devel https://github.com/ros/ros_comm.git \
     && cd $HOME/py3_ws \
     && source /opt/ros/melodic/setup.bash \
     && export ROS_PYTHON_VERSION=3 \
