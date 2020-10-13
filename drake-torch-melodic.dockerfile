@@ -193,7 +193,7 @@ RUN cd $HOME && git clone https://github.com/MobileManipulation/fcl.git \
 RUN sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list' \
     && wget https://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add - \
     && apt-get update \
-    && apt-get install -qy r
+    && apt-get install -qy ros-melodic-gazebo11-ros-pkgs
 
 # OMPL 1.5
 RUN scripts/install-ompl-ubuntu.sh --python \
