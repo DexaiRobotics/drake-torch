@@ -79,7 +79,8 @@ RUN cd $HOME/googletest-release-1.10.0/build \
 #         --with-python-version=3.6 \
 #         --with-python-root=/usr/local/lib/python3.6 \
 #     && ./b2 stage -j 12 threading=multi link=shared \
-#     && ./b2 install threading=multi link=shared
+#     && ./b2 install threading=multi link=shared \
+#     && rm -rf $HOME/boost_1_74_0
 
 # yaml-cpp 0.6.3 which no longer depends on boost
 # 0.5.2 only works with boost <= 1.67
@@ -90,6 +91,7 @@ RUN curl -SL https://github.com/jbeder/yaml-cpp/archive/yaml-cpp-0.6.3.tar.gz | 
     && cd build \
     && cmake .. -D YAML_BUILD_SHARED_LIBS=ON \
     && make install -j 12
+    && rm -rf $HOME/yaml-cpp-yaml-cpp-0.6.3
 
 # OpenCV 4.4.0 for C++ and Python3
 RUN apt-get install -qy \
@@ -200,7 +202,7 @@ RUN sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb
 
 # OMPL 1.5
 RUN scripts/install-ompl-ubuntu.sh --python \
-    && rm -rf /usr/local/include/ompl \
+    && rm -rf /usr/local/include/ompl $HOME/ompl-1.5.0 $HOME/castxml \
     && ln -s /usr/local/include/ompl-1.5/ompl /usr/local/include/ompl
 
 # Install python URDF parser
