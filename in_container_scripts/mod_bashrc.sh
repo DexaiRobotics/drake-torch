@@ -18,6 +18,10 @@ sed -i -e 's/^'"$ORIGINAL"'$/'"$REPLACEMENT"'/' "${FIX_FILES[@]}"
 
 cat <<'EOF' >> /root/.bashrc
 
+# prioritise python3 imports, then python2, apt installs to python2
+export PYTHONPATH=/opt/ros/melodic/lib/python3/dist-packages/:$PYTHONPATH
+export PYTHONPATH=$PYTHONPATH:/opt/ros/melodic/lib/python2.7/dist-packages/
+
 if [[ -f /opt/ros/$ROS_DISTRO/setup.bash ]]; then
     echo "found /opt/ros/$ROS_DISTRO/setup.bash. sourcing..."
     source /opt/ros/$ROS_DISTRO/setup.bash
