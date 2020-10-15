@@ -41,7 +41,7 @@ RUN apt-get install -qy kitware-archive-keyring \
     && rm /etc/apt/trusted.gpg.d/kitware.gpg
 
 # # apt repo for gcc-10
-RUN add-apt-repository ppa:ubuntu-toolchain-r/test -y
+RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test
 
 # install gcc-10, cmake, python3 etc.
 RUN apt-get update \

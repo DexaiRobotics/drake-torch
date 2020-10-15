@@ -71,11 +71,16 @@ RUN cd $HOME/googletest-release-1.10.0/build \
     && rm -rf googletest-release-1.10.0
 
 # boost 1.74 without removing libboost 1.65 on which ROS depends
-RUN curl -SL https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.bz2 | tar -xj \
-    && cd boost_1_74_0 \
-    && ./bootstrap.sh --prefix=/usr --with-python=python3 \
-    && ./b2 stage -j 12 threading=multi link=shared \
-    && ./b2 install threading=multi link=shared
+# RUN curl -SL https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.bz2 | tar -xj \
+#     && cd boost_1_74_0 \
+#     && ./bootstrap.sh \
+#         --prefix=/usr \
+#         --with-python=python3 \
+#         --with-python-version=3.6 \
+#         --with-python-root=/usr/local/lib/python3.6 \
+#     && ./b2 stage -j 12 threading=multi link=shared \
+#     && ./b2 install threading=multi link=shared \
+#     && rm -rf $HOME/boost_1_74_0
 
 # yaml-cpp 0.6.3 which no longer depends on boost
 # 0.5.2 only works with boost <= 1.67
@@ -85,10 +90,10 @@ RUN curl -SL https://github.com/jbeder/yaml-cpp/archive/yaml-cpp-0.6.3.tar.gz | 
     && mkdir build \
     && cd build \
     && cmake .. -D YAML_BUILD_SHARED_LIBS=ON \
-    && make install -j 12
+    && make install -j 12 \
+    && rm -rf $HOME/yaml-cpp-yaml-cpp-0.6.3
 
-# OpenCV 4.4.0 for C++ and Python3 before ROS
-# do not delete yet because will need to re-install after ROS
+# OpenCV 4.4.0 for C++ and Python3
 RUN apt-get install -qy \
         python3-numpy \
         libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
@@ -118,7 +123,7 @@ RUN python3 -m pip install --upgrade --no-cache-dir --compile \
 # dev essentials and other dependencies
 ########################################################
 
-RUN add-apt-repository ppa:git-core/ppa \
+RUN add-apt-repository -y ppa:git-core/ppa \
     && apt-get install -qy \
         vim \
         nano \
@@ -140,6 +145,29 @@ RUN rm /etc/alternatives/editor \
     && ln -s /usr/bin/vim /etc/alternatives/editor
 RUN git lfs install
 
+# install cv_bridge to /opt/ros/melodic from source for python3
+# the cv_bridge from apt is for python2 and will cause
+# an PyInit_cv_bridge_boost error
+# we already have SETUPTOOLS_USE_DISTUTILS=stdlib
+# so we don't need SETUPTOOLS_DEB_LAYOUT=OFF here
+SHELL ["/bin/bash", "-c"]
+RUN mkdir -p py3_ws/src \
+    && cd py3_ws/src \
+    && git clone -b melodic https://github.com/DexaiRobotics/vision_opencv.git \
+    # && git clone -b melodic-devel https://github.com/ros/ros_comm.git \
+    && cd $HOME/py3_ws \
+    && source /opt/ros/melodic/setup.bash \
+    && export ROS_PYTHON_VERSION=3 \
+    && catkin config --install \
+        --install-space /opt/ros/melodic \
+        --cmake-args \
+            -D PYTHON_EXECUTABLE=/usr/bin/python3 \
+            -D PYTHON_INCLUDE_DIR=/usr/include/python3.6m \
+            -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so \
+            -D CMAKE_BUILD_TYPE=Release \
+    && catkin build \
+    && rm -rf $HOME/py3_ws
+
 # Install C++ branch of msgpack-c
 RUN cd $HOME && git clone -b cpp_master https://github.com/msgpack/msgpack-c.git \
     && cd msgpack-c && cmake -DMSGPACK_CXX17=ON . && make install -j 12 \
@@ -158,13 +186,6 @@ RUN cd $HOME && git clone https://github.com/OctoMap/octomap.git \
     && make install -j 12 \
     && rm -rf $HOME/octomap
 
-# gazebo 9 depends on boost_signal which has been deprecated
-# gazebo 11 seems to have an octomap dependency
-RUN sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list' \
-    && wget https://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add - \
-    && apt-get update \
-    && apt-get install -qy ros-melodic-gazebo11-ros-pkgs
-
 # fcl
 RUN cd $HOME && git clone https://github.com/MobileManipulation/fcl.git \
     && cd fcl && mkdir -p build && cd build \
@@ -172,9 +193,16 @@ RUN cd $HOME && git clone https://github.com/MobileManipulation/fcl.git \
     && make install -j 12 \
     && rm -rf $HOME/fcl
 
+# gazebo 9 depends on boost_signal which has been deprecated
+# gazebo 11 seems to have an octomap dependency
+RUN sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list' \
+    && wget https://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add - \
+    && apt-get update \
+    && apt-get install -qy ros-melodic-gazebo11-ros-pkgs
+
 # OMPL 1.5
 RUN scripts/install-ompl-ubuntu.sh --python \
-    && rm -rf /usr/local/include/ompl \
+    && rm -rf /usr/local/include/ompl $HOME/ompl-1.5.0 $HOME/castxml \
     && ln -s /usr/local/include/ompl-1.5/ompl /usr/local/include/ompl
 
 # Install python URDF parser
@@ -208,41 +236,19 @@ RUN git clone https://github.com/lcm-proj/lcm \
     && make install \
     && cd $HOME && rm -rf lcm
 
-# build librealsense from source since there's no 20.04 support
-RUN apt-get install -qy \
-        libssl-dev \
-        libusb-1.0-0-dev \
-        pkg-config \
-        libgtk-3-dev \
-        libglfw3-dev \
-        libgl1-mesa-dev \
-        libglu1-mesa-dev \
-    && git clone https://github.com/IntelRealSense/librealsense.git \
-    && cd librealsense \
-    && scripts/setup_udev_rules.sh
-RUN cd librealsense \
-    && mkdir build \
-    && cd build \
-    && \
-        if [ $BUILD_TYPE = "cpu" ]; then \
-            cmake .. \
-                -D CMAKE_BUILD_TYPE=Release \
-                -D BUILD_PYTHON_BINDINGS:bool=true \
-                -D PYTHON_EXECUTABLE=/usr/bin/python3; \
-        else \
-            cmake .. \
-                -D CMAKE_BUILD_TYPE=Release \
-                -D BUILD_PYTHON_BINDINGS:bool=true \
-                -D PYTHON_EXECUTABLE=/usr/bin/python3 \
-                -D BUILD_WITH_CUDA:bool=true \
-                -D CMAKE_CUDA_ARCHITECTURES="75" \
-                -D CMAKE_CUDA_HOST_COMPILER=gcc-8 \
-                -D OpenGL_GL_PREFERENCE=GLVND; \
-        fi \
-    && make uninstall \
-    && make clean \
-    && make install -j 12 \
-    && rm -rf $HOME/librealsense
+# realsense SDK, apt install instructions take from
+# https://github.com/IntelRealSense/librealsense/blob/master/doc/distribution_linux.md
+# manual install instructions availabe at
+# https://github.com/IntelRealSense/librealsense/blob/master/doc/installation.md
+RUN apt-key adv --keyserver keys.gnupg.net --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE  \
+    || apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE  \
+    && add-apt-repository "deb http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo bionic main" -u \
+    && apt-get install -qy \
+        librealsense2-dkms \
+        librealsense2-utils \
+        librealsense2-dev \
+        librealsense2-dbg \
+        librealsense2
 
 RUN apt-get remove -qy python3-yaml python3-zmq \
     && python3 -m pip install --upgrade --no-cache-dir --compile pyyaml pyzmq
