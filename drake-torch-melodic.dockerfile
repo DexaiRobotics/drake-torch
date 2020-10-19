@@ -122,7 +122,7 @@ RUN python3 -m pip install --upgrade --no-cache-dir --compile \
 ########################################################
 # dev essentials and other dependencies
 ########################################################
-
+RUN rm -rf /var/lib/apt/lists/*
 RUN add-apt-repository -y ppa:git-core/ppa \
     && apt-get install -qy \
         vim \
