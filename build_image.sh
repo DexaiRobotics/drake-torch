@@ -51,7 +51,6 @@ if [[ $BUILD_ROS = true ]]; then
       BASE_IMAGE="dexai2/drake-torch:cuda-stable"
     fi
   else
-    # use change to noetic after stable+melodic is in use
     DOCKERFILE="drake-torch-noetic.dockerfile"
     if [[ $BUILD_TYPE == "cpu" ]]; then
       BASE_IMAGE="dexai2/drake-torch:cpu-nightly"
@@ -72,7 +71,7 @@ else
     if [[ $BUILD_CHANNEL == 'stable' ]]; then
       BASE_IMAGE="nvidia/cuda:10.2-cudnn7-devel-ubuntu18.04"
     else
-      BASE_IMAGE="nvidia/cuda:11.0-devel-ubuntu20.04"
+      BASE_IMAGE="nvidia/cuda:11.1-devel-ubuntu20.04"
     fi
   fi
   TAG="dexai2/drake-torch:${BUILD_TYPE}-${BUILD_CHANNEL}"
