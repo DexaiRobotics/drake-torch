@@ -62,10 +62,6 @@ RUN update-alternatives \
 RUN python3 -m pip install --upgrade --no-cache-dir --compile \
         setuptools wheel pip
 
-# fix for python3.6 and setuptools 50
-# https://github.com/pypa/setuptools/issues/2350
-ENV SETUPTOOLS_USE_DISTUTILS=$(if [[ "`lsb_release -sc`" == "bionic" ]]; then echo "stdlib"; else echo ""; fi)
-
 # googletest 1.10.0 including googlemock
 # do not delete yet because will need to re-install after ROS
 RUN if [ $BUILD_CHANNEL = 'stable' ]; then \

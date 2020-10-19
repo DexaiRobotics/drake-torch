@@ -148,6 +148,10 @@ RUN rm /etc/alternatives/editor \
     && ln -s /usr/bin/vim /etc/alternatives/editor
 RUN git lfs install
 
+# fix for python3.6 and setuptools 50
+# https://github.com/pypa/setuptools/issues/2350
+ENV SETUPTOOLS_USE_DISTUTILS=stdlib
+
 # install cv_bridge to /opt/ros/melodic from source for python3
 # the cv_bridge from apt is for python2 and will cause
 # an PyInit_cv_bridge_boost error
