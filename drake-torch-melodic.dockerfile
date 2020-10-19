@@ -122,7 +122,13 @@ RUN python3 -m pip install --upgrade --no-cache-dir --compile \
 ########################################################
 # dev essentials and other dependencies
 ########################################################
-RUN rm -rf /var/lib/apt/lists/*
+
+# nvidia broke the apt repo causing apt update error
+# Reading package lists... Error!
+# E: Encountered a section with no Package: header
+# E: Problem with MergeList /var/lib/apt/lists/developer.download.nvidia.com_compute_cuda_repos_ubuntu1804_x86%5f64_Packages.lz4
+# E: The package lists or status file could not be parsed or opened.
+RUN rm -rf /etc/apt/sources.list.d/cuda.list
 RUN add-apt-repository -y ppa:git-core/ppa \
     && apt-get install -qy \
         vim \
