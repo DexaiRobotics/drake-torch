@@ -19,19 +19,18 @@ sed -i -e 's/^'"$ORIGINAL"'$/'"$REPLACEMENT"'/' "${FIX_FILES[@]}"
 cat <<'EOF' >> /root/.bashrc
 
 # prioritise python3 imports, then python2, apt installs to python2
-if [[ "`lsb_release -sc`" == "bionic" ]]; then
-    export PYTHONPATH=/opt/ros/melodic/lib/python3/dist-packages/:$PYTHONPATH
-    export PYTHONPATH=$PYTHONPATH:/opt/ros/melodic/lib/python2.7/dist-packages/
-fi
+export PYTHONPATH=/opt/ros/melodic/lib/python3/dist-packages/:$PYTHONPATH
+export PYTHONPATH=$PYTHONPATH:/opt/ros/melodic/lib/python2.7/dist-packages/
 
-if [[ -f /opt/ros/${ROS_DISTRO}/setup.bash ]]; then
-    echo "found /opt/ros/${ROS_DISTRO}/setup.bash. sourcing..."
-    source /opt/ros/${ROS_DISTRO}/setup.bash
+if [[ -f /opt/ros/$ROS_DISTRO/setup.bash ]]; then
+    echo "found /opt/ros/$ROS_DISTRO/setup.bash. sourcing..."
+    source /opt/ros/$ROS_DISTRO/setup.bash
 fi
 if [[ -f $HOME/catkin_ws/devel/setup.bash ]]; then
     echo "found $HOME/catkin_ws/devel/setup.bash. sourcing..."
     source $HOME/catkin_ws/devel/setup.bash
 fi
+export ROS_PYTHON_VERSION=3
 
 # set prompt text/color based on type of container
 parse_git_branch() {
