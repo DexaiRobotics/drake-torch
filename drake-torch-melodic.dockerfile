@@ -37,7 +37,8 @@ RUN apt-get update && apt-get install -qy \
     python3-rosinstall
 # bootstrap rosdep
 RUN rosdep init && rosdep update
-ENV ROS_DISTRO melodic
+ENV ROS_DISTRO=melodic
+ENV ROS_PYTHON_VERSION=3
 RUN apt-get update && apt-get install -qy \
     ros-melodic-ros-base \
     ros-melodic-geometry2 \
@@ -159,7 +160,6 @@ RUN mkdir -p py3_ws/src \
     # && git clone -b melodic-devel https://github.com/ros/ros_comm.git \
     && cd $HOME/py3_ws \
     && source /opt/ros/melodic/setup.bash \
-    && export ROS_PYTHON_VERSION=3 \
     && catkin config --install \
         --install-space /opt/ros/melodic \
         --cmake-args \
