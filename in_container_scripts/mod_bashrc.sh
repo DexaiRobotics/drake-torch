@@ -27,8 +27,8 @@ if [[ -f $HOME/catkin_ws/devel/setup.bash ]]; then
   source $HOME/catkin_ws/devel/setup.bash
 fi
 
-# prioritise python3 imports, then python2, apt installs to python2
-if [[ $(lsb_release -sc) == "bionic" ]]; then
+# reset python path after ROS scripts are sourced
+if [[ $ROS_DISTRO == "melodic" ]]; then
   export PYTHONPATH=/opt/ros/melodic/lib/python3/dist-packages/
   export PYTHONPATH=$PYTHONPATH:/opt/ros/melodic/lib/python2.7/dist-packages/
 fi
