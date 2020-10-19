@@ -125,6 +125,8 @@ RUN python3 -m pip install --upgrade --no-cache-dir --compile \
 
 RUN add-apt-repository -y ppa:git-core/ppa \
     && apt-get install -qy \
+        openssh-server \
+        openssh-client \
         vim \
         nano \
         iputils-ping \
