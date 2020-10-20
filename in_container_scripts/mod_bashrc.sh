@@ -27,11 +27,15 @@ if [[ -f $HOME/catkin_ws/devel/setup.bash ]]; then
   source $HOME/catkin_ws/devel/setup.bash
 fi
 
-# reorder $PYTHONPATH by moving py3 to the front (remove + prepend)
 if [[ $ROS_DISTRO == "melodic" ]]; then
+  # reorder $PYTHONPATH by moving py3 to the front (remove + prepend)
   py3path="/opt/ros/melodic/lib/python3/dist-packages"
   export PYTHONPATH=`echo $PYTHONPATH | tr ":" "\n" | grep -v $py3path | tr "\n" ":"`
   export PYTHONPATH=$py3path:$PYTHONPATH
+  # finally append py27 path if not present
+  if ! grep -q /opt/ros/melodic/lib/python2.7/dist-packages <<< "$PYTHONPATH"; then
+    export PYTHONPATH=$PYTHONPATH:/opt/ros/melodic/lib/python2.7/dist-packages/
+  fi
 fi
 export ROS_PYTHON_VERSION=3
 
