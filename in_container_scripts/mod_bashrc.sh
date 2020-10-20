@@ -27,10 +27,11 @@ if [[ -f $HOME/catkin_ws/devel/setup.bash ]]; then
   source $HOME/catkin_ws/devel/setup.bash
 fi
 
-# reset python path after ROS scripts are sourced
+# move python3 path to the front by removing and prepending
 if [[ $ROS_DISTRO == "melodic" ]]; then
-  export PYTHONPATH=/opt/ros/melodic/lib/python3/dist-packages/
-  export PYTHONPATH=$PYTHONPATH:/opt/ros/melodic/lib/python2.7/dist-packages/
+  py3path="/opt/ros/melodic/lib/python3/dist-packages"
+  export PYTHONPATH=`echo $PYTHONPATH | tr ":" "\n" | grep -v $py3path | tr "\n" ":"`
+  export PYTHONPATH=$py3path:$PYTHONPATH
 fi
 export ROS_PYTHON_VERSION=3
 
