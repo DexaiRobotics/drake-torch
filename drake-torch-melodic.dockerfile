@@ -10,8 +10,6 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get upgrade -qy
 
-COPY in_container_scripts scripts
-
 # ########################################################
 # ROS
 # http://wiki.ros.org/noetic/Installation/Ubuntu
@@ -200,11 +198,6 @@ RUN sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb
     && apt-get update \
     && apt-get install -qy ros-melodic-gazebo11-ros-pkgs
 
-# OMPL 1.5
-RUN scripts/install-ompl-ubuntu.sh --python \
-    && rm -rf /usr/local/include/ompl $HOME/ompl-1.5.0 $HOME/castxml \
-    && ln -s /usr/local/include/ompl-1.5/ompl /usr/local/include/ompl
-
 # Install python URDF parser
 RUN git clone https://github.com/ros/urdf_parser_py && cd urdf_parser_py \
     && python3 setup.py install \
@@ -252,6 +245,13 @@ RUN apt-key adv --keyserver keys.gnupg.net --recv-key F6E65AC044F831AC80A06380C8
 
 RUN apt-get remove -qy python3-yaml python3-zmq \
     && python3 -m pip install --upgrade --no-cache-dir --compile pyyaml pyzmq
+
+COPY in_container_scripts scripts
+
+# OMPL 1.5
+RUN scripts/install-ompl-ubuntu.sh --python \
+    && rm -rf /usr/local/include/ompl $HOME/ompl-1.5.0 $HOME/castxml \
+    && ln -s /usr/local/include/ompl-1.5/ompl /usr/local/include/ompl
 
 ########################################################
 # final steps
