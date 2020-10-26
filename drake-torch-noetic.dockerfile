@@ -26,7 +26,10 @@ RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E
 # add env var to specify ROS distro
 ENV ROS_DISTRO=noetic
 ENV ROS_PYTHON_VERSION=3
+
 # uninstall latest libboost before ROS attemps to install the old version
+RUN apt-get purge -qy libboost1.74*
+
 RUN apt-get update && apt-get install -qy \
     # lsb-release \
     # dirmngr \
