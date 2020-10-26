@@ -153,7 +153,7 @@ RUN set -eux \
     && \
         if [ $BUILD_CHANNEL = "stable" ] ; \
         then curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-20200514-bionic.tar.gz | tar -xzC /opt; \
-        else curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-20200602-focal.tar.gz | tar -xzC /opt; \
+        else curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-20200817-focal.tar.gz | tar -xzC /opt; \
         fi \
     && cd /opt/drake/share/drake/setup && yes | ./install_prereqs \
     && rm -rf $HOME/drake*.tar.gz
