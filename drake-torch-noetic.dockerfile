@@ -143,6 +143,7 @@ RUN apt-get install -qy \
     iwyu \
     doxygen \
     libgflags-dev \
+    # libudev is needed by HID API
     libudev-dev \
     usbutils
 

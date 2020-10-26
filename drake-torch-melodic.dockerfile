@@ -138,6 +138,7 @@ RUN add-apt-repository -y ppa:git-core/ppa \
         tree \
         doxygen \
         libgflags-dev \
+        # libudev is needed by HID API
         libudev-dev \
         usbutils
 RUN rm /etc/alternatives/editor \
