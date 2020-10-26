@@ -138,7 +138,8 @@ RUN add-apt-repository -y ppa:git-core/ppa \
         tree \
         doxygen \
         libgflags-dev \
-        libudev-dev
+        # libudev-dev \
+        usbutils
 RUN rm /etc/alternatives/editor \
     && ln -s /usr/bin/vim /etc/alternatives/editor
 RUN git lfs install

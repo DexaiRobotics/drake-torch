@@ -143,7 +143,8 @@ RUN apt-get install -qy \
     iwyu \
     doxygen \
     libgflags-dev \
-    libudev-dev
+    # libudev-dev
+    usbutils
 
 RUN git lfs install
 
