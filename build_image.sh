@@ -71,7 +71,7 @@ else
     if [[ $BUILD_CHANNEL == 'stable' ]]; then
       BASE_IMAGE="nvidia/cuda:10.2-cudnn7-devel-ubuntu18.04"
     else
-      BASE_IMAGE="nvidia/cuda:11.1-devel-ubuntu20.04"
+      BASE_IMAGE="nvidia/cuda:11.0-devel-ubuntu20.04"
     fi
   fi
   TAG="dexai2/drake-torch:${BUILD_TYPE}-${BUILD_CHANNEL}"
