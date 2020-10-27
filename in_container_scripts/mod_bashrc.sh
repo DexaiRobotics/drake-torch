@@ -18,19 +18,30 @@ sed -i -e 's/^'"$ORIGINAL"'$/'"$REPLACEMENT"'/' "${FIX_FILES[@]}"
 
 cat <<'EOF' >> /root/.bashrc
 
+# this adds py3 to $PYTHONPATH
 if [[ -f /opt/ros/${ROS_DISTRO}/setup.bash ]]; then
   echo "found /opt/ros/${ROS_DISTRO}/setup.bash. sourcing..."
   source /opt/ros/${ROS_DISTRO}/setup.bash
 fi
+
+# this script is only present after catkin workspace has been built
+# with catkin_make and does not exist before catkin_make
+# on melodic this sets $PYTHONPATH to two py27 locations and then py3
+# but we want py3 first
 if [[ -f $HOME/catkin_ws/devel/setup.bash ]]; then
   echo "found $HOME/catkin_ws/devel/setup.bash. sourcing..."
   source $HOME/catkin_ws/devel/setup.bash
 fi
 
-# reset python path after ROS scripts are sourced
 if [[ $ROS_DISTRO == "melodic" ]]; then
-  export PYTHONPATH=/opt/ros/melodic/lib/python3/dist-packages/
-  export PYTHONPATH=$PYTHONPATH:/opt/ros/melodic/lib/python2.7/dist-packages/
+  # reorder $PYTHONPATH by moving py3 to the front (remove + prepend)
+  py3path="/opt/ros/melodic/lib/python3/dist-packages"
+  export PYTHONPATH=`echo $PYTHONPATH | tr ":" "\n" | grep -v $py3path | tr "\n" ":"`
+  export PYTHONPATH=$py3path:$PYTHONPATH
+  # finally append py27 path if not present (useful before catkin_make is run)
+  if ! grep -q /opt/ros/melodic/lib/python2.7/dist-packages <<< "$PYTHONPATH"; then
+    export PYTHONPATH=$PYTHONPATH:/opt/ros/melodic/lib/python2.7/dist-packages/
+  fi
 fi
 
 # set prompt text/color based on type of container

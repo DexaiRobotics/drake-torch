@@ -97,6 +97,7 @@ RUN cd opencv-4.4.0 \
 # dev essentials and other dependencies
 ########################################################
 
+<<<<<<< HEAD
 RUN add-apt-repository -y ppa:git-core/ppa \
     && apt-get install -qy \
         openssh-server \
@@ -114,8 +115,9 @@ RUN add-apt-repository -y ppa:git-core/ppa \
         tree \
         doxygen \
         libgflags-dev \
+        # libudev is needed by HID API
+        libudev-dev \
         usbutils
-        # libudev-dev
 
 RUN git lfs install
 
