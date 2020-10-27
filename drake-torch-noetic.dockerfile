@@ -96,8 +96,6 @@ RUN cd opencv-4.4.0 \
 ########################################################
 # dev essentials and other dependencies
 ########################################################
-
-<<<<<<< HEAD
 RUN add-apt-repository -y ppa:git-core/ppa \
     && apt-get install -qy \
         openssh-server \
