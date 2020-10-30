@@ -43,7 +43,6 @@ if [[ $ROS_DISTRO == "melodic" ]]; then
     export PYTHONPATH=$PYTHONPATH:/opt/ros/melodic/lib/python2.7/dist-packages/
   fi
 fi
-export ROS_PYTHON_VERSION=3
 
 # set prompt text/color based on type of container
 parse_git_branch() {

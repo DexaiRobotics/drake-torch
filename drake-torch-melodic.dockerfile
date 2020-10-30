@@ -35,7 +35,8 @@ RUN apt-get update && apt-get install -qy \
     python3-rosinstall
 # bootstrap rosdep
 RUN rosdep init && rosdep update
-ENV ROS_DISTRO melodic
+ENV ROS_DISTRO=melodic
+ENV ROS_PYTHON_VERSION=3
 RUN apt-get update && apt-get install -qy \
     ros-melodic-ros-base \
     ros-melodic-geometry2 \
@@ -89,7 +90,7 @@ RUN curl -SL https://github.com/jbeder/yaml-cpp/archive/yaml-cpp-0.6.3.tar.gz | 
     && cd build \
     && cmake .. -D YAML_BUILD_SHARED_LIBS=ON \
     && make install -j 12 \
-    && rm -rf $HOME/yaml-cpp-yaml-cpp-0.6.3
+    && rm -rf "$HOME/yaml-cpp-yaml-cpp-0.6.3"
 
 # OpenCV 4.4.0 for C++ and Python3
 RUN apt-get install -qy \
@@ -123,6 +124,8 @@ RUN python3 -m pip install --upgrade --no-cache-dir --compile \
 
 RUN add-apt-repository -y ppa:git-core/ppa \
     && apt-get install -qy \
+        openssh-server \
+        openssh-client \
         vim \
         nano \
         iputils-ping \
@@ -145,6 +148,10 @@ RUN rm /etc/alternatives/editor \
     && ln -s /usr/bin/vim /etc/alternatives/editor
 RUN git lfs install
 
+# fix for python3.6 and setuptools 50
+# https://github.com/pypa/setuptools/issues/2350
+ENV SETUPTOOLS_USE_DISTUTILS=stdlib
+
 # install cv_bridge to /opt/ros/melodic from source for python3
 # the cv_bridge from apt is for python2 and will cause
 # an PyInit_cv_bridge_boost error
@@ -157,7 +164,6 @@ RUN mkdir -p py3_ws/src \
     # && git clone -b melodic-devel https://github.com/ros/ros_comm.git \
     && cd $HOME/py3_ws \
     && source /opt/ros/melodic/setup.bash \
-    && export ROS_PYTHON_VERSION=3 \
     && catkin config --install \
         --install-space /opt/ros/melodic \
         --cmake-args \
