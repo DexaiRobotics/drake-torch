@@ -136,6 +136,7 @@ RUN add-apt-repository -y ppa:git-core/ppa \
         htop \
         screen \
         xvfb \
+        fluxbox \
         x11vnc \
         tmux \
         tree \
