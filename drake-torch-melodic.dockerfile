@@ -51,7 +51,9 @@ RUN apt-get update && apt-get install -qy \
     ros-melodic-robot-state-publisher \
     ros-melodic-joint-state-publisher \
     ros-melodic-tf-conversions \
-    ros-melodic-rviz
+    ros-melodic-rviz \
+    ros-melodic-rqt \
+    ros-melodic-apriltag-ros
 
 ########################################################
 #### newer packages

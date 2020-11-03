@@ -49,7 +49,9 @@ RUN apt-get update && apt-get install -qy \
     ros-noetic-joint-state-publisher \
     ros-noetic-tf-conversions \
     # ros-noetic-gazebo-ros \
-    ros-noetic-rviz
+    ros-noetic-rviz \
+    ros-noetic-rqt \
+    ros-noetic-apriltag-ros
 
 ########################################################
 #### newer packages
