@@ -153,7 +153,7 @@ RUN set -eux \
     && \
         if [ $BUILD_CHANNEL = "stable" ] ; \
         then curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-20200530-bionic.tar.gz | tar -xzC /opt; \
-        # TODO: @dyt change date below to latest
+        # TODO: @dyt change date below to latest after removing RBT dependencies
         else curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-20200831-focal.tar.gz | tar -xzC /opt; \
         fi \
     && cd /opt/drake/share/drake/setup && yes | ./install_prereqs \
