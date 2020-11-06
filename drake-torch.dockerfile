@@ -121,7 +121,7 @@ RUN set -eux && cd $HOME \
         if [ $BUILD_TYPE = "cpu" ]; then \
             if [ $BUILD_CHANNEL = "stable" ]; then \
                 wget -q https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.6.0%2Bcpu.zip \
-                && python3 -m pip install --upgrade --no-cache-dir --compile torch==1.6.0+cpu torchvision==0.7.0+cpu -f https://download.pytorch.org/whl/torch_stable.html; \
+                && python3 -m pip install --upgrade --no-cache-dir --compile torch==1.7.0+cpu torchvision==0.8.1+cpu -f https://download.pytorch.org/whl/torch_stable.html; \
             else \
                 wget -q https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared-with-deps-latest.zip \
                 && python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html; \
