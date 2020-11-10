@@ -224,9 +224,9 @@ RUN git clone https://github.com/ros/urdf_parser_py && cd urdf_parser_py \
 
 # toppra: Dexai fork
 RUN git clone https://github.com/DexaiRobotics/toppra \
-    && cd toppra
-    && git checkout dyt.dev
-    && cd ..
+    && cd toppra \
+    && git checkout dyt.dev \
+    && cd .. \
     && python3 -m pip install --upgrade --no-cache-dir --compile ./toppra \
     && rm -rf toppra
 
