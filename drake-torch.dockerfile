@@ -120,7 +120,7 @@ RUN set -eux && cd $HOME \
     && \
         if [ $BUILD_TYPE = "cpu" ]; then \
             if [ $BUILD_CHANNEL = "stable" ]; then \
-                wget -q https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.6.0%2Bcpu.zip \
+                wget -q https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.7.0%2Bcpu.zip \
                 && python3 -m pip install --upgrade --no-cache-dir --compile torch==1.7.0+cpu torchvision==0.8.1+cpu -f https://download.pytorch.org/whl/torch_stable.html; \
             else \
                 wget -q https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared-with-deps-latest.zip \
@@ -128,10 +128,10 @@ RUN set -eux && cd $HOME \
             fi; \
         else \
             if [ $BUILD_CHANNEL = "stable" ]; then \
-                wget -q https://download.pytorch.org/libtorch/cu102/libtorch-cxx11-abi-shared-with-deps-1.6.0.zip \
+                wget -q https://download.pytorch.org/libtorch/cu110/libtorch-cxx11-abi-shared-with-deps-1.7.0%2Bcu110.zip \
                 && python3 -m pip install --upgrade --no-cache-dir --compile torch torchvision; \
             else \
-                wget -q https://download.pytorch.org/libtorch/nightly/cu102/libtorch-cxx11-abi-shared-with-deps-latest.zip \
+                wget -q https://download.pytorch.org/libtorch/nightly/cu110/libtorch-cxx11-abi-shared-with-deps-latest.zip \
                 && python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cu102/torch_nightly.html; \
             fi; \
         fi \
