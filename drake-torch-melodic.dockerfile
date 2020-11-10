@@ -214,13 +214,17 @@ RUN git clone https://github.com/ros/urdf_parser_py && cd urdf_parser_py \
     && python3 setup.py install \
     && cd $HOME && rm -rf urdf_parser_py
 
-# qpOASES
+# needed by both qpOASES and toppra
 RUN python3 -m pip install --upgrade --no-cache-dir --compile cython
-RUN git clone https://github.com/hungpham2511/qpOASES \
-    && cd qpOASES && mkdir -p bin && make -j 12 \
-    && cd interfaces/python \
-    && python3 setup.py install \
-    && rm -rf $HOME/qpOASES
+
+# qpOASES
+# optional alternative numerical solver
+# siedel is stable enough for now
+# RUN git clone https://github.com/hungpham2511/qpOASES \
+#     && cd qpOASES && mkdir -p bin && make -j 12 \
+#     && cd interfaces/python \
+#     && python3 setup.py install \
+#     && rm -rf $HOME/qpOASES
 
 # toppra: Dexai fork
 RUN git clone https://github.com/DexaiRobotics/toppra \
