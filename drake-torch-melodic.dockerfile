@@ -218,6 +218,8 @@ RUN git clone https://github.com/ros/urdf_parser_py && cd urdf_parser_py \
 RUN python3 -m pip install --upgrade --no-cache-dir --compile cython
 
 # qpOASES
+# optional alternative numerical solver
+# siedel is stable enough for now
 # RUN git clone https://github.com/hungpham2511/qpOASES \
 #     && cd qpOASES && mkdir -p bin && make -j 12 \
 #     && cd interfaces/python \
