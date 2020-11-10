@@ -225,11 +225,7 @@ RUN python3 -m pip install --upgrade --no-cache-dir --compile cython
 #     && rm -rf $HOME/qpOASES
 
 # toppra: Dexai fork
-
 RUN git clone https://github.com/DexaiRobotics/toppra \
-    && cd toppra \
-    && git checkout dyt.dev \
-    && cd .. \
     && python3 -m pip install --upgrade --no-cache-dir --compile ./toppra \
     && rm -rf toppra
 
