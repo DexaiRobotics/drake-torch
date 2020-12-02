@@ -144,7 +144,8 @@ RUN add-apt-repository -y ppa:git-core/ppa \
         tree \
         doxygen \
         libgflags-dev \
-        # libudev is needed by HID API
+        # libusb and libudev are both needed by HID API
+        libusb-1.0-0-dev \
         libudev-dev \
         usbutils
 RUN rm /etc/alternatives/editor \
@@ -201,13 +202,6 @@ RUN cd $HOME && git clone https://github.com/MobileManipulation/fcl.git \
     && cmake -DBUILD_SHARED_LIBS=ON -DFCL_WITH_OCTOMAP=ON -DFCL_HAVE_OCTOMAP=1 .. \
     && make install -j 12 \
     && rm -rf $HOME/fcl
-
-# gazebo 9 depends on boost_signal which has been deprecated
-# gazebo 11 seems to have an octomap dependency
-RUN sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list' \
-    && wget https://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add - \
-    && apt-get update \
-    && apt-get install -qy ros-melodic-gazebo11-ros-pkgs
 
 # Install python URDF parser
 RUN git clone https://github.com/ros/urdf_parser_py && cd urdf_parser_py \

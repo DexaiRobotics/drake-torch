@@ -116,7 +116,9 @@ RUN add-apt-repository -y ppa:git-core/ppa \
         tree \
         doxygen \
         libgflags-dev \
-        # libudev is needed by HID API
+        # libusb needed by HID API and librealsense
+        libusb-1.0-0-dev \
+        # libudev are both needed by HID API
         libudev-dev \
         usbutils
 
