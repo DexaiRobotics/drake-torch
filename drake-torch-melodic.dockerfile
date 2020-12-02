@@ -203,13 +203,6 @@ RUN cd $HOME && git clone https://github.com/MobileManipulation/fcl.git \
     && make install -j 12 \
     && rm -rf $HOME/fcl
 
-# gazebo 9 depends on boost_signal which has been deprecated
-# gazebo 11 seems to have an octomap dependency
-# RUN sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list' \
-#     && wget https://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add - \
-#     && apt-get update \
-#     && apt-get install -qy ros-melodic-gazebo11-ros-pkgs
-
 # Install python URDF parser
 RUN git clone https://github.com/ros/urdf_parser_py && cd urdf_parser_py \
     && python3 setup.py install \
