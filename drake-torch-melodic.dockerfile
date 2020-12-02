@@ -145,7 +145,7 @@ RUN add-apt-repository -y ppa:git-core/ppa \
         doxygen \
         libgflags-dev \
         # libusb and libudev are both needed by HID API
-        libusb \
+        libusb-1.0-0-dev \
         libudev-dev \
         usbutils
 RUN rm /etc/alternatives/editor \
