@@ -169,8 +169,9 @@ RUN if [ "`lsb_release -sc`" = "bionic" ]; \
     fi
 
 # drake installs some python packages as dependencies, causing jupyter issues
-RUN python3 -m pip install \
-        --upgrade --no-cache-dir --compile --use-feature=2020-resolver \
+RUN apt remove python3-zmq python3-terminado -qy \
+    && python3 -m pip install \
+        --upgrade --no-cache-dir --compile \
         ipython ipykernel jupyterlab matplotlib
 
 # install the latest libboost
