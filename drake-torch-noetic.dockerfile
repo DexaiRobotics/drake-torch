@@ -73,14 +73,14 @@ RUN curl -SL https://github.com/jbeder/yaml-cpp/archive/yaml-cpp-0.6.3.tar.gz | 
     && make install -j 12 \
     && rm -rf "$HOME/yaml-cpp-yaml-cpp-0.6.3"
 
-# OpenCV 4.4.0 for C++ and Python3
+# OpenCV 4.5.1 for C++ and Python3
 RUN apt-get install -qy \
         python3-numpy \
         libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
         libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev \
     && apt-get autoremove -qy
-RUN curl -SL https://github.com/opencv/opencv/archive/4.4.0.tar.gz | tar -xz
-RUN cd opencv-4.4.0 \
+RUN curl -SL https://github.com/opencv/opencv/archive/4.5.1.tar.gz | tar -xz
+RUN cd opencv-4.5.1 \
     && mkdir build \
     && cd build \
     && cmake .. \
@@ -93,7 +93,7 @@ RUN cd opencv-4.4.0 \
         -D PYTHON3_NUMPY_INCLUDE_DIRS=/usr/lib/python3/dist-packages/numpy/core/include \
     && make install -j 12 \
     && cd $HOME \
-    && rm -rf 4.4.0.tar.gz opencv-4.4.0
+    && rm -rf opencv-4.5.1
 
 ########################################################
 # dev essentials and other dependencies
