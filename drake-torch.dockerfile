@@ -181,13 +181,13 @@ RUN add-apt-repository -y ppa:mhier/libboost-latest \
     && apt-get install -qy libboost1.74-dev
 
 # install latest eigen3
-RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.3.8/eigen-3.3.8.tar.bz2 | tar -xj \
-    && cd eigen-3.3.8 \
+RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.3.9/eigen-3.3.9.tar.bz2 | tar -xj \
+    && cd eigen-3.3.9 \
     && mkdir build \
     && cd build \
     && cmake build .. -D CMAKE_INSTALL_PREFIX=/usr/local \
     && make install -j 12 \
-    && rm -rf $HOME/eigen-3.3.8
+    && rm -rf $HOME/eigen-3.3.9
 
 RUN apt-get upgrade -qy \
     && apt-get autoremove -qy \
