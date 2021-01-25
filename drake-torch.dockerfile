@@ -189,6 +189,7 @@ RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.3.9/eigen-3.3.9.tar.b
     && make install -j 12 \
     && rm -rf $HOME/eigen-3.3.9
 
-RUN apt-get upgrade -qy \
+RUN apt-get update \
+    && apt-get upgrade -qy \
     && apt-get autoremove -qy \
     && rm -rf /var/lib/apt/lists/*
