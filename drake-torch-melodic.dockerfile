@@ -259,7 +259,7 @@ COPY in_container_scripts scripts
 
 # OMPL 1.5
 RUN scripts/install-ompl-ubuntu.sh --python \
-    && rm -rf /usr/local/include/ompl $HOME/ompl-1.5.0 $HOME/castxml \
+    && rm -rf /usr/local/include/ompl $HOME/ompl-1.5.2 $HOME/castxml \
     && ln -s /usr/local/include/ompl-1.5/ompl /usr/local/include/ompl
 
 ########################################################
