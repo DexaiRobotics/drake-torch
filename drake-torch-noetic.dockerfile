@@ -51,7 +51,8 @@ RUN apt-get update && apt-get install -qy \
     # ros-noetic-gazebo-ros \
     ros-noetic-rviz \
     ros-noetic-rqt \
-    ros-noetic-apriltag-ros
+    ros-noetic-apriltag-ros \
+    ros-melodic-web-video-server
 
 ########################################################
 #### newer packages
