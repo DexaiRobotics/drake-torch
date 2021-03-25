@@ -53,7 +53,8 @@ RUN apt-get update && apt-get install -qy \
     ros-melodic-tf-conversions \
     ros-melodic-rviz \
     ros-melodic-rqt \
-    ros-melodic-apriltag-ros
+    ros-melodic-apriltag-ros \
+    ros-melodic-web-video-server
 
 ########################################################
 #### newer packages
@@ -177,6 +178,33 @@ RUN mkdir -p py3_ws/src \
             -D CMAKE_BUILD_TYPE=Release \
     && catkin build \
     && rm -rf $HOME/py3_ws
+
+# install cli11
+RUN cd $HOME && curl -SL https://github.com/CLIUtils/CLI11/archive/refs/tags/v1.9.1.tar.gz | tar -xz \
+    && cd CLI11-1.9.1 \
+    && mkdir build \
+    && cd build \
+    && cmake .. \
+        -D CMAKE_BUILD_TYPE=Release \
+        -D CLI11_SINGLE_FILE=OFF \
+        -D CLI11_BUILD_DOCS=OFF \
+        -D CLI11_BUILD_TESTS=OFF \
+        -D CLI11_BUILD_EXAMPLES=OFF \
+    && make install -j 12 \
+    && cd .. \
+    && rm -rf CLI11-1.9.1
+
+# install json, header only
+RUN wget https://github.com/nlohmann/json/releases/download/v3.9.1/json.hpp -P /usr/local/include/
+
+# install magic_enum, header only
+RUN wget https://github.com/Neargye/magic_enum/releases/download/v0.7.2/magic_enum.hpp -P /usr/local/include/
+
+# insall ctpl thread pool, header only
+RUN cd $HOME \
+    && curl -SL https://github.com/vit-vit/CTPL/archive/refs/tags/v.0.0.2.tar.gz | tar -xz \
+    && cp CTPL-v.0.0.2/ctpl*.h /usr/local/include/ \
+    && rm -rf CTPL-v.0.0.2
 
 # Install C++ branch of msgpack-c
 RUN cd $HOME && git clone -b cpp_master https://github.com/msgpack/msgpack-c.git \
