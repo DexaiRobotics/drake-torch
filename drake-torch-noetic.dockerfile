@@ -52,27 +52,20 @@ RUN apt-get update && apt-get install -qy \
     ros-noetic-rviz \
     ros-noetic-rqt \
     ros-noetic-apriltag-ros \
-    ros-melodic-web-video-server
+    ros-noetic-web-video-server
 
 ########################################################
 #### newer packages
 ########################################################
 
-# install boost 1.74 without removing libboost 1.71 on which ROS depends
-# RUN curl -SL https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.bz2 | tar -xj \
-#     && cd boost_1_74_0 \
-#     && ./bootstrap.sh --prefix=/usr --with-python=python3 \
-#     && ./b2 stage -j 12 threading=multi link=shared \
-#     && ./b2 install threading=multi link=shared
-
 # yaml-cpp 0.6.3
-RUN curl -SL https://github.com/jbeder/yaml-cpp/archive/yaml-cpp-0.6.3.tar.gz | tar -xz \
-    && cd yaml-cpp-yaml-cpp-0.6.3 \
-    && mkdir build \
-    && cd build \
-    && cmake .. -D YAML_BUILD_SHARED_LIBS=ON \
-    && make install -j 12 \
-    && rm -rf "$HOME/yaml-cpp-yaml-cpp-0.6.3"
+# RUN curl -SL https://github.com/jbeder/yaml-cpp/archive/yaml-cpp-0.6.3.tar.gz | tar -xz \
+#     && cd yaml-cpp-yaml-cpp-0.6.3 \
+#     && mkdir build \
+#     && cd build \
+#     && cmake .. -D YAML_BUILD_SHARED_LIBS=ON \
+#     && make install -j 12 \
+#     && rm -rf "$HOME/yaml-cpp-yaml-cpp-0.6.3"
 
 # OpenCV 4.5.1 for C++ and Python3
 RUN apt-get install -qy \
@@ -80,8 +73,8 @@ RUN apt-get install -qy \
         libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
         libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev \
     && apt-get autoremove -qy
-RUN curl -SL https://github.com/opencv/opencv/archive/4.5.1.tar.gz | tar -xz
-RUN cd opencv-4.5.1 \
+RUN curl -SL https://github.com/opencv/opencv/archive/refs/tags/4.5.2.tar.gz | tar -xz
+RUN cd opencv-4.5.2 \
     && mkdir build \
     && cd build \
     && cmake .. \
@@ -94,7 +87,7 @@ RUN cd opencv-4.5.1 \
         -D PYTHON3_NUMPY_INCLUDE_DIRS=/usr/lib/python3/dist-packages/numpy/core/include \
     && make install -j 12 \
     && cd $HOME \
-    && rm -rf opencv-4.5.1
+    && rm -rf opencv*
 
 ########################################################
 # dev essentials and other dependencies
@@ -125,43 +118,63 @@ RUN add-apt-repository -y ppa:git-core/ppa \
 
 RUN git lfs install
 
+# install cli11
+RUN cd $HOME && curl -SL https://github.com/CLIUtils/CLI11/archive/refs/tags/v1.9.1.tar.gz | tar -xz \
+    && cd CLI11-1.9.1 \
+    && mkdir build \
+    && cd build \
+    && cmake .. \
+        -D CMAKE_BUILD_TYPE=Release \
+        -D CLI11_SINGLE_FILE=OFF \
+        -D CLI11_BUILD_DOCS=OFF \
+        -D CLI11_BUILD_TESTS=OFF \
+        -D CLI11_BUILD_EXAMPLES=OFF \
+    && make install -j 12 \
+    && cd .. \
+    && rm -rf CLI11-1.9.1
+
+# install json, header only
+RUN wget https://github.com/nlohmann/json/releases/download/v3.9.1/json.hpp -P /usr/local/include/
+
+# install magic_enum, header only
+RUN wget https://github.com/Neargye/magic_enum/releases/download/v0.7.2/magic_enum.hpp -P /usr/local/include/
+
+# insall ctpl thread pool, header only
+RUN cd $HOME \
+    && curl -SL https://github.com/vit-vit/CTPL/archive/refs/tags/v.0.0.2.tar.gz | tar -xz \
+    && cp CTPL-v.0.0.2/ctpl*.h /usr/local/include/ \
+    && rm -rf CTPL-v.0.0.2
+
 # Install C++ branch of msgpack-c
 RUN cd $HOME && git clone -b cpp_master https://github.com/msgpack/msgpack-c.git \
     && cd msgpack-c && cmake -DMSGPACK_CXX17=ON . && make install -j 12 \
     && cd $HOME && rm -rf msgpack-c
 
 # install ccd & octomap && fcl
-RUN cd $HOME && git clone https://github.com/danfis/libccd.git \
-    && cd libccd && mkdir -p build && cd build \
-    && cmake -G "Unix Makefiles" .. && make install -j 12 \
-    && rm -rf $HOME/libccd
+# RUN cd $HOME && git clone https://github.com/danfis/libccd.git \
+#     && cd libccd && mkdir -p build && cd build \
+#     && cmake -G "Unix Makefiles" .. && make install -j 12 \
+#     && rm -rf $HOME/libccd
 
-RUN cd $HOME && git clone https://github.com/OctoMap/octomap.git \
-    && cd octomap && mkdir -p build && cd build \
-    && cmake -D OpenGL_GL_PREFERENCE=LEGACY -D BUILD_SHARED_LIBS=ON .. \
-    && make install -j 12 \
-    && rm -rf $HOME/octomap
+# RUN cd $HOME && git clone https://github.com/OctoMap/octomap.git \
+#     && cd octomap && mkdir -p build && cd build \
+#     && cmake -D OpenGL_GL_PREFERENCE=LEGACY -D BUILD_SHARED_LIBS=ON .. \
+#     && make install -j 12 \
+#     && rm -rf $HOME/octomap
 
-RUN cd $HOME && git clone https://github.com/MobileManipulation/fcl.git \
-    && cd fcl && mkdir -p build && cd build \
-    && cmake -DBUILD_SHARED_LIBS=ON -DFCL_WITH_OCTOMAP=ON -DFCL_HAVE_OCTOMAP=1 .. \
-    && make install -j 12 \
-    && rm -rf $HOME/fcl
-
-# RUN python3 -m pip install --upgrade --no-cache-dir --compile pyplusplus
-# RUN apt-get update && apt-get install -qy python-pip
-# COPY in_container_scripts/install-ompl-ubuntu.sh install-ompl-ubuntu.sh
-RUN wget https://ompl.kavrakilab.org/install-ompl-ubuntu.sh \
-    && chmod +x install-ompl-ubuntu.sh \
-    && ./install-ompl-ubuntu.sh --python \
-    && rm -rf /usr/local/include/ompl \
-    && ln -s /usr/local/include/ompl-1.5/ompl /usr/local/include/ompl \
-    && rm $HOME/install-ompl-ubuntu.sh
+# RUN cd $HOME && git clone https://github.com/MobileManipulation/fcl.git \
+#     && cd fcl && mkdir -p build && cd build \
+#     && cmake -DBUILD_SHARED_LIBS=ON -DFCL_WITH_OCTOMAP=ON -DFCL_HAVE_OCTOMAP=1 .. \
+#     && make install -j 12 \
+#     && rm -rf $HOME/fcl
 
 # Install python URDF parser
-RUN git clone https://github.com/ros/urdf_parser_py && cd urdf_parser_py \
-    && python3 setup.py install \
-    && cd $HOME && rm -rf urdf_parser_py
+# RUN git clone https://github.com/ros/urdf_parser_py && cd urdf_parser_py \
+#     && python3 setup.py install \
+#     && cd $HOME && rm -rf urdf_parser_py
+
+# needed by both qpOASES and toppra
+RUN python3 -m pip install --upgrade --no-cache-dir --compile cython
 
 # qpOASES
 # optional alternative numerical solver
@@ -191,40 +204,26 @@ RUN git clone https://github.com/lcm-proj/lcm \
     && cd $HOME && rm -rf lcm
 
 # build librealsense from source since there's no 20.04 support
-RUN apt-get install -qy \
-        libssl-dev \
-        libusb-1.0-0-dev \
-        pkg-config \
-        libgtk-3-dev \
-        libglfw3-dev \
-        libgl1-mesa-dev \
-        libglu1-mesa-dev \
-    && git clone https://github.com/IntelRealSense/librealsense.git \
-    && cd librealsense \
-    && scripts/setup_udev_rules.sh
-RUN cd librealsense \
-    && mkdir build \
-    && cd build \
-    && \
-        if [ $BUILD_TYPE = "cpu" ]; then \
-            cmake .. \
-                -D CMAKE_BUILD_TYPE=Release \
-                -D BUILD_PYTHON_BINDINGS:bool=true \
-                -D PYTHON_EXECUTABLE=/usr/bin/python3; \
-        else \
-            cmake .. \
-                -D CMAKE_BUILD_TYPE=Release \
-                -D BUILD_PYTHON_BINDINGS:bool=true \
-                -D PYTHON_EXECUTABLE=/usr/bin/python3 \
-                -D BUILD_WITH_CUDA:bool=true \
-                -D CMAKE_CUDA_ARCHITECTURES="75" \
-                -D CMAKE_CUDA_HOST_COMPILER=gcc-9 \
-                -D OpenGL_GL_PREFERENCE=GLVND; \
-        fi \
-    && make uninstall \
-    && make clean \
-    && make install -j 12 \
-    && rm -rf $HOME/librealsense
+RUN apt-key adv \
+        --keyserver keys.gnupg.net \
+        --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE \
+        || sudo apt-key adv \
+        --keyserver hkp://keyserver.ubuntu.com:80 \
+        --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE \
+    && add-apt-repository "deb https://librealsense.intel.com/Debian/apt-repo focal main" -u \
+    && apt-get install -qy \
+        librealsense2-dkms \
+        librealsense2-utils \
+        librealsense2-dev \
+        librealsense2-dbg \
+        librealsense2
+
+COPY in_container_scripts scripts
+
+# OMPL 1.5
+RUN scripts/install-ompl-ubuntu.sh --python \
+    && rm -rf /usr/local/include/ompl $HOME/ompl-1.5.2 $HOME/castxml \
+    && ln -s /usr/local/include/ompl-1.5/ompl /usr/local/include/ompl
 
 ########################################################
 # final steps
@@ -252,9 +251,6 @@ RUN sed -i 's/#Port 22/Port 7776/' /etc/ssh/sshd_config
 
 # Port 7776 for ssh server. 7777 for gdb server.
 EXPOSE 7776 7777
-
-# RUN useradd -ms /bin/bash debugger
-# RUN echo 'debugger:pwd' | chpasswd
 
 # necessary to make all installed libraries available for linking
 RUN ldconfig
