@@ -27,9 +27,6 @@ RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E
 ENV ROS_DISTRO=noetic
 ENV ROS_PYTHON_VERSION=3
 
-# uninstall latest libboost before ROS attemps to install the old version
-RUN apt-get purge -qy libboost1.74*
-
 RUN apt-get update && apt-get install -qy \
     # lsb-release \
     # dirmngr \
@@ -51,8 +48,8 @@ RUN apt-get update && apt-get install -qy \
     # ros-noetic-gazebo-ros \
     ros-noetic-rviz \
     ros-noetic-rqt \
-    ros-noetic-apriltag-ros \
-    ros-noetic-web-video-server
+    ros-noetic-apriltag-ros
+    # ros-noetic-web-video-server
 
 ########################################################
 #### newer packages
@@ -69,7 +66,6 @@ RUN apt-get update && apt-get install -qy \
 
 # OpenCV 4.5.1 for C++ and Python3
 RUN apt-get install -qy \
-        python3-numpy \
         libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
         libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev \
     && apt-get autoremove -qy
@@ -173,9 +169,6 @@ RUN cd $HOME && git clone -b cpp_master https://github.com/msgpack/msgpack-c.git
 #     && python3 setup.py install \
 #     && cd $HOME && rm -rf urdf_parser_py
 
-# needed by both qpOASES and toppra
-RUN python3 -m pip install --upgrade --no-cache-dir --compile cython
-
 # qpOASES
 # optional alternative numerical solver
 # siedel is stable enough for now
@@ -217,8 +210,6 @@ RUN apt-key adv \
         librealsense2-dev \
         librealsense2-dbg \
         librealsense2
-
-COPY in_container_scripts scripts
 
 # OMPL 1.5
 RUN scripts/install-ompl-ubuntu.sh --python \

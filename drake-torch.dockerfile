@@ -108,12 +108,12 @@ RUN wget https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-li
 ##############################################################
 # libtorch and pytorch, torchvision with intel MKL support
 ##############################################################
-
-RUN wget -q https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
-RUN apt-key add --no-tty GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB && rm GPG-PUB*
-RUN sh -c 'echo deb https://apt.repos.intel.com/mkl all main > /etc/apt/sources.list.d/intel-mkl.list'
-RUN apt-get update && apt-get -qy install intel-mkl-64bit-2020.0-088
-RUN rm /opt/intel/mkl/lib/intel64/*.so
+# RUN cd /tmp \
+#     && wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
+#     && apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
+#     && rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
+#     && add-apt-repository "deb https://apt.repos.intel.com/oneapi all main" \
+#     && apt-get -qy install intel-basekit
 
 # Download and build libtorch with MKL support
 ENV TORCH_CUDA_ARCH_LIST="5.2 6.0 6.1 7.0 7.5 8.0+PTX"
@@ -174,25 +174,19 @@ RUN if [ "`lsb_release -sc`" = "bionic" ]; \
     fi
 
 # drake installs some python packages as dependencies, causing jupyter issues
-RUN apt remove python3-zmq python3-terminado -qy \
+RUN apt remove python3-zmq python3-terminado python3-yaml -qy \
     && python3 -m pip install \
         --upgrade --no-cache-dir --compile \
-        ipython ipykernel jupyterlab matplotlib
-
-# install the latest libboost
-RUN apt-get purge -qy libboost* \
-    && apt-get autoremove -qy
-RUN add-apt-repository -y ppa:mhier/libboost-latest \
-    && apt-get install -qy libboost1.74-dev
+        ipython ipykernel jupyterlab matplotlib cython pyyaml
 
 # install latest eigen3
-RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.3.9/eigen-3.3.9.tar.bz2 | tar -xj \
-    && cd eigen-3.3.9 \
+RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.4-rc1/eigen-3.4-rc1.tar.bz2 | tar -xj \
+    && cd eigen-3.4-rc1 \
     && mkdir build \
     && cd build \
     && cmake build .. -D CMAKE_INSTALL_PREFIX=/usr/local \
     && make install -j 12 \
-    && rm -rf $HOME/eigen-3.3.9
+    && rm -rf $HOME/eigen*
 
 RUN apt-get update \
     && apt-get upgrade -qy \
