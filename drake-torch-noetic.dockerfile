@@ -10,8 +10,6 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get upgrade -qy
 
-COPY in_container_scripts scripts
-
 # ########################################################
 # ROS
 # http://wiki.ros.org/noetic/Installation/Ubuntu
@@ -212,9 +210,12 @@ RUN apt-key adv \
         librealsense2
 
 # OMPL 1.5
-RUN scripts/install-ompl-ubuntu.sh --python \
+RUN wget https://ompl.kavrakilab.org/install-ompl-ubuntu.sh \
+    && chmod +x install-ompl-ubuntu.sh \
+    && ./install-ompl-ubuntu.sh --python \
     && rm -rf /usr/local/include/ompl $HOME/ompl-1.5.2 $HOME/castxml \
-    && ln -s /usr/local/include/ompl-1.5/ompl /usr/local/include/ompl
+    && ln -s /usr/local/include/ompl-1.5/ompl /usr/local/include/ompl \
+    && rm install-ompl-ubuntu.sh
 
 ########################################################
 # final steps
@@ -223,6 +224,7 @@ RUN apt-get upgrade -qy \
     && apt-get autoremove -qy \
     && rm -rf /var/lib/apt/lists/*
 
+COPY in_container_scripts scripts
 RUN scripts/mod_bashrc.sh && rm -rf scripts
 
 # Taken from - https://docs.docker.com/engine/examples/running_ssh_service/#environment-variables
