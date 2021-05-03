@@ -26,10 +26,6 @@ ENV ROS_DISTRO=noetic
 ENV ROS_PYTHON_VERSION=3
 
 RUN apt-get update && apt-get install -qy \
-    # lsb-release \
-    # dirmngr \
-    # libxmlrpcpp-dev \
-    # librosconsole-dev \
     ros-noetic-ros-base \
     ros-noetic-geometry2 \
     ros-noetic-pcl-ros \
@@ -43,26 +39,17 @@ RUN apt-get update && apt-get install -qy \
     ros-noetic-robot-state-publisher \
     ros-noetic-joint-state-publisher \
     ros-noetic-tf-conversions \
-    # ros-noetic-gazebo-ros \
     ros-noetic-rviz \
     ros-noetic-rqt \
     ros-noetic-apriltag-ros
+    # ros-noetic-gazebo-ros \
     # ros-noetic-web-video-server
 
 ########################################################
 #### newer packages
 ########################################################
 
-# yaml-cpp 0.6.3
-# RUN curl -SL https://github.com/jbeder/yaml-cpp/archive/yaml-cpp-0.6.3.tar.gz | tar -xz \
-#     && cd yaml-cpp-yaml-cpp-0.6.3 \
-#     && mkdir build \
-#     && cd build \
-#     && cmake .. -D YAML_BUILD_SHARED_LIBS=ON \
-#     && make install -j 12 \
-#     && rm -rf "$HOME/yaml-cpp-yaml-cpp-0.6.3"
-
-# OpenCV 4.5.1 for C++ and Python3
+# OpenCV for C++ and Python3
 RUN apt-get install -qy \
         libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
         libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev \
@@ -143,38 +130,6 @@ RUN cd $HOME \
 RUN cd $HOME && git clone -b cpp_master https://github.com/msgpack/msgpack-c.git \
     && cd msgpack-c && cmake -DMSGPACK_CXX17=ON . && make install -j 12 \
     && cd $HOME && rm -rf msgpack-c
-
-# install ccd & octomap && fcl
-# RUN cd $HOME && git clone https://github.com/danfis/libccd.git \
-#     && cd libccd && mkdir -p build && cd build \
-#     && cmake -G "Unix Makefiles" .. && make install -j 12 \
-#     && rm -rf $HOME/libccd
-
-# RUN cd $HOME && git clone https://github.com/OctoMap/octomap.git \
-#     && cd octomap && mkdir -p build && cd build \
-#     && cmake -D OpenGL_GL_PREFERENCE=LEGACY -D BUILD_SHARED_LIBS=ON .. \
-#     && make install -j 12 \
-#     && rm -rf $HOME/octomap
-
-# RUN cd $HOME && git clone https://github.com/MobileManipulation/fcl.git \
-#     && cd fcl && mkdir -p build && cd build \
-#     && cmake -DBUILD_SHARED_LIBS=ON -DFCL_WITH_OCTOMAP=ON -DFCL_HAVE_OCTOMAP=1 .. \
-#     && make install -j 12 \
-#     && rm -rf $HOME/fcl
-
-# Install python URDF parser
-# RUN git clone https://github.com/ros/urdf_parser_py && cd urdf_parser_py \
-#     && python3 setup.py install \
-#     && cd $HOME && rm -rf urdf_parser_py
-
-# qpOASES
-# optional alternative numerical solver
-# siedel is stable enough for now
-# RUN git clone https://github.com/hungpham2511/qpOASES \
-#     && cd qpOASES && mkdir -p bin && make -j 12 \
-#     && cd interfaces/python \
-#     && python3 setup.py install \
-#     && rm -rf $HOME/qpOASES
 
 # toppra: Dexai fork
 RUN git clone https://github.com/DexaiRobotics/toppra \

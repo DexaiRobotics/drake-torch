@@ -106,16 +106,9 @@ RUN wget https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-li
     && rm ninja-linux.zip
 
 ##############################################################
-# libtorch and pytorch, torchvision with intel MKL support
+# libtorch and pytorch, torchvision
 ##############################################################
-# RUN cd /tmp \
-#     && wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
-#     && apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
-#     && rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
-#     && add-apt-repository "deb https://apt.repos.intel.com/oneapi all main" \
-#     && apt-get -qy install intel-basekit
 
-# Download and build libtorch with MKL support
 ENV TORCH_CUDA_ARCH_LIST="5.2 6.0 6.1 7.0 7.5 8.0+PTX"
 ENV TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
 ENV BUILD_CAFFE2_OPS=1
