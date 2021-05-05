@@ -36,7 +36,7 @@ RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/nul
     && apt-get install -qy kitware-archive-keyring \
     && rm /etc/apt/trusted.gpg.d/kitware.gpg 
 
-# apt repo for gcc-10
+# apt repo for latest gcc toolchain
 RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test
 
 # install gcc-10, cmake, python3 etc.
@@ -47,17 +47,15 @@ RUN apt-get update \
         python3 \
         python3-dev \
         python3-pip \
-    && \
-        if [ $BUILD_CHANNEL = 'stable' ]; then \
-            apt-get install -qy gcc-8 g++-8 gcc-10 g++-10; \
-        else \
-            apt-get install -qy gcc-9 g++-9 gcc-10 g++-10; \
-        fi
+        gcc-10 \
+        g++-10 \
+        gcc-11 \
+        g++-11
 
 RUN update-alternatives \
-        --install /usr/bin/gcc gcc /usr/bin/gcc-10 90 \
-        --slave /usr/bin/g++ g++ /usr/bin/g++-10 \
-        --slave /usr/bin/gcov gcov /usr/bin/gcov-10
+        --install /usr/bin/gcc gcc /usr/bin/gcc-11 90 \
+        --slave /usr/bin/g++ g++ /usr/bin/g++-11 \
+        --slave /usr/bin/gcov gcov /usr/bin/gcov-11
 
 RUN python3 -m pip install --upgrade --no-cache-dir --compile \
         setuptools wheel pip
