@@ -47,6 +47,9 @@ RUN apt-get update \
         python3 \
         python3-dev \
         python3-pip \
+        # gcc7 for libfranka
+        gcc-7 \
+        g++-7 \
         gcc-10 \
         g++-10 \
         gcc-11 \
