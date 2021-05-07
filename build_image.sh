@@ -44,7 +44,7 @@ echo "Using all $NUMTHREADS cores: 0-$LASTCORE for the --cpuset-cpus option"
 
 if [[ $BUILD_ROS = true ]]; then
   if [[ $BUILD_CHANNEL == 'stable' ]]; then
-    DOCKERFILE="drake-torch-melodic.dockerfile"
+    DOCKERFILE="drake-torch-noetic.dockerfile"
     if [[ $BUILD_TYPE == "cpu" ]]; then
       BASE_IMAGE="dexai2/drake-torch:cpu-stable"
     else
@@ -63,20 +63,19 @@ else
   DOCKERFILE="drake-torch.dockerfile"
   if [[ $BUILD_TYPE == "cpu" ]]; then
     if [[ $BUILD_CHANNEL == 'stable' ]]; then
-      BASE_IMAGE="ubuntu:bionic"
+      BASE_IMAGE="ubuntu:focal"
     else
       BASE_IMAGE="ubuntu:focal"
     fi
   else
     if [[ $BUILD_CHANNEL == 'stable' ]]; then
-      BASE_IMAGE="nvidia/cuda:11.1.1-cudnn8-devel-ubuntu18.04"
+      BASE_IMAGE="nvidia/cuda:11.1.1-cudnn8-devel-ubuntu20.04"
     else
       BASE_IMAGE="nvidia/cuda:11.1.1-cudnn8-devel-ubuntu20.04"
     fi
   fi
   TAG="dexai2/drake-torch:${BUILD_TYPE}-${BUILD_CHANNEL}"
 fi
-
 
 declare -a ARGS=(
   -f "$DOCKERFILE"

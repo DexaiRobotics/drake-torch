@@ -63,18 +63,7 @@ RUN update-alternatives \
 RUN python3 -m pip install --upgrade --no-cache-dir --compile \
         setuptools wheel pip
 
-# googletest 1.10.0 including googlemock
-# do not delete yet because will need to re-install after ROS
-RUN if [ $BUILD_CHANNEL = 'stable' ]; then \
-        curl -SL https://github.com/google/googletest/archive/release-1.10.0.tar.gz | tar -xz \
-        && cd googletest-release-1.10.0 \
-        && mkdir build \
-        && cd build \
-        && cmake .. \
-        && make install -j 12; \
-    fi
-
-# install make 4.3 and GDB 9.2
+# install make 4.3
 RUN curl -SL https://ftp.gnu.org/gnu/make/make-4.3.tar.gz | tar -xz \
     && cd make-4.3 \
     && mkdir build \
@@ -84,25 +73,39 @@ RUN curl -SL https://ftp.gnu.org/gnu/make/make-4.3.tar.gz | tar -xz \
     && make --quiet install \
     && cd $HOME \
     && rm -rf make-4.3
-# texinfo is needed for building gdb 9.2 even in the presence of make 4.3
-RUN if [ $BUILD_CHANNEL = 'stable' ]; then \
-        apt-get install texinfo -qy \
-        && curl -SL https://ftp.gnu.org/gnu/gdb/gdb-10.2.tar.xz | tar -xJ \
-        && cd gdb-10.2 \
-        && mkdir build \
-        && cd build \
-        && ../configure \
-            --prefix=/usr \
-            # --with-system-readline \
-            --with-python=/usr/bin/python3 \
-        && make --quiet -j 12 \
-        && make --quiet install \
-        && cd $HOME \
-        && rm -rf gdb*; \
-    else \
-        apt-get install -qy gdb; \
-    fi
 
+# install latest googletest 
+# googletest 1.10.0 including googlemock
+# do not delete yet because will need to re-install after ROS
+# RUN if [ $BUILD_CHANNEL = 'stable' ]; then \
+#         curl -SL https://github.com/google/googletest/archive/release-1.10.0.tar.gz | tar -xz \
+#         && cd googletest-release-1.10.0 \
+#         && mkdir build \
+#         && cd build \
+#         && cmake .. \
+#         && make install -j 12; \
+#     fi
+RUN apt-get install -qy googletest
+
+# install latest gdb
+# texinfo is needed for building gdb 9.2 even in the presence of make 4.3
+# RUN if [ $BUILD_CHANNEL = 'stable' ]; then \
+#         apt-get install texinfo -qy \
+#         && curl -SL https://ftp.gnu.org/gnu/gdb/gdb-10.2.tar.xz | tar -xJ \
+#         && cd gdb-10.2 \
+#         && mkdir build \
+#         && cd build \
+#         && ../configure \
+#             --prefix=/usr \
+#             # --with-system-readline \
+#             --with-python=/usr/bin/python3 \
+#         && make --quiet -j 12 \
+#         && make --quiet install \
+#         && cd $HOME \
+#         && rm -rf gdb*
+RUN apt-get install -qy gdb
+
+# install latest ninja
 RUN wget https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-linux.zip \
     && unzip ninja-linux.zip \
     && mv ninja /usr/bin/ \
@@ -124,22 +127,16 @@ RUN set -eux && cd $HOME \
                 wget -q https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.8.1%2Bcpu.zip \
                 && python3 -m pip install --upgrade --no-cache-dir --compile torch==1.8.1+cpu torchvision==0.9.1+cpu -f https://download.pytorch.org/whl/torch_stable.html; \
             else \
-                # temporarily using nightly channel for noetic upgrade
-                wget -q https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.8.1%2Bcpu.zip \
-                && python3 -m pip install --upgrade --no-cache-dir --compile torch==1.8.1+cpu torchvision==0.9.1+cpu -f https://download.pytorch.org/whl/torch_stable.html; \
-                # wget -q https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared-with-deps-latest.zip \
-                # && python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html; \
+                wget -q https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared-with-deps-latest.zip \
+                && python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html; \
             fi; \
         else \
             if [ $BUILD_CHANNEL = "stable" ]; then \
                 wget -q https://download.pytorch.org/libtorch/cu111/libtorch-cxx11-abi-shared-with-deps-1.8.1%2Bcu111.zip \
                 && python3 -m pip install --upgrade --no-cache-dir --compile torch==1.8.1+cu111 torchvision==0.9.1+cu111 -f https://download.pytorch.org/whl/torch_stable.html; \
             else \
-                # temporarily using nightly channel for noetic upgrade
-                wget -q https://download.pytorch.org/libtorch/cu111/libtorch-cxx11-abi-shared-with-deps-1.8.1%2Bcu111.zip \
-                && python3 -m pip install --upgrade --no-cache-dir --compile torch==1.8.1+cu111 torchvision==0.9.1+cu111 -f https://download.pytorch.org/whl/torch_stable.html; \
-                # wget -q https://download.pytorch.org/libtorch/nightly/cu111/libtorch-cxx11-abi-shared-with-deps-latest.zip \
-                # && python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cu111/torch_nightly.html; \
+                wget -q https://download.pytorch.org/libtorch/nightly/cu111/libtorch-cxx11-abi-shared-with-deps-latest.zip \
+                && python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cu111/torch_nightly.html; \
             fi; \
         fi \
     && unzip libtorch-cxx11-abi-shared-with-deps-*.zip \
@@ -159,8 +156,7 @@ RUN set -eux \
     && mkdir -p /opt \
     && \
         if [ $BUILD_CHANNEL = "stable" ] ; \
-        then curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-bionic.tar.gz | tar -xzC /opt; \
-        # TODO: @dyt change date below to latest after removing RBT dependencies
+        then curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-focal.tar.gz | tar -xzC /opt; \
         else curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-focal.tar.gz | tar -xzC /opt; \
         fi \
     && cd /opt/drake/share/drake/setup && yes | ./install_prereqs \
