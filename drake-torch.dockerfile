@@ -87,8 +87,8 @@ RUN curl -SL https://ftp.gnu.org/gnu/make/make-4.3.tar.gz | tar -xz \
 # texinfo is needed for building gdb 9.2 even in the presence of make 4.3
 RUN if [ $BUILD_CHANNEL = 'stable' ]; then \
         apt-get install texinfo -qy \
-        && curl -SL https://ftp.gnu.org/gnu/gdb/gdb-10.1.tar.xz | tar -xJ \
-        && cd gdb-10.1 \
+        && curl -SL https://ftp.gnu.org/gnu/gdb/gdb-10.2.tar.xz | tar -xJ \
+        && cd gdb-10.2 \
         && mkdir build \
         && cd build \
         && ../configure \
@@ -98,7 +98,9 @@ RUN if [ $BUILD_CHANNEL = 'stable' ]; then \
         && make --quiet -j 12 \
         && make --quiet install \
         && cd $HOME \
-        && rm -rf gdb-10.1; \
+        && rm -rf gdb*; \
+    else \
+        apt-get install -qy gdb; \
     fi
 
 RUN wget https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-linux.zip \
