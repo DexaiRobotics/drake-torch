@@ -44,6 +44,10 @@ if [[ $ROS_DISTRO == "melodic" ]]; then
   fi
 fi
 
+if [[ $(lsb_release -sc) == "focal" ]]; then
+  alias python=python3
+fi
+
 # set prompt text/color based on type of container
 parse_git_branch() {
      git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'

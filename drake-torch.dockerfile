@@ -36,7 +36,7 @@ RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/nul
     && apt-get install -qy kitware-archive-keyring \
     && rm /etc/apt/trusted.gpg.d/kitware.gpg 
 
-# apt repo for gcc-10
+# apt repo for latest gcc toolchain
 RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test
 
 # install gcc-10, cmake, python3 etc.
@@ -47,17 +47,18 @@ RUN apt-get update \
         python3 \
         python3-dev \
         python3-pip \
-    && \
-        if [ $BUILD_CHANNEL = 'stable' ]; then \
-            apt-get install -qy gcc-8 g++-8 gcc-10 g++-10; \
-        else \
-            apt-get install -qy gcc-9 g++-9 gcc-10 g++-10; \
-        fi
+        # gcc7 for libfranka
+        gcc-7 \
+        g++-7 \
+        gcc-10 \
+        g++-10 \
+        gcc-11 \
+        g++-11
 
 RUN update-alternatives \
-        --install /usr/bin/gcc gcc /usr/bin/gcc-10 90 \
-        --slave /usr/bin/g++ g++ /usr/bin/g++-10 \
-        --slave /usr/bin/gcov gcov /usr/bin/gcov-10
+        --install /usr/bin/gcc gcc /usr/bin/gcc-11 90 \
+        --slave /usr/bin/g++ g++ /usr/bin/g++-11 \
+        --slave /usr/bin/gcov gcov /usr/bin/gcov-11
 
 RUN python3 -m pip install --upgrade --no-cache-dir --compile \
         setuptools wheel pip
@@ -86,8 +87,8 @@ RUN curl -SL https://ftp.gnu.org/gnu/make/make-4.3.tar.gz | tar -xz \
 # texinfo is needed for building gdb 9.2 even in the presence of make 4.3
 RUN if [ $BUILD_CHANNEL = 'stable' ]; then \
         apt-get install texinfo -qy \
-        && curl -SL https://ftp.gnu.org/gnu/gdb/gdb-10.1.tar.xz | tar -xJ \
-        && cd gdb-10.1 \
+        && curl -SL https://ftp.gnu.org/gnu/gdb/gdb-10.2.tar.xz | tar -xJ \
+        && cd gdb-10.2 \
         && mkdir build \
         && cd build \
         && ../configure \
@@ -97,7 +98,9 @@ RUN if [ $BUILD_CHANNEL = 'stable' ]; then \
         && make --quiet -j 12 \
         && make --quiet install \
         && cd $HOME \
-        && rm -rf gdb-10.1; \
+        && rm -rf gdb*; \
+    else \
+        apt-get install -qy gdb; \
     fi
 
 RUN wget https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-linux.zip \
@@ -106,16 +109,9 @@ RUN wget https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-li
     && rm ninja-linux.zip
 
 ##############################################################
-# libtorch and pytorch, torchvision with intel MKL support
+# libtorch and pytorch, torchvision
 ##############################################################
 
-RUN wget -q https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
-RUN apt-key add --no-tty GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB && rm GPG-PUB*
-RUN sh -c 'echo deb https://apt.repos.intel.com/mkl all main > /etc/apt/sources.list.d/intel-mkl.list'
-RUN apt-get update && apt-get -qy install intel-mkl-64bit-2020.0-088
-RUN rm /opt/intel/mkl/lib/intel64/*.so
-
-# Download and build libtorch with MKL support
 ENV TORCH_CUDA_ARCH_LIST="5.2 6.0 6.1 7.0 7.5 8.0+PTX"
 ENV TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
 ENV BUILD_CAFFE2_OPS=1
@@ -128,16 +124,22 @@ RUN set -eux && cd $HOME \
                 wget -q https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.8.1%2Bcpu.zip \
                 && python3 -m pip install --upgrade --no-cache-dir --compile torch==1.8.1+cpu torchvision==0.9.1+cpu -f https://download.pytorch.org/whl/torch_stable.html; \
             else \
-                wget -q https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared-with-deps-latest.zip \
-                && python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html; \
+                # temporarily using nightly channel for noetic upgrade
+                wget -q https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.8.1%2Bcpu.zip \
+                && python3 -m pip install --upgrade --no-cache-dir --compile torch==1.8.1+cpu torchvision==0.9.1+cpu -f https://download.pytorch.org/whl/torch_stable.html; \
+                # wget -q https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared-with-deps-latest.zip \
+                # && python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html; \
             fi; \
         else \
             if [ $BUILD_CHANNEL = "stable" ]; then \
                 wget -q https://download.pytorch.org/libtorch/cu111/libtorch-cxx11-abi-shared-with-deps-1.8.1%2Bcu111.zip \
                 && python3 -m pip install --upgrade --no-cache-dir --compile torch==1.8.1+cu111 torchvision==0.9.1+cu111 -f https://download.pytorch.org/whl/torch_stable.html; \
             else \
-                wget -q https://download.pytorch.org/libtorch/nightly/cu111/libtorch-cxx11-abi-shared-with-deps-latest.zip \
-                && python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cu111/torch_nightly.html; \
+                # temporarily using nightly channel for noetic upgrade
+                wget -q https://download.pytorch.org/libtorch/cu111/libtorch-cxx11-abi-shared-with-deps-1.8.1%2Bcu111.zip \
+                && python3 -m pip install --upgrade --no-cache-dir --compile torch==1.8.1+cu111 torchvision==0.9.1+cu111 -f https://download.pytorch.org/whl/torch_stable.html; \
+                # wget -q https://download.pytorch.org/libtorch/nightly/cu111/libtorch-cxx11-abi-shared-with-deps-latest.zip \
+                # && python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cu111/torch_nightly.html; \
             fi; \
         fi \
     && unzip libtorch-cxx11-abi-shared-with-deps-*.zip \
@@ -174,25 +176,19 @@ RUN if [ "`lsb_release -sc`" = "bionic" ]; \
     fi
 
 # drake installs some python packages as dependencies, causing jupyter issues
-RUN apt remove python3-zmq python3-terminado -qy \
+RUN apt remove python3-zmq python3-terminado python3-yaml -qy \
     && python3 -m pip install \
         --upgrade --no-cache-dir --compile \
-        ipython ipykernel jupyterlab matplotlib
-
-# install the latest libboost
-RUN apt-get purge -qy libboost* \
-    && apt-get autoremove -qy
-RUN add-apt-repository -y ppa:mhier/libboost-latest \
-    && apt-get install -qy libboost1.74-dev
+        ipython ipykernel jupyterlab matplotlib cython pyyaml
 
 # install latest eigen3
-RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.3.9/eigen-3.3.9.tar.bz2 | tar -xj \
-    && cd eigen-3.3.9 \
+RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.4-rc1/eigen-3.4-rc1.tar.bz2 | tar -xj \
+    && cd eigen-3.4-rc1 \
     && mkdir build \
     && cd build \
     && cmake build .. -D CMAKE_INSTALL_PREFIX=/usr/local \
     && make install -j 12 \
-    && rm -rf $HOME/eigen-3.3.9
+    && rm -rf $HOME/eigen*
 
 RUN apt-get update \
     && apt-get upgrade -qy \
