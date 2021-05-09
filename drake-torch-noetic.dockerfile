@@ -78,6 +78,7 @@ RUN add-apt-repository -y ppa:git-core/ppa \
         openssh-server \
         openssh-client \
         vim \
+        nano \
         cron \
         git \
         git-extras \
