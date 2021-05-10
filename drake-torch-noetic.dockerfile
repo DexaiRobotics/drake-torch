@@ -54,6 +54,35 @@ RUN apt-get update && apt-get install -qy \
     ros-noetic-async-web-server-cpp \
     ros-noetic-realsense2-camera
 
+# dev essentials, later sections need git
+RUN add-apt-repository -y ppa:git-core/ppa \
+    && apt-get install -qy \
+        openssh-server \
+        openssh-client \
+        iputils-ping \
+        vim \
+        nano \
+        cron \
+        git \
+        git-extras \
+        git-lfs \
+        tig \
+        htop \
+        screen \
+        xvfb \
+        fluxbox \
+        x11vnc \
+        tmux \
+        tree \
+        doxygen \
+        libgflags-dev \
+        # libusb needed by HID API and librealsense
+        libusb-1.0-0-dev \
+        # libudev are both needed by HID API
+        libudev-dev \
+        usbutils
+RUN git lfs install
+
 # build catkin modules not availble via apt
 RUN mkdir -p temp_ws/src \
     && cd temp_ws/src \
@@ -90,36 +119,8 @@ RUN cd opencv-4.5.2 \
     && rm -rf opencv*
 
 ########################################################
-# dev essentials and other dependencies
+# other dependencies
 ########################################################
-RUN add-apt-repository -y ppa:git-core/ppa \
-    && apt-get install -qy \
-        openssh-server \
-        openssh-client \
-        iputils-ping \
-        vim \
-        nano \
-        cron \
-        git \
-        git-extras \
-        git-lfs \
-        tig \
-        htop \
-        screen \
-        xvfb \
-        fluxbox \
-        x11vnc \
-        tmux \
-        tree \
-        doxygen \
-        libgflags-dev \
-        # libusb needed by HID API and librealsense
-        libusb-1.0-0-dev \
-        # libudev are both needed by HID API
-        libudev-dev \
-        usbutils
-
-RUN git lfs install
 
 # install cli11
 RUN cd $HOME && curl -SL https://github.com/CLIUtils/CLI11/archive/refs/tags/v1.9.1.tar.gz | tar -xz \
