@@ -10,6 +10,14 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get upgrade -qy
 
+# OMPL fist as compiling is slow
+RUN wget https://ompl.kavrakilab.org/install-ompl-ubuntu.sh \
+    && chmod +x install-ompl-ubuntu.sh \
+    && ./install-ompl-ubuntu.sh --python \
+    && rm -rf /usr/local/include/ompl $HOME/ompl-1.5.2 $HOME/castxml \
+    && ln -s /usr/local/include/ompl-1.5/ompl /usr/local/include/ompl \
+    && rm install-ompl-ubuntu.sh
+
 # ########################################################
 # ROS
 # http://wiki.ros.org/noetic/Installation/Ubuntu
@@ -43,7 +51,18 @@ RUN apt-get update && apt-get install -qy \
     ros-noetic-rqt \
     ros-noetic-apriltag-ros \
     # ros-noetic-gazebo-ros \
-    ros-noetic-async-web-server-cpp
+    ros-noetic-async-web-server-cpp \
+    ros-noetic-librealsense2
+
+# build catkin modules not availble via apt
+RUN mkdir -p temp_ws/src \
+    && cd temp_ws/src \
+    && git clone https://github.com/RobotWebTools/web_video_server \
+    && cd $HOME/temp_ws \
+    && source /opt/ros/$ROS_DISTRO/setup.bash \
+    && catkin config --install --install-space /opt/ros/noetic \
+    && catkin build --cmake-args -DCMAKE_BUILD_TYPE=Release \
+    && rm -rf $HOME/temp_ws
 
 ########################################################
 #### newer packages
@@ -152,28 +171,20 @@ RUN git clone https://github.com/lcm-proj/lcm \
     && make install \
     && cd $HOME && rm -rf lcm
 
-# build librealsense from source since there's no 20.04 support
-RUN apt-key adv \
-        --keyserver keys.gnupg.net \
-        --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE \
-        || sudo apt-key adv \
-        --keyserver hkp://keyserver.ubuntu.com:80 \
-        --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE \
-    && add-apt-repository "deb https://librealsense.intel.com/Debian/apt-repo focal main" -u \
-    && apt-get install -qy \
-        librealsense2-dkms \
-        librealsense2-utils \
-        librealsense2-dev \
-        librealsense2-dbg \
-        librealsense2
-
-# OMPL
-RUN wget https://ompl.kavrakilab.org/install-ompl-ubuntu.sh \
-    && chmod +x install-ompl-ubuntu.sh \
-    && ./install-ompl-ubuntu.sh --python \
-    && rm -rf /usr/local/include/ompl $HOME/ompl-1.5.2 $HOME/castxml \
-    && ln -s /usr/local/include/ompl-1.5/ompl /usr/local/include/ompl \
-    && rm install-ompl-ubuntu.sh
+# RUN apt-key adv \
+#         --keyserver keys.gnupg.net \
+#         --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE \
+#         || sudo apt-key adv \
+#         --keyserver hkp://keyserver.ubuntu.com:80 \
+#         --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE \
+#     && add-apt-repository "deb https://librealsense.intel.com/Debian/apt-repo focal main" -u \
+#     && apt-get install -qy \
+#         librealsense2-dkms \
+#         librealsense2-utils \
+#         librealsense2-dev \
+#         librealsense2-dbg \
+#         librealsense2 \
+#         ros-noetic-librealsense2
 
 ########################################################
 # final steps
