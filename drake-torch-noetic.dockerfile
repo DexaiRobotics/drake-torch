@@ -52,8 +52,11 @@ RUN apt-get update && apt-get install -qy \
     ros-noetic-apriltag-ros \
     # ros-noetic-gazebo-ros \
     ros-noetic-async-web-server-cpp \
-    ros-noetic-realsense2-camera \
-    python3-catkin-tools
+    ros-noetic-realsense2-camera
+
+RUN python3 -m pip install --upgrade --no-cache-dir --compile \
+    catkin_tools \
+    osrf-pycommon
 
 # dev essentials, later sections need git
 RUN add-apt-repository -y ppa:git-core/ppa \
