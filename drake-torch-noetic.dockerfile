@@ -84,6 +84,7 @@ RUN add-apt-repository -y ppa:git-core/ppa \
 RUN git lfs install
 
 # build catkin modules not availble via apt
+SHELL ["/bin/bash", "-c"]
 RUN mkdir -p temp_ws/src \
     && cd temp_ws/src \
     && git clone https://github.com/RobotWebTools/web_video_server \
