@@ -52,7 +52,7 @@ RUN apt-get update && apt-get install -qy \
     ros-noetic-apriltag-ros \
     # ros-noetic-gazebo-ros \
     ros-noetic-async-web-server-cpp \
-    ros-noetic-librealsense2
+    ros-noetic-realsense2-camera
 
 # build catkin modules not availble via apt
 RUN mkdir -p temp_ws/src \
