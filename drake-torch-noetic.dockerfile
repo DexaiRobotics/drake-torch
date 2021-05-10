@@ -52,11 +52,11 @@ RUN apt-get update && apt-get install -qy \
     ros-noetic-apriltag-ros \
     # ros-noetic-gazebo-ros \
     ros-noetic-async-web-server-cpp \
-    ros-noetic-realsense2-camera
-
-RUN python3 -m pip install --upgrade --no-cache-dir --compile \
-    catkin_tools \
-    osrf-pycommon
+    ros-noetic-realsense2-camera \
+    # catkin tools nad osrf from pip doesn't work for py3 and focal/noetic
+    # https://github.com/catkin/catkin_tools/issues/594
+    python3-catkin-tools \
+    python3-osrf-pycommon
 
 # dev essentials, later sections need git
 RUN add-apt-repository -y ppa:git-core/ppa \
