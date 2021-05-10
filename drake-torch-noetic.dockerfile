@@ -41,9 +41,9 @@ RUN apt-get update && apt-get install -qy \
     ros-noetic-tf-conversions \
     ros-noetic-rviz \
     ros-noetic-rqt \
-    ros-noetic-apriltag-ros
+    ros-noetic-apriltag-ros \
     # ros-noetic-gazebo-ros \
-    # ros-noetic-web-video-server
+    ros-noetic-async-web-server-cpp
 
 ########################################################
 #### newer packages
