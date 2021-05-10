@@ -166,7 +166,7 @@ RUN apt-key adv \
         librealsense2-dbg \
         librealsense2
 
-# OMPL 1.5
+# OMPL
 RUN wget https://ompl.kavrakilab.org/install-ompl-ubuntu.sh \
     && chmod +x install-ompl-ubuntu.sh \
     && ./install-ompl-ubuntu.sh --python \
