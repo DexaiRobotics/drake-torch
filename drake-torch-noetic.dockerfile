@@ -77,6 +77,7 @@ RUN add-apt-repository -y ppa:git-core/ppa \
     && apt-get install -qy \
         openssh-server \
         openssh-client \
+        iputils-ping \
         vim \
         nano \
         cron \
