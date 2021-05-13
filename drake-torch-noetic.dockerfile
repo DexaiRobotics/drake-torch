@@ -85,6 +85,8 @@ RUN add-apt-repository -y ppa:git-core/ppa \
         # libudev are both needed by HID API
         libudev-dev \
         usbutils
+RUN rm /etc/alternatives/editor \
+    && ln -s /usr/bin/vim /etc/alternatives/editor
 RUN git lfs install
 
 # build catkin modules not availble via apt
