@@ -226,5 +226,8 @@ EXPOSE 7776 7777
 # necessary to make all installed libraries available for linking
 RUN ldconfig
 
+# increase max_user_watches limits
+RUN echo "fs.inotify.max_user_watches=524288" >> /etc/sysctl.conf
+
 # start ssh daemon
 CMD ["/usr/sbin/sshd", "-D"]
