@@ -10,13 +10,56 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get upgrade -qy
 
-# OMPL fist as compiling is slow
-RUN wget https://ompl.kavrakilab.org/install-ompl-ubuntu.sh \
-    && chmod +x install-ompl-ubuntu.sh \
-    && ./install-ompl-ubuntu.sh --python \
-    && rm -rf /usr/local/include/ompl $HOME/ompl-1.5.2 $HOME/castxml \
-    && ln -s /usr/local/include/ompl-1.5/ompl /usr/local/include/ompl \
-    && rm install-ompl-ubuntu.sh
+# dev essentials, later sections need git
+RUN add-apt-repository -y ppa:git-core/ppa \
+    && apt-get install -qy \
+        openssh-server \
+        openssh-client \
+        iputils-ping \
+        vim \
+        nano \
+        cron \
+        git \
+        git-extras \
+        git-lfs \
+        tig \
+        htop \
+        screen \
+        xvfb \
+        fluxbox \
+        x11vnc \
+        tmux \
+        tree \
+        doxygen \
+        libgflags-dev \
+        # libusb needed by HID API and librealsense
+        libusb-1.0-0-dev \
+        # libudev are both needed by HID API
+        libudev-dev \
+        usbutils
+RUN rm /etc/alternatives/editor \
+    && ln -s /usr/bin/vim /etc/alternatives/editor
+RUN git lfs install
+
+# OMPL official installer
+# RUN wget https://ompl.kavrakilab.org/install-ompl-ubuntu.sh \
+#     && chmod +x install-ompl-ubuntu.sh \
+#     && ./install-ompl-ubuntu.sh --python \
+#     && rm -rf /usr/local/include/ompl $HOME/ompl-1.5.2 $HOME/castxml \
+#     && ln -s /usr/local/include/ompl-1.5/ompl /usr/local/include/ompl \
+#     && rm install-ompl-ubuntu.sh
+
+# build OMPL fork from source 
+# make -j 4 update_bindings # if you want Python bindings
+RUN git clone https://github.com/ompl/ompl.git \
+    && cd ompl \
+    && mkdir -p build \
+    && cmake -S . -B build -D CMAKE_BUILD_TYPE=Release \
+    && cmake --build build -j 10 \
+    && cd build \
+    && make install -j 10 \
+    && cd $HOME \
+    && rm -rf ompl
 
 # ########################################################
 # ROS
@@ -58,36 +101,6 @@ RUN apt-get update && apt-get install -qy \
     python3-catkin-tools \
     python3-osrf-pycommon
 
-# dev essentials, later sections need git
-RUN add-apt-repository -y ppa:git-core/ppa \
-    && apt-get install -qy \
-        openssh-server \
-        openssh-client \
-        iputils-ping \
-        vim \
-        nano \
-        cron \
-        git \
-        git-extras \
-        git-lfs \
-        tig \
-        htop \
-        screen \
-        xvfb \
-        fluxbox \
-        x11vnc \
-        tmux \
-        tree \
-        doxygen \
-        libgflags-dev \
-        # libusb needed by HID API and librealsense
-        libusb-1.0-0-dev \
-        # libudev are both needed by HID API
-        libudev-dev \
-        usbutils
-RUN rm /etc/alternatives/editor \
-    && ln -s /usr/bin/vim /etc/alternatives/editor
-RUN git lfs install
 
 # build catkin modules not availble via apt
 # SHELL ["/bin/bash", "-c"]
