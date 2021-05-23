@@ -10,14 +10,6 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get upgrade -qy
 
-# OMPL fist as compiling is slow
-RUN wget https://ompl.kavrakilab.org/install-ompl-ubuntu.sh \
-    && chmod +x install-ompl-ubuntu.sh \
-    && ./install-ompl-ubuntu.sh --python \
-    && rm -rf /usr/local/include/ompl $HOME/ompl-1.5.2 $HOME/castxml \
-    && ln -s /usr/local/include/ompl-1.5/ompl /usr/local/include/ompl \
-    && rm install-ompl-ubuntu.sh
-
 # ########################################################
 # ROS
 # http://wiki.ros.org/noetic/Installation/Ubuntu
@@ -130,6 +122,27 @@ RUN cd opencv-4.5.2 \
 # other dependencies
 ########################################################
 
+# OMPL official installer
+# RUN wget https://ompl.kavrakilab.org/install-ompl-ubuntu.sh \
+#     && chmod +x install-ompl-ubuntu.sh \
+#     && ./install-ompl-ubuntu.sh --python \
+#     && rm -rf /usr/local/include/ompl $HOME/ompl-1.5.2 $HOME/castxml \
+#     && ln -s /usr/local/include/ompl-1.5/ompl /usr/local/include/ompl \
+#     && rm install-ompl-ubuntu.sh
+
+# build OMPL fork from source 
+# make -j 4 update_bindings # if you want Python bindings
+RUN git clone https://github.com/ompl/ompl.git \
+    && cd ompl \
+    && mkdir -p build \
+    && cmake -S . -B build -D CMAKE_BUILD_TYPE=Release \
+    && cmake --build build -j 10 \
+    && cd build \
+    && make install -j 10 \
+    && cd $HOME \
+    && rm -rf $HOME/ompl /usr/local/include/ompl \
+    && ln -s /usr/local/include/ompl-1.5/ompl /usr/local/include/ompl
+
 # install cli11
 RUN cd $HOME && curl -SL https://github.com/CLIUtils/CLI11/archive/refs/tags/v1.9.1.tar.gz | tar -xz \
     && cd CLI11-1.9.1 \
@@ -225,6 +238,9 @@ EXPOSE 7776 7777
 
 # necessary to make all installed libraries available for linking
 RUN ldconfig
+
+# increase max_user_watches limits
+RUN echo "fs.inotify.max_user_watches=524288" >> /etc/sysctl.conf
 
 # start ssh daemon
 CMD ["/usr/sbin/sshd", "-D"]
