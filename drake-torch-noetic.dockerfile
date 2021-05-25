@@ -126,8 +126,7 @@ RUN cd opencv-4.5.2 \
 # RUN wget https://ompl.kavrakilab.org/install-ompl-ubuntu.sh \
 #     && chmod +x install-ompl-ubuntu.sh \
 #     && ./install-ompl-ubuntu.sh --python \
-#     && rm -rf /usr/local/include/ompl $HOME/ompl-1.5.2 $HOME/castxml \
-#     && ln -s /usr/local/include/ompl-1.5/ompl /usr/local/include/ompl \
+#     && rm -rf $HOME/ompl-1.5.2 $HOME/castxml \
 #     && rm install-ompl-ubuntu.sh
 
 # build OMPL fork from source 
