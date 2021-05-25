@@ -139,9 +139,7 @@ RUN git clone https://github.com/ompl/ompl.git \
     && cmake --build build -j 10 \
     && cd build \
     && make install -j 10 \
-    && cd $HOME \
-    && rm -rf $HOME/ompl /usr/local/include/ompl \
-    && ln -s /usr/local/include/ompl-1.5/ompl /usr/local/include/ompl
+    && rm -rf $HOME/ompl
 
 # install cli11
 RUN cd $HOME && curl -SL https://github.com/CLIUtils/CLI11/archive/refs/tags/v1.9.1.tar.gz | tar -xz \
