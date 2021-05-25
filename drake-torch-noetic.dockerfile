@@ -164,6 +164,10 @@ RUN wget https://github.com/nlohmann/json/releases/download/v3.9.1/json.hpp -P /
 # install magic_enum, header only
 RUN wget https://github.com/Neargye/magic_enum/releases/download/v0.7.2/magic_enum.hpp -P /usr/local/include/
 
+# enhanced optional, header only
+RUN mkdir -p /usr/local/include/tl \
+  && wget https://github.com/TartanLlama/optional/raw/master/include/tl/optional.hpp -P /usr/local/include/tl
+
 # insall ctpl thread pool, header only
 RUN cd $HOME \
     && curl -SL https://github.com/vit-vit/CTPL/archive/refs/tags/v.0.0.2.tar.gz | tar -xz \
