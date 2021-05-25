@@ -153,8 +153,7 @@ RUN cd $HOME && curl -SL https://github.com/CLIUtils/CLI11/archive/refs/tags/v1.
         -D CLI11_BUILD_TESTS=OFF \
         -D CLI11_BUILD_EXAMPLES=OFF \
     && make install -j 12 \
-    && cd .. \
-    && rm -rf CLI11-1.9.1
+    && rm -rf $HOME/CLI11*
 
 # install json, header only
 RUN wget https://github.com/nlohmann/json/releases/download/v3.9.1/json.hpp -P /usr/local/include/
