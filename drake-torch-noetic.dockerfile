@@ -132,7 +132,7 @@ RUN cd opencv-4.5.2 \
 
 # build OMPL fork from source 
 # make -j 4 update_bindings # if you want Python bindings
-RUN git clone https://github.com/ompl/ompl.git \
+RUN git clone https://github.com/DexaiRobotics/ompl.git \
     && cd ompl \
     && mkdir -p build \
     && cmake -S . -B build -D CMAKE_BUILD_TYPE=Release \
