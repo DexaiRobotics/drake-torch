@@ -126,13 +126,12 @@ RUN cd opencv-4.5.2 \
 # RUN wget https://ompl.kavrakilab.org/install-ompl-ubuntu.sh \
 #     && chmod +x install-ompl-ubuntu.sh \
 #     && ./install-ompl-ubuntu.sh --python \
-#     && rm -rf /usr/local/include/ompl $HOME/ompl-1.5.2 $HOME/castxml \
-#     && ln -s /usr/local/include/ompl-1.5/ompl /usr/local/include/ompl \
+#     && rm -rf $HOME/ompl-1.5.2 $HOME/castxml \
 #     && rm install-ompl-ubuntu.sh
 
 # build OMPL fork from source 
 # make -j 4 update_bindings # if you want Python bindings
-RUN git clone https://github.com/ompl/ompl.git \
+RUN git clone https://github.com/DexaiRobotics/ompl.git \
     && cd ompl \
     && mkdir -p build \
     && cmake -S . -B build -D CMAKE_BUILD_TYPE=Release \
@@ -197,20 +196,19 @@ RUN git clone https://github.com/lcm-proj/lcm \
     && make install \
     && cd $HOME && rm -rf lcm
 
-# RUN apt-key adv \
-#         --keyserver keys.gnupg.net \
-#         --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE \
-#         || sudo apt-key adv \
-#         --keyserver hkp://keyserver.ubuntu.com:80 \
-#         --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE \
-#     && add-apt-repository "deb https://librealsense.intel.com/Debian/apt-repo focal main" -u \
-#     && apt-get install -qy \
-#         librealsense2-dkms \
-#         librealsense2-utils \
-#         librealsense2-dev \
-#         librealsense2-dbg \
-#         librealsense2 \
-#         ros-noetic-librealsense2
+RUN apt-key adv \
+        --keyserver keys.gnupg.net \
+        --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE \
+        || sudo apt-key adv \
+        --keyserver hkp://keyserver.ubuntu.com:80 \
+        --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE \
+    && add-apt-repository "deb https://librealsense.intel.com/Debian/apt-repo focal main" -u \
+    && apt-get install -qy \
+        # librealsense2 \
+        # librealsense2-dkms \
+        # librealsense2-dev \
+        # librealsense2-dbg \
+        librealsense2-utils
 
 ########################################################
 # final steps
