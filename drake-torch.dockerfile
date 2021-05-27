@@ -118,12 +118,6 @@ RUN wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCT
     && add-apt-repository "deb https://apt.repos.intel.com/oneapi all main" \
     && apt-get install -qy intel-basekit
 
-RUN wget -q https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
-RUN apt-key add --no-tty GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB && rm GPG-PUB*
-RUN sh -c 'echo deb https://apt.repos.intel.com/mkl all main > /etc/apt/sources.list.d/intel-mkl.list'
-RUN apt-get update && apt-get -qy install intel-mkl-64bit-2020.0-088
-RUN rm /opt/intel/mkl/lib/intel64/*.so
-
 ##############################################################
 # libtorch and pytorch, torchvision
 ##############################################################
