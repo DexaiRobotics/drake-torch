@@ -183,7 +183,7 @@ RUN if [ "`lsb_release -sc`" = "bionic" ]; \
 RUN echo 'export DRAKE_RESOURCE_ROOT=/opt/drake/share' >> ~/.bashrc 
 
 # drake installs some python packages as dependencies, causing jupyter issues
-RUN apt remove python3-zmq python3-terminado python3-yaml -qy \
+RUN apt-get remove -qy python3-zmq python3-terminado python3-yaml \
     && python3 -m pip install \
         --upgrade --no-cache-dir --compile \
         ipython ipykernel jupyterlab matplotlib cython pyyaml
