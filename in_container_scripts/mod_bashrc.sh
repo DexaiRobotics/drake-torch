@@ -55,7 +55,10 @@ parse_git_branch() {
 if [[ ! -v DEPLOYMENT_DOCKER ]]; then 
   export PS1="\[\033[32m\]\h🐳 \[\033[36m\]\u@dev\[\033[m\]:\[\033[33;1m\]\w\[\033[m\]\$(parse_git_branch) $ "
 else
-  export PS1="\[\e[0;49;91m\]\h🐳 \[\033[36m\]\u@\e[0;49;91m\]deploy\[\033[m\]:\[\033[33;1m\]\w\[\033[m\] $ "
+  if [[ -f /src/deploy_version.txt ]]; then
+    export DEPLOY_VERSION=`cat /src/deploy_version.txt`
+  fi
+  export PS1="\[\e[0;49;91m\]\h🐳 \e[0;49;91m\]deploy\e[1;40;36m${DEPLOY_VERSION:-}\[\033[m\]:\[\033[33;1m\]\w\[\033[m\] $ "
 fi
 
 EOF
