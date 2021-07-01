@@ -185,7 +185,13 @@ RUN echo 'export DRAKE_RESOURCE_ROOT=/opt/drake/share' >> ~/.bashrc
 
 # drake installs some python packages as dependencies, causing jupyter issues
 RUN apt-get remove -qy python3-zmq python3-terminado python3-yaml \
-    && python3 -m pip install \
+    && apt-get update \
+    && apt-get upgrade -qy \
+    && apt-get autoremove -qy \
+    && rm -rf /var/lib/apt/lists/*
+
+# install pip packages after apt
+RUN python3 -m pip install \
         --upgrade --no-cache-dir --compile \
         ipython ipykernel jupyterlab matplotlib cython pyyaml
 
@@ -197,8 +203,3 @@ RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.4-rc1/eigen-3.4-rc1.t
     && cmake build .. -D CMAKE_INSTALL_PREFIX=/usr/local \
     && make install -j 12 \
     && rm -rf $HOME/eigen*
-
-RUN apt-get update \
-    && apt-get upgrade -qy \
-    && apt-get autoremove -qy \
-    && rm -rf /var/lib/apt/lists/*
