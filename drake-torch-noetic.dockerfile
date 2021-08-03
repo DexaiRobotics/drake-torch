@@ -76,7 +76,12 @@ RUN add-apt-repository -y ppa:git-core/ppa \
         libusb-1.0-0-dev \
         # libudev are both needed by HID API
         libudev-dev \
-        usbutils
+        usbutils \
+        # needed to build spacenav_node in
+        # ros package joystick_drivers which
+        # is used to interface with joystick
+        # for teleop
+        libspnav-dev
 RUN rm /etc/alternatives/editor \
     && ln -s /usr/bin/vim /etc/alternatives/editor
 RUN git lfs install
