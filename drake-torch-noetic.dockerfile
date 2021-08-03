@@ -42,6 +42,8 @@ RUN apt-get update && apt-get install -qy \
     ros-noetic-rviz \
     ros-noetic-rqt \
     ros-noetic-apriltag-ros \
+    ros-noetic-joystick_drivers \
+    ros-noetic-roslint \
     # ros-noetic-gazebo-ros \
     ros-noetic-async-web-server-cpp \
     ros-noetic-realsense2-camera \
