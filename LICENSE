@@ -1,6 +1,6 @@
 BSD 3-Clause License
 
-Copyright (c) 2019, Dexai Robotics
+Copyright (c) 2021, Dexai Robotics
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -27,3 +27,9 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+---
+
+All other software packages referenced in this repo (e.g. those in dockerfiles,
+checked out from github, installed from PyPI/apt, etc.) are owned by their
+copyright owners if applicable and governed by the original licensing terms.
