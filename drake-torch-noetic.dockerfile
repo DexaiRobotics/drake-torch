@@ -203,6 +203,14 @@ RUN git clone https://github.com/lcm-proj/lcm \
     && make install \
     && cd $HOME && rm -rf lcm
 
+# install botcore lcmtypes for parsing data in these formats in python
+# this package is owned by https://github.com/openhumanoids and MIT DRC
+RUN git clone https://github.com/openhumanoids/bot_core_lcmtypes.git \
+    && cd bot_core_lcmtypes \
+    && lcm-gen -p lcmtypes/*.lcm \
+    && mv bot_core /usr/local/lib/python3.8/dist-packages/ \
+    && cd $HOME && rm -rf bot_core_lcmtypes
+
 RUN apt-key adv \
         --keyserver keys.gnupg.net \
         --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE \
