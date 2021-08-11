@@ -211,13 +211,11 @@ RUN git clone https://github.com/openhumanoids/bot_core_lcmtypes.git \
     && mv bot_core /usr/local/lib/python3.8/dist-packages/ \
     && cd $HOME && rm -rf bot_core_lcmtypes
 
-RUN apt-key adv \
-        --keyserver keys.gnupg.net \
-        --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE \
-        || sudo apt-key adv \
-        --keyserver hkp://keyserver.ubuntu.com:80 \
-        --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE \
-    && add-apt-repository "deb https://librealsense.intel.com/Debian/apt-repo focal main" -u \
+RUN apt-key adv --keyserver keyserver.ubuntu.com \
+        --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE\
+        || apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 \
+        --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCD \
+    && add-apt-repository "deb https://librealsense.intel.com/Debian/apt-repo $(lsb_release -cs) main" -u \
     && apt-get install -qy \
         # librealsense2 \
         # librealsense2-dkms \
