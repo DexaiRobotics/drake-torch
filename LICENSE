@@ -33,3 +33,4 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 All other software packages referenced in this repo (e.g. those in dockerfiles,
 checked out from github, installed from PyPI/apt, etc.) are owned by their
 copyright owners if applicable and governed by the original licensing terms.
+Dexai claims no rights of those packages.
