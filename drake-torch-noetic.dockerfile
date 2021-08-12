@@ -203,14 +203,23 @@ RUN git clone https://github.com/lcm-proj/lcm \
     && make install \
     && cd $HOME && rm -rf lcm
 
-RUN apt-key adv \
-        --keyserver keys.gnupg.net \
-        --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE \
-        || sudo apt-key adv \
-        --keyserver hkp://keyserver.ubuntu.com:80 \
-        --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE \
-    && add-apt-repository "deb https://librealsense.intel.com/Debian/apt-repo focal main" -u \
+# install botcore lcmtypes for parsing data in these formats in python
+# this package is owned by https://github.com/openhumanoids and MIT DRC
+RUN git clone https://github.com/openhumanoids/bot_core_lcmtypes.git \
+    && cd bot_core_lcmtypes \
+    && lcm-gen -p lcmtypes/*.lcm \
+    && mv bot_core /usr/local/lib/python3.8/dist-packages/ \
+    && cd $HOME && rm -rf bot_core_lcmtypes
+
+# install librealsense2-utils for realsense viewer
+# librealsense2-udev-rules:amd64 requires rsync
+RUN apt-key adv --keyserver keyserver.ubuntu.com \
+        --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE\
+        || apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 \
+        --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCD \
+    && add-apt-repository "deb https://librealsense.intel.com/Debian/apt-repo $(lsb_release -cs) main" -u \
     && apt-get install -qy \
+        rsync \
         # librealsense2 \
         # librealsense2-dkms \
         # librealsense2-dev \
