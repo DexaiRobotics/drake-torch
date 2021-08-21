@@ -109,8 +109,8 @@ RUN apt-get install -qy \
         libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
         libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev \
     && apt-get autoremove -qy
-RUN curl -SL https://github.com/opencv/opencv/archive/refs/tags/4.5.2.tar.gz | tar -xz
-RUN cd opencv-4.5.2 \
+RUN curl -SL https://github.com/opencv/opencv/archive/refs/tags/4.5.3.tar.gz | tar -xz
+RUN cd opencv-4.5.3 \
     && mkdir build \
     && cd build \
     && cmake .. \
@@ -148,8 +148,8 @@ RUN git clone https://github.com/DexaiRobotics/ompl.git \
     && rm -rf $HOME/ompl
 
 # install cli11
-RUN cd $HOME && curl -SL https://github.com/CLIUtils/CLI11/archive/refs/tags/v1.9.1.tar.gz | tar -xz \
-    && cd CLI11-1.9.1 \
+RUN cd $HOME && curl -SL https://github.com/CLIUtils/CLI11/archive/refs/tags/v2.0.0.tar.gz | tar -xz \
+    && cd CLI11-2.0.0 \
     && mkdir build \
     && cd build \
     && cmake .. \
@@ -162,10 +162,10 @@ RUN cd $HOME && curl -SL https://github.com/CLIUtils/CLI11/archive/refs/tags/v1.
     && rm -rf $HOME/CLI11*
 
 # install json, header only
-RUN wget https://github.com/nlohmann/json/releases/download/v3.9.1/json.hpp -P /usr/local/include/
+RUN wget https://github.com/nlohmann/json/releases/download/v3.10.0/json.hpp -P /usr/local/include/
 
 # install magic_enum, header only
-RUN wget https://github.com/Neargye/magic_enum/releases/download/v0.7.2/magic_enum.hpp -P /usr/local/include/
+RUN wget https://github.com/Neargye/magic_enum/releases/download/v0.7.3/magic_enum.hpp -P /usr/local/include/
 
 # tl::optional, enhanced version of std::optional, header only
 RUN mkdir -p /usr/local/include/tl \

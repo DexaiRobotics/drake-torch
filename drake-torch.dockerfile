@@ -196,8 +196,8 @@ RUN python3 -m pip install \
         ipython ipykernel jupyterlab matplotlib cython pyyaml
 
 # install latest eigen3
-RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.4-rc1/eigen-3.4-rc1.tar.bz2 | tar -xj \
-    && cd eigen-3.4-rc1 \
+RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.bz2 | tar -xj \
+    && cd eigen-3.4.0 \
     && mkdir build \
     && cd build \
     && cmake build .. -D CMAKE_INSTALL_PREFIX=/usr/local \
