@@ -173,7 +173,7 @@ RUN set -eux \
             && echo "deb [arch=amd64] https://drake-apt.csail.mit.edu/$(lsb_release -cs) $(lsb_release -cs) main" \
                 | tee /etc/apt/sources.list.d/drake.list >/dev/null \
             && apt-get update \
-            && apt-get install --no-install-recommends drake-dev; \
+            && apt-get install --no-install-recommends -qy drake-dev; \
         else curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-focal.tar.gz | tar -xzC /opt; \
         fi \
     && cd /opt/drake/share/drake/setup && yes | ./install_prereqs \
