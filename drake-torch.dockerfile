@@ -174,10 +174,11 @@ RUN set -eux \
                 | tee /etc/apt/sources.list.d/drake.list >/dev/null \
             && apt-get update \
             && apt-get install --no-install-recommends -qy drake-dev; \
-        else curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-focal.tar.gz | tar -xzC /opt; \
-        fi \
-    && cd /opt/drake/share/drake/setup && yes | ./install_prereqs \
-    && rm -rf $HOME/drake*.tar.gz
+        else \
+            curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-focal.tar.gz | tar -xzC /opt \
+            && cd /opt/drake/share/drake/setup && yes | ./install_prereqs \
+            &&  rm -rf $HOME/drake*.tar.gz; \
+        fi
 
 # pip install pydrake using the /opt/drake directory in develop mode
 COPY in_container_scripts/setup_pydrake.py setup_pydrake.py
