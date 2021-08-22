@@ -19,6 +19,9 @@ RUN echo 'etc/UTC' > /etc/timezone \
 # set up apt for installing latest cmake, which is a drake dependency
 RUN apt-get update \
     && apt-get install -qy \
+        ca-certificates \
+        gnupg \
+        lsb-release \
         apt-utils \
         apt-transport-https \
         software-properties-common \
@@ -164,7 +167,13 @@ RUN set -eux \
     && mkdir -p /opt \
     && \
         if [ $BUILD_CHANNEL = "stable" ] ; \
-        then curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-focal.tar.gz | tar -xzC /opt; \
+        then \
+            wget -qO- https://drake-apt.csail.mit.edu/drake.asc | gpg --dearmor - \
+                | tee /etc/apt/trusted.gpg.d/drake.gpg >/dev/null \
+            && echo "deb [arch=amd64] https://drake-apt.csail.mit.edu/$(lsb_release -cs) $(lsb_release -cs) main" \
+                | tee /etc/apt/sources.list.d/drake.list >/dev/null \
+            && apt-get update \
+            && apt-get install --no-install-recommends drake-dev; \
         else curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-focal.tar.gz | tar -xzC /opt; \
         fi \
     && cd /opt/drake/share/drake/setup && yes | ./install_prereqs \
