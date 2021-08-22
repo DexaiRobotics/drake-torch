@@ -185,11 +185,6 @@ RUN cd $HOME && git clone -b cpp_master https://github.com/msgpack/msgpack-c.git
     && cd msgpack-c && cmake -DMSGPACK_CXX17=ON . && make install -j 12 \
     && cd $HOME && rm -rf msgpack-c
 
-# toppra: Dexai fork
-RUN git clone https://github.com/DexaiRobotics/toppra \
-    && python3 -m pip install --upgrade --no-cache-dir --compile ./toppra \
-    && rm -rf toppra
-
 # cnpy lets you read and write numpy formats in C++, needed by libstuffgetter.so
 RUN git clone https://github.com/rogersce/cnpy.git \
     && mkdir -p cnpy/build && cd cnpy/build \
