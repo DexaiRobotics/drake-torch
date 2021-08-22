@@ -194,16 +194,16 @@ RUN if [ "`lsb_release -sc`" = "bionic" ]; \
 RUN echo 'export DRAKE_RESOURCE_ROOT=/opt/drake/share' >> ~/.bashrc 
 
 # drake installs some python packages as dependencies, causing jupyter issues
-RUN apt-get remove -qy python3-zmq python3-terminado python3-yaml \
-    && apt-get update \
-    && apt-get upgrade -qy \
-    && apt-get autoremove -qy \
-    && rm -rf /var/lib/apt/lists/*
+# RUN apt-get remove -qy python3-zmq python3-terminado python3-yaml \
+#     && apt-get update \
+#     && apt-get upgrade -qy \
+#     && apt-get autoremove -qy \
+#     && rm -rf /var/lib/apt/lists/*
 
 # install pip packages after apt
 RUN python3 -m pip install \
-        --upgrade --no-cache-dir --compile \
-        ipython ipykernel jupyterlab matplotlib cython pyyaml
+        --upgrade --no-cache-dir --compile --ignore-installed \
+        notebook jupyterlab pyyaml
 
 # install latest eigen3
 RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.bz2 | tar -xj \
