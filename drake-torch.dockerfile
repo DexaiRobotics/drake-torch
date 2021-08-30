@@ -19,6 +19,9 @@ RUN echo 'etc/UTC' > /etc/timezone \
 # set up apt for installing latest cmake, which is a drake dependency
 RUN apt-get update \
     && apt-get install -qy \
+        ca-certificates \
+        gnupg \
+        lsb-release \
         apt-utils \
         apt-transport-https \
         software-properties-common \
@@ -164,11 +167,18 @@ RUN set -eux \
     && mkdir -p /opt \
     && \
         if [ $BUILD_CHANNEL = "stable" ] ; \
-        then curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-focal.tar.gz | tar -xzC /opt; \
-        else curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-focal.tar.gz | tar -xzC /opt; \
-        fi \
-    && cd /opt/drake/share/drake/setup && yes | ./install_prereqs \
-    && rm -rf $HOME/drake*.tar.gz
+        then \
+            wget -qO- https://drake-apt.csail.mit.edu/drake.asc | gpg --dearmor - \
+                | tee /etc/apt/trusted.gpg.d/drake.gpg >/dev/null \
+            && echo "deb [arch=amd64] https://drake-apt.csail.mit.edu/$(lsb_release -cs) $(lsb_release -cs) main" \
+                | tee /etc/apt/sources.list.d/drake.list >/dev/null \
+            && apt-get update \
+            && apt-get install --no-install-recommends -qy drake-dev; \
+        else \
+            curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-focal.tar.gz | tar -xzC /opt \
+            && cd /opt/drake/share/drake/setup && yes | ./install_prereqs \
+            &&  rm -rf $HOME/drake*.tar.gz; \
+        fi
 
 # pip install pydrake using the /opt/drake directory in develop mode
 COPY in_container_scripts/setup_pydrake.py setup_pydrake.py
@@ -184,16 +194,16 @@ RUN if [ "`lsb_release -sc`" = "bionic" ]; \
 RUN echo 'export DRAKE_RESOURCE_ROOT=/opt/drake/share' >> ~/.bashrc 
 
 # drake installs some python packages as dependencies, causing jupyter issues
-RUN apt-get remove -qy python3-zmq python3-terminado python3-yaml \
-    && apt-get update \
-    && apt-get upgrade -qy \
-    && apt-get autoremove -qy \
-    && rm -rf /var/lib/apt/lists/*
+# RUN apt-get remove -qy python3-zmq python3-terminado python3-yaml \
+#     && apt-get update \
+#     && apt-get upgrade -qy \
+#     && apt-get autoremove -qy \
+#     && rm -rf /var/lib/apt/lists/*
 
 # install pip packages after apt
 RUN python3 -m pip install \
-        --upgrade --no-cache-dir --compile \
-        ipython ipykernel jupyterlab matplotlib cython pyyaml
+        --upgrade --no-cache-dir --compile --ignore-installed \
+        notebook jupyterlab pyyaml
 
 # install latest eigen3
 RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.bz2 | tar -xj \

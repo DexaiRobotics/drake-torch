@@ -83,7 +83,8 @@ RUN add-apt-repository -y ppa:git-core/ppa \
         # ros package joystick_drivers which
         # is used to interface with joystick
         # for teleop
-        libspnav-dev
+        libspnav-dev \
+    && python3 -m pip install --upgrade --no-cache-dir --compile gcovr
 RUN rm /etc/alternatives/editor \
     && ln -s /usr/bin/vim /etc/alternatives/editor
 RUN git lfs install
@@ -184,11 +185,6 @@ RUN cd $HOME \
 RUN cd $HOME && git clone -b cpp_master https://github.com/msgpack/msgpack-c.git \
     && cd msgpack-c && cmake -DMSGPACK_CXX17=ON . && make install -j 12 \
     && cd $HOME && rm -rf msgpack-c
-
-# toppra: Dexai fork
-RUN git clone https://github.com/DexaiRobotics/toppra \
-    && python3 -m pip install --upgrade --no-cache-dir --compile ./toppra \
-    && rm -rf toppra
 
 # cnpy lets you read and write numpy formats in C++, needed by libstuffgetter.so
 RUN git clone https://github.com/rogersce/cnpy.git \
