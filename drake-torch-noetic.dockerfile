@@ -83,7 +83,8 @@ RUN add-apt-repository -y ppa:git-core/ppa \
         # ros package joystick_drivers which
         # is used to interface with joystick
         # for teleop
-        libspnav-dev
+        libspnav-dev \
+    && python3 -m pip install --upgrade --no-cache-dir --compile gcovr
 RUN rm /etc/alternatives/editor \
     && ln -s /usr/bin/vim /etc/alternatives/editor
 RUN git lfs install
