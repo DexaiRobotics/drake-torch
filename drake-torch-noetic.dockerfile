@@ -175,6 +175,12 @@ RUN mkdir -p /usr/local/include/tl \
 # tl::expected, header only
 RUN wget https://github.com/TartanLlama/expected/raw/master/include/tl/expected.hpp -P /usr/local/include/tl
 
+# eventpp, a header-only event dispatch and callback library
+RUN cd $HOME \
+    && git clone https://github.com/wqking/eventpp.git \
+    && cp -R eventpp/include/eventpp /usr/local/include/ \
+    && rm -rf eventpp
+
 # insall ctpl thread pool, header only
 RUN cd $HOME \
     && curl -SL https://github.com/vit-vit/CTPL/archive/refs/tags/v.0.0.2.tar.gz | tar -xz \
