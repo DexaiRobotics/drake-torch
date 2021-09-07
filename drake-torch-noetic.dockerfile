@@ -105,6 +105,16 @@ RUN mkdir -p temp_ws/src \
 #### newer packages
 ########################################################
 
+# install latest googletest 1.11.0 including googlemock
+RUN curl -SL https://github.com/google/googletest/archive/release-1.10.0.tar.gz | tar -xz \
+    && cd googletest-release-1.11.0 \
+    && mkdir build \
+    && cd build \
+    && cmake .. -D CMAKE_BUILD_TYPE=Release \
+    && make install -j 12 \
+    && cd $HOME \
+    && rm -rf googletest*
+
 # OpenCV for C++ and Python3
 RUN apt-get install -qy \
         libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
