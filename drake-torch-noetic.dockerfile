@@ -84,7 +84,7 @@ RUN add-apt-repository -y ppa:git-core/ppa \
         # is used to interface with joystick
         # for teleop
         libspnav-dev \
-    && python3 -m pip install --upgrade --no-cache-dir --compile gcovr
+    && python3 -m pip install --upgrade --no-cache-dir --compile cpplint gcovr
 RUN rm /etc/alternatives/editor \
     && ln -s /usr/bin/vim /etc/alternatives/editor
 RUN git lfs install
@@ -237,6 +237,37 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com \
         # librealsense2-dev \
         # librealsense2-dbg \
         librealsense2-utils
+
+# linters
+
+# clang-format, clang-tidy
+RUN wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - 2>/dev/null \
+    && add-apt-repository "deb http://apt.llvm.org/`lsb_release -sc`/ llvm-toolchain-`lsb_release -sc` main" 2>/dev/null \
+    && apt-get -qy install clang-format-14 clang-tidy-14 \
+    && ln -s /usr/bin/clang-format-14 /usr/bin/clang-format \
+    && ln -s /usr/bin/clang-tidy-14 /usr/bin/clang-tidy
+
+# oclint
+RUN curl -SL https://github.com/oclint/oclint/archive/refs/tags/v21.03.tar.gz | tar xz \
+    && cd oclint-21.03/oclint-scripts/ \
+    && ./make \
+    && cd ../build/oclint-release/ \
+    && cp bin/oclint /usr/local/bin/ \
+    && cp -rp lib/oclint /usr/local/lib/
+
+# cppcheck
+# curl -SL https://github.com/danmar/cppcheck/archive/refs/tags/2.5.tar.gz | tar xz \
+#     && cd cppcheck-2.5/ \
+RUN git clone git@github.com:danmar/cppcheck.git \
+    && cd cppcheck \
+    && mkdir build \
+    && cd build \
+    && cmake .. -DUSE_MATCHCOMPILER=ON -DCMAKE_BUILD_TYPE=Release \
+    && cmake --build . --config Release -j 10 \
+    && make install \
+    && cd $HOME \
+    && rm -rf cppcheck
+
 
 ########################################################
 # final steps
