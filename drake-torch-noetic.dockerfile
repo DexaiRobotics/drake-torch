@@ -253,7 +253,9 @@ RUN curl -SL https://github.com/oclint/oclint/archive/refs/tags/v21.03.tar.gz | 
     && ./make \
     && cd ../build/oclint-release/ \
     && cp bin/oclint /usr/local/bin/ \
-    && cp -rp lib/oclint /usr/local/lib/
+    && cp -rp lib/oclint /usr/local/lib/ \
+    && cd $HOME \
+    && rm -rf oclint*
 
 # cppcheck
 # curl -SL https://github.com/danmar/cppcheck/archive/refs/tags/2.5.tar.gz | tar xz \
@@ -267,7 +269,6 @@ RUN git clone git@github.com:danmar/cppcheck.git \
     && make install \
     && cd $HOME \
     && rm -rf cppcheck
-
 
 ########################################################
 # final steps
