@@ -106,7 +106,7 @@ RUN mkdir -p temp_ws/src \
 ########################################################
 
 # install latest googletest 1.11.0 including googlemock
-RUN curl -SL https://github.com/google/googletest/archive/release-1.10.0.tar.gz | tar -xz \
+RUN curl -SL https://github.com/google/googletest/archive/release-1.11.0.tar.gz | tar -xz \
     && cd googletest-release-1.11.0 \
     && mkdir build \
     && cd build \
@@ -260,7 +260,7 @@ RUN curl -SL https://github.com/oclint/oclint/archive/refs/tags/v21.03.tar.gz | 
 # cppcheck
 # curl -SL https://github.com/danmar/cppcheck/archive/refs/tags/2.5.tar.gz | tar xz \
 #     && cd cppcheck-2.5/ \
-RUN git clone git@github.com:danmar/cppcheck.git \
+RUN git clone https://github.com/danmar/cppcheck.git \
     && cd cppcheck \
     && mkdir build \
     && cd build \
