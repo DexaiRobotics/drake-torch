@@ -78,19 +78,6 @@ RUN curl -SL https://ftp.gnu.org/gnu/make/make-4.3.tar.gz | tar -xz \
     && cd $HOME \
     && rm -rf make-4.3
 
-# install latest googletest 
-# googletest 1.10.0 including googlemock
-# do not delete yet because will need to re-install after ROS
-# RUN if [ $BUILD_CHANNEL = 'stable' ]; then \
-#         curl -SL https://github.com/google/googletest/archive/release-1.10.0.tar.gz | tar -xz \
-#         && cd googletest-release-1.10.0 \
-#         && mkdir build \
-#         && cd build \
-#         && cmake .. \
-#         && make install -j 12; \
-#     fi
-RUN apt-get install -qy googletest
-
 # install latest gdb
 # texinfo is needed for building gdb 9.2 even in the presence of make 4.3
 # RUN if [ $BUILD_CHANNEL = 'stable' ]; then \
