@@ -41,7 +41,7 @@ RUN apt-get update && apt-get install -qy \
     ros-noetic-tf-conversions \
     ros-noetic-rviz \
     ros-noetic-rqt \
-    ros-noetic-apriltag-ros \
+    ros-noetic-apriltag \
     ros-noetic-joy \
     ros-noetic-roslint \
     # ros-noetic-gazebo-ros \
