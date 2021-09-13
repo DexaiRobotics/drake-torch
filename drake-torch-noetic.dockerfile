@@ -97,9 +97,19 @@ RUN mkdir -p temp_ws/src \
     && cd $HOME/temp_ws \
     && bash -c \
         "source /opt/ros/$ROS_DISTRO/setup.bash \
-        && catkin config --install --install-space /opt/ros/noetic \
+        && catkin config --install --install-space /opt/ros/$ROS_DISTRO \
         && catkin build --cmake-args -DCMAKE_BUILD_TYPE=Release \
         && rm -rf $HOME/temp_ws"
+
+# build April tag library from source
+RUN mkdir -p april_ws/src \
+    && cd april_ws/src \
+    && git clone https://github.com/AprilRobotics/apriltag \
+    && cd $HOME/april_ws \
+    && bash -c \
+        "source /opt/ros/$ROS_DISTRO/setup.bash \
+        && catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space=/opt/ros/$ROS_DISTRO \
+        && rm -rf $HOME/april_ws"
 
 ########################################################
 #### newer packages
