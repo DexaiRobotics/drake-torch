@@ -120,26 +120,38 @@ ENV _GLIBCXX_USE_CXX11_ABI=1
 
 RUN set -eux && cd $HOME \
     && \
+        if [ $LIBTORCH = true ]; then \
+            if [ $BUILD_TYPE = "cpu" ]; then \
+                if [ $BUILD_CHANNEL = "stable" ]; then \
+                    wget -q https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.9.0%2Bcpu.zip; \
+                else \
+                    wget -q https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared-with-deps-latest.zip; \
+                fi; \
+            else \
+                if [ $BUILD_CHANNEL = "stable" ]; then \
+                    wget -q https://download.pytorch.org/libtorch/cu111/libtorch-cxx11-abi-shared-with-deps-1.9.0%2Bcu111.zip; \
+                else \
+                    wget -q https://download.pytorch.org/libtorch/nightly/cu111/libtorch-cxx11-abi-shared-with-deps-latest.zip; \
+                fi; \
+            fi \
+            && unzip libtorch-cxx11-abi-shared-with-deps-*.zip \
+            && mv libtorch /usr/local/lib/libtorch \
+            && rm $HOME/libtorch*.zip; \
+        fi \
+    && \
         if [ $BUILD_TYPE = "cpu" ]; then \
             if [ $BUILD_CHANNEL = "stable" ]; then \
-                wget -q https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.9.0%2Bcpu.zip \
                 && python3 -m pip install --upgrade --no-cache-dir --compile torch==1.9.0+cpu torchvision==0.10.0+cpu -f https://download.pytorch.org/whl/torch_stable.html; \
             else \
-                wget -q https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared-with-deps-latest.zip \
                 && python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html; \
             fi; \
         else \
             if [ $BUILD_CHANNEL = "stable" ]; then \
-                wget -q https://download.pytorch.org/libtorch/cu111/libtorch-cxx11-abi-shared-with-deps-1.9.0%2Bcu111.zip \
                 && python3 -m pip install --upgrade --no-cache-dir --compile torch==1.9.0+cu111 torchvision==0.10.0+cu111 -f https://download.pytorch.org/whl/torch_stable.html; \
             else \
-                wget -q https://download.pytorch.org/libtorch/nightly/cu111/libtorch-cxx11-abi-shared-with-deps-latest.zip \
                 && python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cu111/torch_nightly.html; \
             fi; \
-        fi \
-    && unzip libtorch-cxx11-abi-shared-with-deps-*.zip \
-    && mv libtorch /usr/local/lib/libtorch \
-    && rm $HOME/libtorch*.zip
+        fi
 
 ########################################################
 # drake
@@ -153,8 +165,7 @@ RUN set -eux && cd $HOME \
 RUN set -eux \
     && mkdir -p /opt \
     && \
-        if [ $BUILD_CHANNEL = "stable" ] ; \
-        then \
+        if [ $BUILD_CHANNEL = "stable" ]; then \
             wget -qO- https://drake-apt.csail.mit.edu/drake.asc | gpg --dearmor - \
                 | tee /etc/apt/trusted.gpg.d/drake.gpg >/dev/null \
             && echo "deb [arch=amd64] https://drake-apt.csail.mit.edu/$(lsb_release -cs) $(lsb_release -cs) main" \
