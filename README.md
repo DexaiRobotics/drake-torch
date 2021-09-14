@@ -1,9 +1,10 @@
 # drake-torch
 
-Docker images of `drake` and `torch` integrated. Published at https://hub.docker.com/repository/docker/dexai2/drake-torch/.
+This repo provides an example of ingegrating both `drake` and `pytorch` in docker images, with Nvidia's CUDA images or vanilla Ubuntu images being the base image.
 
-The host machine needs to have nvidia driver and container toolkit installed.
+The multi-stage `Jenkinsfile`s specify the build process for CUDA and CPU images. To run these pipelines in Jenkins and produce CUDA images, The host machine needs to have NVidia driver and `nvidia-docker2` installed.
 
-## Building on Jenkins
+Additional ROS packages are included in the `-ros` images.
 
-The `Jenkinsfile` specifies the build process for CUDA and CPU images. 
+Images with Python packages and C++ `libtorch` are published at: https://hub.docker.com/repository/docker/dexai2/drake-torch/.
+Images with Python packages only and no C++ `libtorch` are published at: https://hub.docker.com/repository/docker/dexai2/drake-pytorch/.
