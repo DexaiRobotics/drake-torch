@@ -4,12 +4,19 @@ set -eufo pipefail
 
 BUILD_TYPE="cuda"
 BUILD_CHANNEL="nightly"
+LIBTORCH=false
+REPO_NAME="drake-pytorch"
 BUILD_ROS=false
 USE_CACHE=true
 while (( $# )); do
   case "$1" in
     --cuda)
       BUILD_TYPE="cuda"
+      shift 1
+      ;;
+    --libtorch)
+      LIBTORCH=true
+      REPO_NAME="drake-torch"
       shift 1
       ;;
     --cpu)
@@ -46,16 +53,16 @@ if [[ $BUILD_ROS = true ]]; then
   if [[ $BUILD_CHANNEL == 'stable' ]]; then
     DOCKERFILE="drake-torch-noetic.dockerfile"
     if [[ $BUILD_TYPE == "cpu" ]]; then
-      BASE_IMAGE="dexai2/drake-torch:cpu-stable"
+      BASE_IMAGE="dexai2/$REPO_NAME:cpu-stable"
     else
-      BASE_IMAGE="dexai2/drake-torch:cuda-stable"
+      BASE_IMAGE="dexai2/$REPO_NAME:cuda-stable"
     fi
   else
     DOCKERFILE="drake-torch-noetic.dockerfile"
     if [[ $BUILD_TYPE == "cpu" ]]; then
-      BASE_IMAGE="dexai2/drake-torch:cpu-nightly"
+      BASE_IMAGE="dexai2/$REPO_NAME:cpu-nightly"
     else
-      BASE_IMAGE="dexai2/drake-torch:cuda-nightly"
+      BASE_IMAGE="dexai2/$REPO_NAME:cuda-nightly"
     fi
   fi
   TAG="${BASE_IMAGE}-ros"
@@ -74,12 +81,13 @@ else
       BASE_IMAGE="nvidia/cuda:11.1.1-cudnn8-devel-ubuntu20.04"
     fi
   fi
-  TAG="dexai2/drake-torch:${BUILD_TYPE}-${BUILD_CHANNEL}"
+  TAG="dexai2/$REPO_NAME:${BUILD_TYPE}-${BUILD_CHANNEL}"
 fi
 
 declare -a ARGS=(
   -f "$DOCKERFILE"
   --build-arg BUILD_TYPE="$BUILD_TYPE"
+  --build-arg LIBTORCH="$LIBTORCH"
   --build-arg BASE_IMAGE="$BASE_IMAGE"
   --build-arg BUILD_CHANNEL="$BUILD_CHANNEL"
   --cpuset-cpus "0-$LASTCORE"
@@ -91,8 +99,9 @@ if [[ $USE_CACHE == false ]]; then
   echo "Cache disabled"
 fi
 
-echo "Building image"
+echo "Building image, to be tagged as: $TAG"
 echo "Build type: $BUILD_TYPE"
+echo "Libtorch: $LIBTORCH"
 echo "Channel: $BUILD_CHANNEL"
 echo "Base image: $BASE_IMAGE"
 echo "Build ROS: $BUILD_ROS"

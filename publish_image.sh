@@ -8,13 +8,13 @@
 #                         -> dexai2/drake-torch:cuda_latest
 
 
-REPOSITORY=drake-torch
 SUFFIX_DATE=$(date +"%Y%m%d")
 
 BUILD_TYPE=cuda
 BUILD_CHANNEL=nightly
 OPT_ROS=false
-
+LIBTORCH=false
+REPO_NAME="drake-pytorch"
 # Parse any arguments.
 while (( $# )); do
   case "$1" in
@@ -24,6 +24,11 @@ while (( $# )); do
       ;;
     --cuda)
       BUILD_TYPE=cuda
+      shift 1
+      ;;
+    --libtorch)
+      LIBTORCH=true
+      REPO_NAME="drake-torch"
       shift 1
       ;;
     --stable)
@@ -38,11 +43,6 @@ while (( $# )); do
       OPT_ROS=true
       shift 1
       ;;
-    -r|--repo)
-      shift 1
-      REPOSITORY="$1"
-      shift 1
-      ;;
     -*|--*=) # unsupported options
       echo "Error: Unsupported option $1" >&2
       exit 1
@@ -54,7 +54,7 @@ while (( $# )); do
   esac
 done
 
-REPO_STR="dexai2/${REPOSITORY}"
+REPO_STR="dexai2/${REPO_NAME}"
 
 tag_and_push() {
   CURRENT_TAG=$1
