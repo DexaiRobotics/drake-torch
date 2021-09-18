@@ -273,7 +273,8 @@ RUN git clone https://github.com/danmar/cppcheck.git \
 ########################################################
 # final steps
 ########################################################
-RUN apt-get upgrade -qy \
+RUN apt-get update \
+    && apt-get upgrade -qy \
     && apt-get autoremove -qy \
     && rm -rf /var/lib/apt/lists/*
 
@@ -303,6 +304,11 @@ RUN ldconfig
 
 # increase max_user_watches limits
 RUN echo "fs.inotify.max_user_watches=524288" >> /etc/sysctl.conf
+
+# set core patterm to bypass apport
+# essentially modifies /proc/sys/kernel/core_pattern
+RUN ulimit -c unlimited \
+    && sysctl -w kernel.core_pattern=/var/crash/core.%e.%p.%h.%t
 
 # start ssh daemon
 CMD ["/usr/sbin/sshd", "-D"]
