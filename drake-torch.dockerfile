@@ -213,6 +213,15 @@ RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.b
     && make install -j 12 \
     && rm -rf $HOME/eigen*
 
+# install latest fmt (to be compatible with latest spdlog)
+RUN curl -SL https://github.com/fmtlib/fmt/archive/refs/tags/8.0.1.tar.gz | tar xz \
+    && cd fmt-8.0.1 \
+    && mkdir build \
+    && cd build \
+    && cmake -S .. -B . -D CMAKE_BUILD_TYPE=Release \
+    && make install -j 12 \
+    && rm -rf $HOME/fmt*
+
 # install latest spdlog (only 1.5 from apt installed by drake)
 RUN curl -SL https://github.com/gabime/spdlog/archive/refs/tags/v1.9.2.tar.gz | tar xz \
     && cd spdlog-1.9.2 \
