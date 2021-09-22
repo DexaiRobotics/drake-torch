@@ -218,7 +218,7 @@ RUN curl -SL https://github.com/fmtlib/fmt/archive/refs/tags/8.0.1.tar.gz | tar 
     && cd fmt-8.0.1 \
     && mkdir build \
     && cd build \
-    && cmake -S .. -B . -D CMAKE_BUILD_TYPE=Release \
+    && cmake -S .. -B . -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=ON \
     && make install -j 12 \
     && rm -rf $HOME/fmt*
 
@@ -227,6 +227,6 @@ RUN curl -SL https://github.com/gabime/spdlog/archive/refs/tags/v1.9.2.tar.gz | 
     && cd spdlog-1.9.2 \
     && mkdir build \
     && cd build \
-    && cmake -S .. -B . -D CMAKE_BUILD_TYPE=Release \
+    && cmake -S .. -B . -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=ON \
     && make install -j 12 \
     && rm -rf $HOME/spdlog*
