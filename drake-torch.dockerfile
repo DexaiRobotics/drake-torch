@@ -208,7 +208,8 @@ RUN python3 -m pip install \
 RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.bz2 | tar -xj \
     && cd eigen-3.4.0 \
     && mkdir build \
-    && cmake -S . -B build -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/usr/local \
+    && cd build \
+    && cmake -S .. -B . -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/usr/local \
     && make install -j 12 \
     && rm -rf $HOME/eigen*
 
@@ -216,6 +217,7 @@ RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.b
 RUN curl -SL https://github.com/gabime/spdlog/archive/refs/tags/v1.9.2.tar.gz | tar xz \
     && cd spdlog-1.9.2 \
     && mkdir build \
-    && cmake -S . -B build -D CMAKE_BUILD_TYPE=Release \
+    && cd build \
+    && cmake -S .. -B . -D CMAKE_BUILD_TYPE=Release \
     && make install -j 12 \
     && rm -rf $HOME/spdlog*
