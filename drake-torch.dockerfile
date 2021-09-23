@@ -154,6 +154,24 @@ RUN set -eux && cd $HOME \
             fi; \
         fi
 
+# install latest eigen3
+RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.bz2 | tar -xj \
+    && cd eigen-3.4.0 \
+    && mkdir build \
+    && cd build \
+    && cmake -S .. -B . -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/usr/local \
+    && make install -j 12 \
+    && rm -rf $HOME/eigen*
+
+# install latest fmt (to be compatible with latest spdlog)
+RUN curl -SL https://github.com/fmtlib/fmt/archive/refs/tags/8.0.1.tar.gz | tar xz \
+    && cd fmt-8.0.1 \
+    && mkdir build \
+    && cd build \
+    && cmake -S .. -B . -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=ON \
+    && make install -j 12 \
+    && rm -rf $HOME/fmt*
+
 ########################################################
 # drake
 # https://drake.mit.edu/from_binary.html
@@ -175,8 +193,9 @@ RUN set -eux \
             && apt-get install --no-install-recommends -qy drake-dev; \
         else \
             curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-focal.tar.gz | tar -xzC /opt \
-            && cd /opt/drake/share/drake/setup && yes | ./install_prereqs \
-            &&  rm -rf $HOME/drake*.tar.gz; \
+            && cd /opt/drake/share/drake/setup \
+            && yes | ./install_prereqs \
+            && rm -rf $HOME/drake*.tar.gz; \
         fi
 
 # pip install pydrake using the /opt/drake directory in develop mode
@@ -204,29 +223,21 @@ RUN python3 -m pip install \
         --upgrade --no-cache-dir --compile --ignore-installed \
         notebook jupyterlab pyyaml
 
-# install latest eigen3
-RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.bz2 | tar -xj \
-    && cd eigen-3.4.0 \
-    && mkdir build \
-    && cd build \
-    && cmake -S .. -B . -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/usr/local \
-    && make install -j 12 \
-    && rm -rf $HOME/eigen*
-
-# install latest fmt (to be compatible with latest spdlog)
-RUN curl -SL https://github.com/fmtlib/fmt/archive/refs/tags/8.0.1.tar.gz | tar xz \
-    && cd fmt-8.0.1 \
-    && mkdir build \
-    && cd build \
-    && cmake -S .. -B . -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=ON \
-    && make install -j 12 \
-    && rm -rf $HOME/fmt*
-
 # install latest spdlog (only 1.5 from apt installed by drake)
+# we build static lib because libspdlog-dev that ships with ubuntu is shared
+# and located in /usr
+# if we have another shared lib installed into any system path (/usr/local)
+# drake crashes
+# including two shared libs causes cmake errors, so we keep this one static
+# CMAKE_POSITION_INDEPENDENT_CODE adds -fPIC so that our .so can borrow from .a
 RUN curl -SL https://github.com/gabime/spdlog/archive/refs/tags/v1.9.2.tar.gz | tar xz \
     && cd spdlog-1.9.2 \
     && mkdir build \
     && cd build \
-    && cmake -S .. -B . -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=ON \
+    && cmake -S .. -B . \
+        -D CMAKE_BUILD_TYPE=Release \
+        -D BUILD_SHARED_LIBS=OFF \
+        -D CMAKE_POSITION_INDEPENDENT_CODE=ON \
+        -D CMAKE_INSTALL_PREFIX=/usr/local \
     && make install -j 12 \
     && rm -rf $HOME/spdlog*
