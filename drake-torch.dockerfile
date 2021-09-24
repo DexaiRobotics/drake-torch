@@ -180,17 +180,24 @@ RUN curl -SL https://github.com/fmtlib/fmt/archive/refs/tags/8.0.1.tar.gz | tar 
 # https://drake-packages.csail.mit.edu/drake/nightly/drake
 # https://drake-packages.csail.mit.edu/drake/nightly/drake-20200602-focal.tar.gz
 
+# stable channel pegged to 20210818 due to collision filter group changes
+
 ########################################################
 RUN set -eux \
     && mkdir -p /opt \
     && \
+        # if [ $BUILD_CHANNEL = "stable" ]; then \
+        #     wget -qO- https://drake-apt.csail.mit.edu/drake.asc | gpg --dearmor - \
+        #         | tee /etc/apt/trusted.gpg.d/drake.gpg >/dev/null \
+        #     && echo "deb [arch=amd64] https://drake-apt.csail.mit.edu/$(lsb_release -cs) $(lsb_release -cs) main" \
+        #         | tee /etc/apt/sources.list.d/drake.list >/dev/null \
+        #     && apt-get update \
+        #     && apt-get install --no-install-recommends -qy drake-dev; \
         if [ $BUILD_CHANNEL = "stable" ]; then \
-            wget -qO- https://drake-apt.csail.mit.edu/drake.asc | gpg --dearmor - \
-                | tee /etc/apt/trusted.gpg.d/drake.gpg >/dev/null \
-            && echo "deb [arch=amd64] https://drake-apt.csail.mit.edu/$(lsb_release -cs) $(lsb_release -cs) main" \
-                | tee /etc/apt/sources.list.d/drake.list >/dev/null \
-            && apt-get update \
-            && apt-get install --no-install-recommends -qy drake-dev; \
+            curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-20210818-focal.tar.gz | tar -xzC /opt \
+            && cd /opt/drake/share/drake/setup \
+            && yes | ./install_prereqs \
+            && rm -rf $HOME/drake*.tar.gz; \
         else \
             curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-focal.tar.gz | tar -xzC /opt \
             && cd /opt/drake/share/drake/setup \
