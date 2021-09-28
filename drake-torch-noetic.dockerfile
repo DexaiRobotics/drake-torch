@@ -307,7 +307,7 @@ RUN ldconfig
 # increase max_user_watches limits
 RUN echo "fs.inotify.max_user_watches=524288" >> /etc/sysctl.conf
 
-# set core patterm to bypass apport
+# set core pattern to bypass apport
 # essentially modifies /proc/sys/kernel/core_pattern
 RUN ulimit -c unlimited \
     && sysctl -w kernel.core_pattern=/var/crash/core.%e.%p.%h.%t
