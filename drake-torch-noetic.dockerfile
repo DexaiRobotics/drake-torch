@@ -118,12 +118,13 @@ RUN curl -SL https://github.com/google/googletest/archive/release-1.11.0.tar.gz 
     && rm -rf googletest*
 
 # OpenCV for C++ and Python3
+# opencv 4.5.4 gets segfault in cv::resize
 RUN apt-get install -qy \
         libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
         libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev \
     && apt-get autoremove -qy
-RUN curl -SL https://github.com/opencv/opencv/archive/refs/tags/4.5.4.tar.gz | tar -xz
-RUN cd opencv-4.5.4 \
+RUN curl -SL https://github.com/opencv/opencv/archive/refs/tags/4.5.3.tar.gz | tar -xz
+RUN cd opencv-4.5.3 \
     && mkdir build \
     && cd build \
     && cmake .. \
