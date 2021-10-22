@@ -118,6 +118,7 @@ RUN curl -SL https://github.com/google/googletest/archive/release-1.11.0.tar.gz 
     && rm -rf googletest*
 
 # OpenCV for C++ and Python3
+# opencv 4.5.4 gets segfault in cv::resize
 RUN apt-get install -qy \
         libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
         libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev \
@@ -161,8 +162,8 @@ RUN git clone https://github.com/DexaiRobotics/ompl.git \
     && rm -rf $HOME/ompl
 
 # install cli11
-RUN cd $HOME && curl -SL https://github.com/CLIUtils/CLI11/archive/refs/tags/v2.0.0.tar.gz | tar -xz \
-    && cd CLI11-2.0.0 \
+RUN cd $HOME && curl -SL https://github.com/CLIUtils/CLI11/archive/refs/tags/v2.1.2.tar.gz | tar -xz \
+    && cd CLI11-2.1.2 \
     && mkdir build \
     && cd build \
     && cmake .. \
@@ -175,7 +176,7 @@ RUN cd $HOME && curl -SL https://github.com/CLIUtils/CLI11/archive/refs/tags/v2.
     && rm -rf $HOME/CLI11*
 
 # install json, header only
-RUN wget https://github.com/nlohmann/json/releases/download/v3.10.0/json.hpp -P /usr/local/include/
+RUN wget https://github.com/nlohmann/json/releases/download/v3.10.4/json.hpp -P /usr/local/include/
 
 # install magic_enum, header only
 RUN wget https://github.com/Neargye/magic_enum/releases/download/v0.7.3/magic_enum.hpp -P /usr/local/include/
@@ -250,8 +251,8 @@ RUN wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - 2>/dev
     && ln -s /usr/bin/clang-tidy-14 /usr/bin/clang-tidy
 
 # oclint
-RUN curl -SL https://github.com/oclint/oclint/archive/refs/tags/v21.03.tar.gz | tar xz \
-    && cd oclint-21.03/oclint-scripts/ \
+RUN curl -SL https://github.com/oclint/oclint/archive/refs/tags/v21.05.tar.gz | tar xz \
+    && cd oclint-21.05/oclint-scripts/ \
     && ./make \
     && cd ../build/oclint-release/ \
     && cp bin/oclint /usr/local/bin/ \
