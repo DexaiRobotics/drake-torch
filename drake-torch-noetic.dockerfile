@@ -86,6 +86,7 @@ RUN add-apt-repository -y ppa:git-core/ppa \
         libspnav-dev \
         # for parsing json and coveralls
         jq \
+        ffmpeg \
     && python3 -m pip install --upgrade --no-cache-dir --compile cpplint gcovr GitPython
 RUN rm /etc/alternatives/editor \
     && ln -s /usr/bin/vim /etc/alternatives/editor
