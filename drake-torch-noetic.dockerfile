@@ -201,6 +201,9 @@ RUN cd $HOME \
     && cp CTPL-v.0.0.2/ctpl*.h /usr/local/include/ \
     && rm -rf CTPL-v.0.0.2
 
+RUN cd $HOME \
+    && wget https://github.com/approvals/ApprovalTests.cpp/releases/download/v.10.12.0/ApprovalTests.v.10.12.0.hpp -O /usr/local/include/ApprovalTests.hpp
+
 # Install C++ branch of msgpack-c
 RUN cd $HOME && git clone -b cpp_master https://github.com/msgpack/msgpack-c.git \
     && cd msgpack-c && cmake -DMSGPACK_CXX17=ON . && make install -j 12 \
