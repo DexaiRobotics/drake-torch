@@ -86,6 +86,7 @@ RUN add-apt-repository -y ppa:git-core/ppa \
         libspnav-dev \
         # for parsing json and coveralls
         jq \
+        ffmpeg \
     && python3 -m pip install --upgrade --no-cache-dir --compile cpplint gcovr GitPython
 RUN rm /etc/alternatives/editor \
     && ln -s /usr/bin/vim /etc/alternatives/editor
@@ -199,6 +200,9 @@ RUN cd $HOME \
     && curl -SL https://github.com/vit-vit/CTPL/archive/refs/tags/v.0.0.2.tar.gz | tar -xz \
     && cp CTPL-v.0.0.2/ctpl*.h /usr/local/include/ \
     && rm -rf CTPL-v.0.0.2
+
+RUN cd $HOME \
+    && wget https://github.com/approvals/ApprovalTests.cpp/releases/download/v.10.12.0/ApprovalTests.v.10.12.0.hpp -O /usr/local/include/ApprovalTests.hpp
 
 # Install C++ branch of msgpack-c
 RUN cd $HOME && git clone -b cpp_master https://github.com/msgpack/msgpack-c.git \
