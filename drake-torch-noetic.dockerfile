@@ -47,6 +47,7 @@ RUN apt-get update && apt-get install -qy \
     # ros-noetic-gazebo-ros \
     ros-noetic-async-web-server-cpp \
     ros-noetic-realsense2-camera \
+    ros-noetic-realsense2-description \
     # catkin tools nad osrf from pip doesn't work for py3 and focal/noetic
     # https://github.com/catkin/catkin_tools/issues/594
     python3-catkin-tools \
