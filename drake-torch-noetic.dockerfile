@@ -87,6 +87,8 @@ RUN add-apt-repository -y ppa:git-core/ppa \
         # for parsing json and coveralls
         jq \
         ffmpeg \
+        # for reading debug info and dumping stacktrace
+        binutils-dev \
     && python3 -m pip install --upgrade --no-cache-dir --compile cpplint gcovr GitPython
 RUN rm /etc/alternatives/editor \
     && ln -s /usr/bin/vim /etc/alternatives/editor
@@ -244,6 +246,10 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com \
         # librealsense2-dev \
         # librealsense2-dbg \
         librealsense2-utils
+
+# provide backward source in /opt for inclusion and linking
+RUN cd /opt \
+    && git clone https://github.com/bombela/backward-cpp.git
 
 # linters
 
