@@ -212,7 +212,7 @@ RUN if [ "`lsb_release -sc`" = "bionic" ]; \
     then mv setup_pydrake.py /opt/drake/lib/python3.6/site-packages/setup.py \
         && python3 -m pip install -e /opt/drake/lib/python3.6/site-packages; \
     else mv setup_pydrake.py /opt/drake/lib/python3.8/site-packages/setup.py \
-        && python3 -m pip install -e /opt/drake/lib/python3.8/site-packages; \
+        && python3 -m pip install --user -e /opt/drake/lib/python3.8/site-packages; \
     fi
 
 # get rid of the following spam
