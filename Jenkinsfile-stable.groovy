@@ -1,6 +1,6 @@
 pipeline {
     environment {
-        registry = "dexai2/drake-torch"
+        registry = "dexai2/drake-pytorch"
         registryCredential = 'dockerhub'
     }
     agent any
@@ -53,7 +53,7 @@ pipeline {
 
         stage('test_dockers') {
             steps {
-                sh "./test_image.sh dexai2/drake-torch:cuda-stable-ros"
+                sh "./test_image.sh dexai2/drake-pytorch:cuda-stable-ros"
                 // sh "./publish_docker_images.sh" // do not publish by default
             }
         }
