@@ -158,10 +158,10 @@ RUN cd opencv-4.5.3 \
 RUN git clone https://github.com/DexaiRobotics/ompl.git \
     && cd ompl \
     && mkdir -p build \
-    && cmake -S . -B build -D CMAKE_BUILD_TYPE=Release \
+    && cmake -S . -B build -D CMAKE_BUILD_TYPE=Release -G "Ninja" \
     && cmake --build build -j 10 \
     && cd build \
-    && make install -j 10 \
+    && ninja install -j 10 \
     && rm -rf $HOME/ompl
 
 # install cli11
