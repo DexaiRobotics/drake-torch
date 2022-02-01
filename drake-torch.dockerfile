@@ -206,6 +206,15 @@ RUN set -eux \
             && rm -rf $HOME/drake*.tar.gz; \
         fi
 
+# pip install pydrake using the /opt/drake directory in develop mode
+COPY in_container_scripts/setup_pydrake.py setup_pydrake.py
+RUN if [ "`lsb_release -sc`" = "bionic" ]; \
+    then mv setup_pydrake.py /opt/drake/lib/python3.6/site-packages/setup.py \
+        && python3 -m pip install -e /opt/drake/lib/python3.6/site-packages; \
+    else mv setup_pydrake.py /opt/drake/lib/python3.8/site-packages/setup.py \
+        && python3 -m pip install --user -e /opt/drake/lib/python3.8/site-packages; \
+    fi
+
 # get rid of the following spam
 # FindResource ignoring DRAKE_RESOURCE_ROOT because it is not set.
 RUN echo 'export DRAKE_RESOURCE_ROOT=/opt/drake/share' >> ~/.bashrc 
