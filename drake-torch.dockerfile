@@ -207,12 +207,13 @@ RUN set -eux \
         fi
 
 # pip install pydrake using the /opt/drake directory in develop mode
+# --user flag is broken for editable install right now, at least with setuptools backend
 COPY in_container_scripts/setup_pydrake.py setup_pydrake.py
 RUN if [ "`lsb_release -sc`" = "bionic" ]; \
     then mv setup_pydrake.py /opt/drake/lib/python3.6/site-packages/setup.py \
-        && python3 -m pip install -e /opt/drake/lib/python3.6/site-packages; \
+        && python3 -m pip install -e /opt/drake/lib/python3.6/site-packages --prefix=~/.local; \
     else mv setup_pydrake.py /opt/drake/lib/python3.8/site-packages/setup.py \
-        && python3 -m pip install --user -e /opt/drake/lib/python3.8/site-packages; \
+        && python3 -m pip install -e /opt/drake/lib/python3.8/site-packages --prefix=~/.local; \
     fi
 
 # get rid of the following spam
