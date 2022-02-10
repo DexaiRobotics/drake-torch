@@ -257,9 +257,9 @@ RUN cd /opt \
 # clang-format, clang-tidy
 RUN wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - 2>/dev/null \
     && add-apt-repository "deb http://apt.llvm.org/`lsb_release -sc`/ llvm-toolchain-`lsb_release -sc` main" 2>/dev/null \
-    && apt-get -qy install clang-format-14 clang-tidy-14 \
-    && ln -s /usr/bin/clang-format-14 /usr/bin/clang-format \
-    && ln -s /usr/bin/clang-tidy-14 /usr/bin/clang-tidy
+    && apt-get -qy install clang-format-15 clang-tidy-15 \
+    && ln -s /usr/bin/clang-format-15 /usr/bin/clang-format \
+    && ln -s /usr/bin/clang-tidy-15 /usr/bin/clang-tidy
 
 # oclint
 RUN curl -SL https://github.com/oclint/oclint/archive/refs/tags/v21.05.tar.gz | tar xz \
