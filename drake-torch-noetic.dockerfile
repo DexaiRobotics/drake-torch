@@ -130,8 +130,8 @@ RUN apt-get install -qy \
         libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
         libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev \
     && apt-get autoremove -qy
-RUN curl -SL https://github.com/opencv/opencv/archive/refs/tags/4.5.3.tar.gz | tar -xz \
-    && cd opencv-4.5.3 \
+RUN curl -SL https://github.com/opencv/opencv/archive/refs/tags/4.5.4.tar.gz | tar -xz \
+    && cd opencv-4.5.4 \
     && mkdir build \
     && cd build \
     && . activate \
@@ -145,7 +145,8 @@ RUN curl -SL https://github.com/opencv/opencv/archive/refs/tags/4.5.3.tar.gz | t
         -D PYTHON3_NUMPY_INCLUDE_DIRS=/opt/venv/lib/python3.8/site-packages/numpy/core/include \
     && make install -j 12 \
     && cd $HOME \
-    && rm -rf opencv*
+    && rm -rf opencv* \
+    && ln -s /usr/local/lib/python3.8/site-packages/cv2 /opt/venv/lib/python3.8/site-packages/cv2
 
 ########################################################
 # other dependencies
