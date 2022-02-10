@@ -89,7 +89,8 @@ RUN add-apt-repository -y ppa:git-core/ppa \
         ffmpeg \
         # for reading debug info and dumping stacktrace
         binutils-dev \
-    && python3 -m pip install --upgrade --no-cache-dir --compile cpplint gcovr GitPython
+    && . activate \
+    && pip install --upgrade --no-cache-dir --compile cpplint gcovr GitPython
 RUN rm /etc/alternatives/editor \
     && ln -s /usr/bin/vim /etc/alternatives/editor
 RUN git lfs install
