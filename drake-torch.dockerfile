@@ -69,7 +69,7 @@ RUN update-alternatives \
 # create venv to avoid site breakage between debian and pip
 RUN python3 -m venv /opt/venv \
     && ln -s  /opt/venv/bin/activate /usr/local/bin/activate \
-    && . acvitate \
+    && . activate \
     && pip install --upgrade --no-cache-dir --compile \
         setuptools wheel pip
 
