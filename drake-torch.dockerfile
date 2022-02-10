@@ -52,7 +52,7 @@ RUN apt-get update \
         python3 \
         python3-dev \
         python3-pip \
-        python3-virtualenv \
+        python3-venv \
         # gcc7 for libfranka
         gcc-7 \
         g++-7 \
