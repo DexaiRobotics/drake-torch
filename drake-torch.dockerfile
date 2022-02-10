@@ -185,6 +185,7 @@ RUN curl -SL https://github.com/fmtlib/fmt/archive/refs/tags/8.1.1.tar.gz | tar 
 ########################################################
 RUN set -eux \
     && mkdir -p /opt \
+    && . activate \
     && \
         if [ $BUILD_CHANNEL = "stable" ]; then \
             wget -qO- https://drake-apt.csail.mit.edu/drake.asc | gpg --dearmor - \

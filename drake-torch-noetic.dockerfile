@@ -25,7 +25,9 @@ RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E
 ENV ROS_DISTRO=noetic
 ENV ROS_PYTHON_VERSION=3
 
-RUN apt-get update && apt-get install -qy \
+RUN apt-get update \
+    && . activate \
+    && apt-get install -qy \
     ros-noetic-ros-base \
     ros-noetic-geometry2 \
     ros-noetic-pcl-ros \
