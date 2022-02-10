@@ -130,10 +130,11 @@ RUN apt-get install -qy \
         libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
         libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev \
     && apt-get autoremove -qy
-RUN curl -SL https://github.com/opencv/opencv/archive/refs/tags/4.5.3.tar.gz | tar -xz
-RUN cd opencv-4.5.3 \
+RUN curl -SL https://github.com/opencv/opencv/archive/refs/tags/4.5.5.tar.gz | tar -xz \
+    && cd opencv-4.5.3 \
     && mkdir build \
     && cd build \
+    && . activate \
     && cmake .. \
         -D CMAKE_BUILD_TYPE=Release \
         -D CMAKE_INSTALL_PREFIX=/usr/local \
@@ -245,10 +246,6 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com \
     && add-apt-repository "deb https://librealsense.intel.com/Debian/apt-repo $(lsb_release -cs) main" -u \
     && apt-get install -qy \
         rsync \
-        # librealsense2 \
-        # librealsense2-dkms \
-        # librealsense2-dev \
-        # librealsense2-dbg \
         librealsense2-utils
 
 # provide backward source in /opt for inclusion and linking
