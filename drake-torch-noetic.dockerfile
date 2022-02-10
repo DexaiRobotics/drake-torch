@@ -92,7 +92,8 @@ RUN add-apt-repository -y ppa:git-core/ppa \
         # for reading debug info and dumping stacktrace
         binutils-dev \
     && . activate \
-    && pip install --upgrade --no-cache-dir --compile cpplint gcovr GitPython
+    # cv_bridge depends on pyyaml but it's not installed into the venv
+    && pip install --upgrade --no-cache-dir --compile pyyaml cpplint gcovr GitPython
 RUN rm /etc/alternatives/editor \
     && ln -s /usr/bin/vim /etc/alternatives/editor
 RUN git lfs install
