@@ -131,18 +131,18 @@ RUN apt-get install -qy \
         libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev \
     && apt-get autoremove -qy
 RUN curl -SL https://github.com/opencv/opencv/archive/refs/tags/4.5.5.tar.gz | tar -xz \
-    && cd opencv-4.5.3 \
+    && cd opencv-4.5.5 \
     && mkdir build \
     && cd build \
     && . activate \
     && cmake .. \
         -D CMAKE_BUILD_TYPE=Release \
         -D CMAKE_INSTALL_PREFIX=/usr/local \
-        -D PYTHON3_EXECUTABLE=/usr/bin/python3 \
-        -D PYTHON_INCLUDE_DIR=/usr/include/python3.8 \
-        -D PYTHON_INCLUDE_DIR2=/usr/include/x86_64-linux-gnu/python3.8 \
+        -D PYTHON3_EXECUTABLE=python3 \
+        # -D PYTHON_INCLUDE_DIR=/usr/include/python3.8 \
+        # -D PYTHON_INCLUDE_DIR2=/usr/include/x86_64-linux-gnu/python3.8 \
         -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.8.so \
-        -D PYTHON3_NUMPY_INCLUDE_DIRS=/usr/lib/python3/dist-packages/numpy/core/include \
+        # -D PYTHON3_NUMPY_INCLUDE_DIRS=/usr/lib/python3/dist-packages/numpy/core/include \
     && make install -j 12 \
     && cd $HOME \
     && rm -rf opencv*
