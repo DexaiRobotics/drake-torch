@@ -26,7 +26,6 @@ ENV ROS_DISTRO=noetic
 ENV ROS_PYTHON_VERSION=3
 
 RUN apt-get update \
-    && . activate \
     && apt-get install -qy \
     ros-noetic-ros-base \
     ros-noetic-geometry2 \
@@ -48,11 +47,15 @@ RUN apt-get update \
     ros-noetic-roslint \
     # ros-noetic-gazebo-ros \
     ros-noetic-async-web-server-cpp \
-    ros-noetic-realsense2-camera \
+    ros-noetic-realsense2-camera
+
+RUN . activate \
     # catkin tools nad osrf from pip doesn't work for py3 and focal/noetic
     # https://github.com/catkin/catkin_tools/issues/594
-    python3-catkin-tools \
-    python3-osrf-pycommon
+    # unless we use a venv?
+    # /opt/ros/noetic/share/catkin/cmake/catkin_package.cmake depends on empy
+    # cv_bridge depends on pyyaml but it's not installed into the venv
+    && pip install --upgrade --no-cache-dir --compile pyyaml empy catkin_tools
 
 # dev essentials, later sections need git
 RUN add-apt-repository -y ppa:git-core/ppa \
@@ -92,8 +95,7 @@ RUN add-apt-repository -y ppa:git-core/ppa \
         # for reading debug info and dumping stacktrace
         binutils-dev \
     && . activate \
-    # cv_bridge depends on pyyaml but it's not installed into the venv
-    && pip install --upgrade --no-cache-dir --compile pyyaml cpplint gcovr GitPython
+    && pip install --upgrade --no-cache-dir --compile cpplint gcovr GitPython
 RUN rm /etc/alternatives/editor \
     && ln -s /usr/bin/vim /etc/alternatives/editor
 RUN git lfs install
