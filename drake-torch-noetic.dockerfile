@@ -107,8 +107,9 @@ RUN mkdir -p temp_ws/src \
     && cd temp_ws/src \
     && git clone https://github.com/RobotWebTools/web_video_server \
     && cd $HOME/temp_ws \
-    && bash -ic \
-        "catkin config --install --install-space /opt/ros/noetic \
+    && bash -c \
+        ". activate \
+        && catkin config --install --install-space /opt/ros/noetic \
         && catkin build --cmake-args -DCMAKE_BUILD_TYPE=Release \
         && rm -rf $HOME/temp_ws"
 
@@ -294,9 +295,6 @@ RUN apt-get update \
     && apt-get upgrade -qy \
     && apt-get autoremove -qy \
     && rm -rf /var/lib/apt/lists/*
-
-COPY in_container_scripts scripts
-RUN scripts/mod_bashrc.sh && rm -rf scripts
 
 # Taken from - https://docs.docker.com/engine/examples/running_ssh_service/#environment-variables
 RUN mkdir /var/run/sshd
