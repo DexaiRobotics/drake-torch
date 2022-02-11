@@ -58,17 +58,6 @@ RUN . activate \
     # cv_bridge depends on pyyaml but it's not installed into the venv
     && pip install --upgrade --no-cache-dir --compile rosdep empy catkin_tools
 
-# build catkin modules not availble via apt
-# SHELL ["/bin/bash", "-c"]
-RUN mkdir -p temp_ws/src \
-    && cd temp_ws/src \
-    && git clone https://github.com/RobotWebTools/web_video_server \
-    && cd $HOME/temp_ws \
-    && bash -ic \
-        "catkin config --install --install-space /opt/ros/noetic \
-        && catkin build --cmake-args -DCMAKE_BUILD_TYPE=Release \
-        && rm -rf $HOME/temp_ws"
-
 # dev essentials, later sections need git
 RUN add-apt-repository -y ppa:git-core/ppa \
     && apt-get install -qy \
@@ -111,6 +100,17 @@ RUN add-apt-repository -y ppa:git-core/ppa \
 RUN rm /etc/alternatives/editor \
     && ln -s /usr/bin/vim /etc/alternatives/editor
 RUN git lfs install
+
+# build catkin modules not availble via apt, need git
+# SHELL ["/bin/bash", "-c"]
+RUN mkdir -p temp_ws/src \
+    && cd temp_ws/src \
+    && git clone https://github.com/RobotWebTools/web_video_server \
+    && cd $HOME/temp_ws \
+    && bash -ic \
+        "catkin config --install --install-space /opt/ros/noetic \
+        && catkin build --cmake-args -DCMAKE_BUILD_TYPE=Release \
+        && rm -rf $HOME/temp_ws"
 
 ########################################################
 #### newer packages
