@@ -56,7 +56,8 @@ RUN . activate \
     # unless we use a venv?
     # /opt/ros/noetic/share/catkin/cmake/catkin_package.cmake depends on empy
     # cv_bridge depends on pyyaml but it's not installed into the venv
-    && pip install --upgrade --no-cache-dir --compile rosdep empy catkin_tools
+    # rosdep includes pyyaml
+    && pip install --upgrade --no-cache-dir --compile rosdep empy catkin_tools opencv-python
 
 # dev essentials, later sections need git
 RUN add-apt-repository -y ppa:git-core/ppa \
@@ -137,19 +138,21 @@ RUN curl -SL https://github.com/opencv/opencv/archive/refs/tags/4.5.5.tar.gz | t
     && cd opencv-4.5.5 \
     && mkdir build \
     && cd build \
-    && . activate \
+    # don't build python since we use pip in a venv only
     && cmake .. \
         -D CMAKE_BUILD_TYPE=Release \
         -D CMAKE_INSTALL_PREFIX=/usr/local \
-        -D PYTHON3_EXECUTABLE=/opt/venv/bin/python3 \
-        -D PYTHON_INCLUDE_DIR=/usr/include/python3.8 \
-        -D PYTHON_INCLUDE_DIR2=/usr/include/x86_64-linux-gnu/python3.8 \
-        -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.8.so \
-        -D PYTHON3_NUMPY_INCLUDE_DIRS=/opt/venv/lib/python3.8/site-packages/numpy/core/include \
-    && make install -j 12 \
+        -G "Ninja" \
+    #     -D PYTHON3_EXECUTABLE=/opt/venv/bin/python3 \
+    #     -D PYTHON_INCLUDE_DIR=/usr/include/python3.8 \
+    #     -D PYTHON_INCLUDE_DIR2=/usr/include/x86_64-linux-gnu/python3.8 \
+    #     -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.8.so \
+    #     -D PYTHON3_NUMPY_INCLUDE_DIRS=/opt/venv/lib/python3.8/site-packages/numpy/core/include \
+    && ninja install -j 12 \
     && cd $HOME \
-    && rm -rf opencv* \
-    && ln -s /usr/local/lib/python3.8/site-packages/cv2 /opt/venv/lib/python3.8/site-packages/cv2
+    && rm -rf opencv*
+    # don't use a symlink here as it can get overwritten by pip
+    # && ln -s /usr/local/lib/python3.8/site-packages/cv2 /opt/venv/lib/python3.8/site-packages/cv2
 
 ########################################################
 # other dependencies
