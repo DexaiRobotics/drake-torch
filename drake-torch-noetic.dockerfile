@@ -26,6 +26,7 @@ ENV ROS_DISTRO=noetic
 ENV ROS_PYTHON_VERSION=3
 
 RUN apt-get update \
+    && . activate \
     && apt-get install -qy \
     ros-noetic-ros-base \
     ros-noetic-geometry2 \
@@ -55,7 +56,18 @@ RUN . activate \
     # unless we use a venv?
     # /opt/ros/noetic/share/catkin/cmake/catkin_package.cmake depends on empy
     # cv_bridge depends on pyyaml but it's not installed into the venv
-    && pip install --upgrade --no-cache-dir --compile pyyaml empy catkin_tools
+    && pip install --upgrade --no-cache-dir --compile rosdep empy catkin_tools
+
+# build catkin modules not availble via apt
+# SHELL ["/bin/bash", "-c"]
+RUN mkdir -p temp_ws/src \
+    && cd temp_ws/src \
+    && git clone https://github.com/RobotWebTools/web_video_server \
+    && cd $HOME/temp_ws \
+    && bash -ic \
+        "catkin config --install --install-space /opt/ros/noetic \
+        && catkin build --cmake-args -DCMAKE_BUILD_TYPE=Release \
+        && rm -rf $HOME/temp_ws"
 
 # dev essentials, later sections need git
 RUN add-apt-repository -y ppa:git-core/ppa \
@@ -100,18 +112,6 @@ RUN rm /etc/alternatives/editor \
     && ln -s /usr/bin/vim /etc/alternatives/editor
 RUN git lfs install
 
-# build catkin modules not availble via apt
-# SHELL ["/bin/bash", "-c"]
-RUN mkdir -p temp_ws/src \
-    && cd temp_ws/src \
-    && git clone https://github.com/RobotWebTools/web_video_server \
-    && cd $HOME/temp_ws \
-    && bash -c \
-        "source /opt/ros/$ROS_DISTRO/setup.bash \
-        && catkin config --install --install-space /opt/ros/noetic \
-        && catkin build --cmake-args -DCMAKE_BUILD_TYPE=Release \
-        && rm -rf $HOME/temp_ws"
-
 ########################################################
 #### newer packages
 ########################################################
@@ -132,8 +132,8 @@ RUN apt-get install -qy \
         libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
         libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev \
     && apt-get autoremove -qy
-RUN curl -SL https://github.com/opencv/opencv/archive/refs/tags/4.5.4.tar.gz | tar -xz \
-    && cd opencv-4.5.4 \
+RUN curl -SL https://github.com/opencv/opencv/archive/refs/tags/4.5.5.tar.gz | tar -xz \
+    && cd opencv-4.5.5 \
     && mkdir build \
     && cd build \
     && . activate \
