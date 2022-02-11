@@ -296,6 +296,9 @@ RUN apt-get update \
     && apt-get autoremove -qy \
     && rm -rf /var/lib/apt/lists/*
 
+COPY in_container_scripts scripts
+RUN scripts/mod_bashrc.sh && rm -rf scripts
+
 # Taken from - https://docs.docker.com/engine/examples/running_ssh_service/#environment-variables
 RUN mkdir /var/run/sshd
 RUN echo 'root:root' | chpasswd
