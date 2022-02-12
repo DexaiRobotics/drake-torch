@@ -134,8 +134,8 @@ RUN apt-get install -qy \
         libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
         libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev \
     && apt-get autoremove -qy
-RUN curl -SL https://github.com/opencv/opencv/archive/refs/tags/4.5.5.tar.gz | tar -xz \
-    && cd opencv-4.5.5 \
+RUN curl -SL https://github.com/opencv/opencv/archive/refs/tags/4.5.3.tar.gz | tar -xz \
+    && cd opencv-4.5.3 \
     && mkdir build \
     && cd build \
     # don't build python since we use pip in a venv only
