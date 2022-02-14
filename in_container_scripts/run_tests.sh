@@ -1,4 +1,8 @@
-#!/bin/bash
+#!/bin/bash -l
+# The -l option tells bash to read all the various "profile" scripts,
+# from /etc and from your home directory.
+# Bash normally only does this for interactive sessions
+# (in which bash is run without any command line parameters).
 
 set -eufo pipefail
 

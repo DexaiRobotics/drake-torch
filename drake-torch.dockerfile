@@ -52,6 +52,7 @@ RUN apt-get update \
         python3 \
         python3-dev \
         python3-pip \
+        python3-venv \
         # gcc7 for libfranka
         gcc-7 \
         g++-7 \
@@ -65,7 +66,11 @@ RUN update-alternatives \
         --slave /usr/bin/g++ g++ /usr/bin/g++-11 \
         --slave /usr/bin/gcov gcov /usr/bin/gcov-11
 
-RUN python3 -m pip install --upgrade --no-cache-dir --compile \
+# create venv to avoid site breakage between debian and pip
+RUN python3 -m venv /opt/venv \
+    && ln -s  /opt/venv/bin/activate /usr/local/bin/activate \
+    && . activate \
+    && pip install --upgrade --no-cache-dir --compile \
         setuptools wheel pip
 
 # install make 4.3
@@ -103,13 +108,6 @@ RUN wget https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-li
     && mv ninja /usr/bin/ \
     && rm ninja-linux.zip
 
-# intel OneAPI base, including MKL
-# RUN wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
-#     && apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
-#     && rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
-#     && add-apt-repository "deb https://apt.repos.intel.com/oneapi all main" \
-#     && apt-get install -qy intel-basekit
-
 ##############################################################
 # libtorch and pytorch, torchvision
 ##############################################################
@@ -120,17 +118,18 @@ ENV BUILD_CAFFE2_OPS=1
 ENV _GLIBCXX_USE_CXX11_ABI=1
 
 RUN set -eux && cd $HOME \
+    && . activate \
     && \
         if [ $LIBTORCH = true ]; then \
             if [ $BUILD_TYPE = "cpu" ]; then \
                 if [ $BUILD_CHANNEL = "stable" ]; then \
-                    wget -q https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.9.0%2Bcpu.zip; \
+                    wget -q https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.10.2%2Bcpu.zip; \
                 else \
                     wget -q https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared-with-deps-latest.zip; \
                 fi; \
             else \
                 if [ $BUILD_CHANNEL = "stable" ]; then \
-                    wget -q https://download.pytorch.org/libtorch/cu111/libtorch-cxx11-abi-shared-with-deps-1.9.0%2Bcu111.zip; \
+                    wget -q https://download.pytorch.org/libtorch/cu111/libtorch-cxx11-abi-shared-with-deps-1.10.2%2Bcu111.zip; \
                 else \
                     wget -q https://download.pytorch.org/libtorch/nightly/cu111/libtorch-cxx11-abi-shared-with-deps-latest.zip; \
                 fi; \
@@ -142,13 +141,13 @@ RUN set -eux && cd $HOME \
     && \
         if [ $BUILD_TYPE = "cpu" ]; then \
             if [ $BUILD_CHANNEL = "stable" ]; then \
-                python3 -m pip install --upgrade --no-cache-dir --compile torch==1.9.0+cpu torchvision==0.10.0+cpu -f https://download.pytorch.org/whl/torch_stable.html; \
+                python3 -m pip install --upgrade --no-cache-dir --compile torch==1.10.2+cpu torchvision==0.11.3+cpu -f https://download.pytorch.org/whl/torch_stable.html; \
             else \
                 python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html; \
             fi; \
         else \
             if [ $BUILD_CHANNEL = "stable" ]; then \
-                python3 -m pip install --upgrade --no-cache-dir --compile torch==1.9.0+cu111 torchvision==0.10.0+cu111 -f https://download.pytorch.org/whl/torch_stable.html; \
+                python3 -m pip install --upgrade --no-cache-dir --compile torch==1.10.2+cu113 torchvision==0.11.3+cu113 -f https://download.pytorch.org/whl/torch_stable.html; \
             else \
                 python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cu111/torch_nightly.html; \
             fi; \
@@ -164,6 +163,7 @@ RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.b
     && rm -rf $HOME/eigen*
 
 # install latest fmt (to be compatible with latest spdlog)
+# TODO: upgrade to 8.1.1+ after upgrading drake
 RUN curl -SL https://github.com/fmtlib/fmt/archive/refs/tags/8.0.1.tar.gz | tar xz \
     && cd fmt-8.0.1 \
     && mkdir build \
@@ -186,6 +186,7 @@ RUN curl -SL https://github.com/fmtlib/fmt/archive/refs/tags/8.0.1.tar.gz | tar 
 ########################################################
 RUN set -eux \
     && mkdir -p /opt \
+    && . activate \
     && \
         if [ $BUILD_CHANNEL = "stable" ]; then \
             wget -qO- https://drake-apt.csail.mit.edu/drake.asc | gpg --dearmor - \
@@ -209,28 +210,18 @@ RUN set -eux \
 # pip install pydrake using the /opt/drake directory in develop mode
 # --user flag is broken for editable install right now, at least with setuptools backend
 COPY in_container_scripts/setup_pydrake.py setup_pydrake.py
-RUN if [ "`lsb_release -sc`" = "bionic" ]; \
-    then mv setup_pydrake.py /opt/drake/lib/python3.6/site-packages/setup.py \
-        && python3 -m pip install -e /opt/drake/lib/python3.6/site-packages --prefix=~/.local; \
-    else mv setup_pydrake.py /opt/drake/lib/python3.8/site-packages/setup.py \
-        && python3 -m pip install -e /opt/drake/lib/python3.8/site-packages --prefix=~/.local; \
-    fi
+RUN . activate \
+    && \
+        if [ "`lsb_release -sc`" = "bionic" ]; \
+        then mv setup_pydrake.py /opt/drake/lib/python3.6/site-packages/setup.py \
+            && python3 -m pip install -e /opt/drake/lib/python3.6/site-packages; \
+        else mv setup_pydrake.py /opt/drake/lib/python3.8/site-packages/setup.py \
+            && python3 -m pip install -e /opt/drake/lib/python3.8/site-packages; \
+        fi
 
 # get rid of the following spam
 # FindResource ignoring DRAKE_RESOURCE_ROOT because it is not set.
 RUN echo 'export DRAKE_RESOURCE_ROOT=/opt/drake/share' >> ~/.bashrc 
-
-# drake installs some python packages as dependencies, causing jupyter issues
-# RUN apt-get remove -qy python3-zmq python3-terminado python3-yaml \
-#     && apt-get update \
-#     && apt-get upgrade -qy \
-#     && apt-get autoremove -qy \
-#     && rm -rf /var/lib/apt/lists/*
-
-# install pip packages after apt
-RUN python3 -m pip install \
-        --upgrade --no-cache-dir --compile --ignore-installed \
-        notebook jupyterlab pyyaml
 
 # install latest spdlog (only 1.5 from apt installed by drake)
 # we build static lib because libspdlog-dev that ships with ubuntu is shared

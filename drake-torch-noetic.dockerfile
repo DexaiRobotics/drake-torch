@@ -25,7 +25,9 @@ RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E
 ENV ROS_DISTRO=noetic
 ENV ROS_PYTHON_VERSION=3
 
-RUN apt-get update && apt-get install -qy \
+RUN apt-get update \
+    && . activate \
+    && apt-get install -qy \
     ros-noetic-ros-base \
     ros-noetic-geometry2 \
     ros-noetic-pcl-ros \
@@ -46,11 +48,16 @@ RUN apt-get update && apt-get install -qy \
     ros-noetic-roslint \
     # ros-noetic-gazebo-ros \
     ros-noetic-async-web-server-cpp \
-    ros-noetic-realsense2-camera \
+    ros-noetic-realsense2-camera
+
+RUN . activate \
     # catkin tools nad osrf from pip doesn't work for py3 and focal/noetic
     # https://github.com/catkin/catkin_tools/issues/594
-    python3-catkin-tools \
-    python3-osrf-pycommon
+    # unless we use a venv?
+    # /opt/ros/noetic/share/catkin/cmake/catkin_package.cmake depends on empy
+    # cv_bridge depends on pyyaml but it's not installed into the venv
+    # rosdep includes pyyaml
+    && pip install --upgrade --no-cache-dir --compile rosdep empy catkin_tools opencv-python
 
 # dev essentials, later sections need git
 RUN add-apt-repository -y ppa:git-core/ppa \
@@ -89,19 +96,20 @@ RUN add-apt-repository -y ppa:git-core/ppa \
         ffmpeg \
         # for reading debug info and dumping stacktrace
         binutils-dev \
-    && python3 -m pip install --upgrade --no-cache-dir --compile cpplint gcovr GitPython
+    && . activate \
+    && pip install --upgrade --no-cache-dir --compile cpplint gcovr GitPython
 RUN rm /etc/alternatives/editor \
     && ln -s /usr/bin/vim /etc/alternatives/editor
 RUN git lfs install
 
-# build catkin modules not availble via apt
+# build catkin modules not availble via apt, need git
 # SHELL ["/bin/bash", "-c"]
 RUN mkdir -p temp_ws/src \
     && cd temp_ws/src \
     && git clone https://github.com/RobotWebTools/web_video_server \
     && cd $HOME/temp_ws \
     && bash -c \
-        "source /opt/ros/$ROS_DISTRO/setup.bash \
+        ". activate \
         && catkin config --install --install-space /opt/ros/noetic \
         && catkin build --cmake-args -DCMAKE_BUILD_TYPE=Release \
         && rm -rf $HOME/temp_ws"
@@ -126,21 +134,25 @@ RUN apt-get install -qy \
         libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
         libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev \
     && apt-get autoremove -qy
-RUN curl -SL https://github.com/opencv/opencv/archive/refs/tags/4.5.3.tar.gz | tar -xz
-RUN cd opencv-4.5.3 \
+RUN curl -SL https://github.com/opencv/opencv/archive/refs/tags/4.5.3.tar.gz | tar -xz \
+    && cd opencv-4.5.3 \
     && mkdir build \
     && cd build \
+    # don't build python since we use pip in a venv only
     && cmake .. \
         -D CMAKE_BUILD_TYPE=Release \
         -D CMAKE_INSTALL_PREFIX=/usr/local \
-        -D PYTHON3_EXECUTABLE=/usr/bin/python3 \
-        -D PYTHON_INCLUDE_DIR=/usr/include/python3.8 \
-        -D PYTHON_INCLUDE_DIR2=/usr/include/x86_64-linux-gnu/python3.8 \
-        -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.8.so \
-        -D PYTHON3_NUMPY_INCLUDE_DIRS=/usr/lib/python3/dist-packages/numpy/core/include \
-    && make install -j 12 \
+        -G "Ninja" \
+    #     -D PYTHON3_EXECUTABLE=/opt/venv/bin/python3 \
+    #     -D PYTHON_INCLUDE_DIR=/usr/include/python3.8 \
+    #     -D PYTHON_INCLUDE_DIR2=/usr/include/x86_64-linux-gnu/python3.8 \
+    #     -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.8.so \
+    #     -D PYTHON3_NUMPY_INCLUDE_DIRS=/opt/venv/lib/python3.8/site-packages/numpy/core/include \
+    && ninja install -j 12 \
     && cd $HOME \
     && rm -rf opencv*
+    # don't use a symlink here as it can get overwritten by pip
+    # && ln -s /usr/local/lib/python3.8/site-packages/cv2 /opt/venv/lib/python3.8/site-packages/cv2
 
 ########################################################
 # other dependencies
@@ -241,10 +253,6 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com \
     && add-apt-repository "deb https://librealsense.intel.com/Debian/apt-repo $(lsb_release -cs) main" -u \
     && apt-get install -qy \
         rsync \
-        # librealsense2 \
-        # librealsense2-dkms \
-        # librealsense2-dev \
-        # librealsense2-dbg \
         librealsense2-utils
 
 # provide backward source in /opt for inclusion and linking
@@ -256,13 +264,13 @@ RUN cd /opt \
 # clang-format, clang-tidy
 RUN wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - 2>/dev/null \
     && add-apt-repository "deb http://apt.llvm.org/`lsb_release -sc`/ llvm-toolchain-`lsb_release -sc` main" 2>/dev/null \
-    && apt-get -qy install clang-format-14 clang-tidy-14 \
-    && ln -s /usr/bin/clang-format-14 /usr/bin/clang-format \
-    && ln -s /usr/bin/clang-tidy-14 /usr/bin/clang-tidy
+    && apt-get -qy install clang-format-15 clang-tidy-15 \
+    && ln -s /usr/bin/clang-format-15 /usr/bin/clang-format \
+    && ln -s /usr/bin/clang-tidy-15 /usr/bin/clang-tidy
 
 # oclint
-RUN curl -SL https://github.com/oclint/oclint/archive/refs/tags/v21.05.tar.gz | tar xz \
-    && cd oclint-21.05/oclint-scripts/ \
+RUN curl -SL https://github.com/oclint/oclint/archive/refs/tags/v21.10.tar.gz | tar xz \
+    && cd oclint-21.10/oclint-scripts/ \
     && ./make \
     && cd ../build/oclint-release/ \
     && cp bin/oclint /usr/local/bin/ \
