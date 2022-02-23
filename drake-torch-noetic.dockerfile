@@ -241,7 +241,7 @@ RUN git clone https://github.com/lcm-proj/lcm \
 RUN git clone https://github.com/openhumanoids/bot_core_lcmtypes.git \
     && cd bot_core_lcmtypes \
     && lcm-gen -p lcmtypes/*.lcm \
-    && mv bot_core /usr/local/lib/python3.8/dist-packages/ \
+    && mv bot_core /opt/venv/lib/python3.8/site-packages/ \
     && cd $HOME && rm -rf bot_core_lcmtypes
 
 # install librealsense2-utils for realsense viewer
