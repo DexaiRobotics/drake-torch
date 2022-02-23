@@ -286,7 +286,9 @@ RUN git clone https://github.com/danmar/cppcheck.git \
     && mkdir build \
     && cd build \
     && cmake .. -DCMAKE_BUILD_TYPE=Release \
-    && cmake --build . --config Release -j 10 \
+    # do not use multiple threads as as the dependency is broken
+    # No rule to make target 'lib/build/mc_pathmatch.cpp', needed by 'tools/CMakeFiles/dmake.dir/__/lib/build/mc_pathmatch.cpp.o'
+    && cmake --build . --config Release -j 1 \
     && make install \
     && cd $HOME \
     && rm -rf cppcheck
