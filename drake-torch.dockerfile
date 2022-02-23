@@ -108,6 +108,11 @@ RUN wget https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-li
     && mv ninja /usr/bin/ \
     && rm ninja-linux.zip
 
+# occasionally GNU make does not resolve dependency tree of targets correctly
+# and fails to build with multiple threads. Ninja hasn't been observed to suffer
+# the same issue, so we set it as the default generator for cmake.
+ENV CMAKE_GENERATOR=Ninja
+
 ##############################################################
 # libtorch and pytorch, torchvision
 ##############################################################
