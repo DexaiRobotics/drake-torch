@@ -138,14 +138,14 @@ RUN curl -SL https://github.com/opencv/opencv/archive/refs/tags/4.5.3.tar.gz | t
     && cd opencv-4.5.3 \
     && mkdir build \
     # don't build python since we use pip in a venv only
-    && cmake -S . -B build -D CMAKE_BUILD_TYPE=Release --prefix=/usr/local \
+    && cmake -S . -B build -D CMAKE_BUILD_TYPE=Release \
     #     -D PYTHON3_EXECUTABLE=/opt/venv/bin/python3 \
     #     -D PYTHON_INCLUDE_DIR=/usr/include/python3.8 \
     #     -D PYTHON_INCLUDE_DIR2=/usr/include/x86_64-linux-gnu/python3.8 \
     #     -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.8.so \
     #     -D PYTHON3_NUMPY_INCLUDE_DIRS=/opt/venv/lib/python3.8/site-packages/numpy/core/include \
     && cmake --build build --config Release -j 12 \
-    && cmake --install build \
+    && cmake --install build --prefix=/usr/local \
     && cd $HOME \
     && rm -rf opencv*
     # don't use a symlink here as it can get overwritten by pip

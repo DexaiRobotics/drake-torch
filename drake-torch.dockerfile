@@ -162,9 +162,9 @@ RUN set -eux && cd $HOME \
 RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.bz2 | tar -xj \
     && cd eigen-3.4.0 \
     && mkdir build \
-    && cmake -S . -B build -D CMAKE_BUILD_TYPE=Release --prefix=/usr/local \
+    && cmake -S . -B build -D CMAKE_BUILD_TYPE=Release \
     && cmake --build build --config Release -j 12 \
-    && cmake --install build \
+    && cmake --install build --prefix=/usr/local \
     && rm -rf $HOME/eigen*
 
 # install latest fmt (to be compatible with latest spdlog)
@@ -242,7 +242,6 @@ RUN curl -SL https://github.com/gabime/spdlog/archive/refs/tags/v1.9.2.tar.gz | 
         -D CMAKE_BUILD_TYPE=Release \
         -D BUILD_SHARED_LIBS=OFF \
         -D CMAKE_POSITION_INDEPENDENT_CODE=ON \
-        --prefix=/usr/local \
     && cmake --build build --config Release -j 12 \
-    && cmake --install build \
+    && cmake --install build --prefix=/usr/local \
     && rm -rf $HOME/spdlog*
