@@ -285,11 +285,11 @@ RUN git clone https://github.com/danmar/cppcheck.git \
     && cd cppcheck \
     && mkdir build \
     && cd build \
-    && cmake .. -DCMAKE_BUILD_TYPE=Release \
-    # do not use multiple threads as as the dependency is broken
+    && cmake .. -DCMAKE_BUILD_TYPE=Release -G "Ninja" \
+    # do not use make with multiple threads as dependency tree is broken
     # No rule to make target 'lib/build/mc_pathmatch.cpp', needed by 'tools/CMakeFiles/dmake.dir/__/lib/build/mc_pathmatch.cpp.o'
-    && cmake --build . --config Release -j 1 \
-    && make install \
+    && cmake --build . --config Release -j 12 \
+    && ninja install \
     && cd $HOME \
     && rm -rf cppcheck
 
