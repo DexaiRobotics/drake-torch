@@ -164,7 +164,7 @@ RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.b
     && mkdir build \
     && cd build \
     && cmake -S .. -B . -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/usr/local \
-    && make install -j 12 \
+    && ninja install -j 12 \
     && rm -rf $HOME/eigen*
 
 # install latest fmt (to be compatible with latest spdlog)
@@ -174,7 +174,7 @@ RUN curl -SL https://github.com/fmtlib/fmt/archive/refs/tags/8.0.1.tar.gz | tar 
     && mkdir build \
     && cd build \
     && cmake -S .. -B . -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=ON \
-    && make install -j 12 \
+    && ninja install -j 12 \
     && rm -rf $HOME/fmt*
 
 ########################################################
@@ -244,5 +244,5 @@ RUN curl -SL https://github.com/gabime/spdlog/archive/refs/tags/v1.9.2.tar.gz | 
         -D BUILD_SHARED_LIBS=OFF \
         -D CMAKE_POSITION_INDEPENDENT_CODE=ON \
         -D CMAKE_INSTALL_PREFIX=/usr/local \
-    && make install -j 12 \
+    && ninja install -j 12 \
     && rm -rf $HOME/spdlog*
