@@ -285,7 +285,7 @@ RUN git clone https://github.com/danmar/cppcheck.git \
     && cd cppcheck \
     && mkdir build \
     && cd build \
-    && cmake .. -DUSE_MATCHCOMPILER=ON -DCMAKE_BUILD_TYPE=Release \
+    && cmake .. -DCMAKE_BUILD_TYPE=Release \
     && cmake --build . --config Release -j 10 \
     && make install \
     && cd $HOME \
