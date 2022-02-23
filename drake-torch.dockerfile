@@ -162,9 +162,9 @@ RUN set -eux && cd $HOME \
 RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.bz2 | tar -xj \
     && cd eigen-3.4.0 \
     && mkdir build \
-    && cd build \
-    && cmake -S .. -B . -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/usr/local \
-    && ninja install -j 12 \
+    && cmake -S . -B build -D CMAKE_BUILD_TYPE=Release --prefix=/usr/local \
+    && cmake --build build --config Release -j 12 \
+    && cmake --install build \
     && rm -rf $HOME/eigen*
 
 # install latest fmt (to be compatible with latest spdlog)
@@ -172,9 +172,9 @@ RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.b
 RUN curl -SL https://github.com/fmtlib/fmt/archive/refs/tags/8.0.1.tar.gz | tar xz \
     && cd fmt-8.0.1 \
     && mkdir build \
-    && cd build \
-    && cmake -S .. -B . -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=ON \
-    && ninja install -j 12 \
+    && cmake -S . -B build -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=ON \
+    && cmake --build build --config Release -j 12 \
+    && cmake --install build \
     && rm -rf $HOME/fmt*
 
 ########################################################
@@ -238,11 +238,11 @@ RUN echo 'export DRAKE_RESOURCE_ROOT=/opt/drake/share' >> ~/.bashrc
 RUN curl -SL https://github.com/gabime/spdlog/archive/refs/tags/v1.9.2.tar.gz | tar xz \
     && cd spdlog-1.9.2 \
     && mkdir build \
-    && cd build \
-    && cmake -S .. -B . \
+    && cmake -S . -B build \
         -D CMAKE_BUILD_TYPE=Release \
         -D BUILD_SHARED_LIBS=OFF \
         -D CMAKE_POSITION_INDEPENDENT_CODE=ON \
-        -D CMAKE_INSTALL_PREFIX=/usr/local \
-    && ninja install -j 12 \
+        --prefix=/usr/local \
+    && cmake --build build --config Release -j 12 \
+    && cmake --install build \
     && rm -rf $HOME/spdlog*
