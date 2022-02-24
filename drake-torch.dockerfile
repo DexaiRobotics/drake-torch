@@ -152,7 +152,7 @@ RUN set -eux && cd $HOME \
             fi; \
         else \
             if [ $BUILD_CHANNEL = "stable" ]; then \
-                python3 -m pip install --upgrade --no-cache-dir --compile torch==1.10.2+cu113 torchvision==0.11.3+cu113 -f https://download.pytorch.org/whl/torch_stable.html; \
+                python3 -m pip install --upgrade --no-cache-dir --compile torch==1.10.2+cu113 torchvision==0.11.3+cu111 -f https://download.pytorch.org/whl/torch_stable.html; \
             else \
                 python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cu111/torch_nightly.html; \
             fi; \
