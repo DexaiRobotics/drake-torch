@@ -108,6 +108,11 @@ RUN wget https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-li
     && mv ninja /usr/bin/ \
     && rm ninja-linux.zip
 
+# occasionally GNU make does not resolve dependency tree of targets correctly
+# and fails to build with multiple threads. Ninja hasn't been observed to suffer
+# the same issue, so we set it as the default generator for cmake.
+ENV CMAKE_GENERATOR=Ninja
+
 ##############################################################
 # libtorch and pytorch, torchvision
 ##############################################################
@@ -157,9 +162,9 @@ RUN set -eux && cd $HOME \
 RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.bz2 | tar -xj \
     && cd eigen-3.4.0 \
     && mkdir build \
-    && cd build \
-    && cmake -S .. -B . -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/usr/local \
-    && make install -j 12 \
+    && cmake -S . -B build -D CMAKE_BUILD_TYPE=Release \
+    && cmake --build build --config Release -j 12 \
+    && cmake --install build --prefix=/usr/local \
     && rm -rf $HOME/eigen*
 
 # install latest fmt (to be compatible with latest spdlog)
@@ -167,9 +172,9 @@ RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.b
 RUN curl -SL https://github.com/fmtlib/fmt/archive/refs/tags/8.0.1.tar.gz | tar xz \
     && cd fmt-8.0.1 \
     && mkdir build \
-    && cd build \
-    && cmake -S .. -B . -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=ON \
-    && make install -j 12 \
+    && cmake -S . -B build -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=ON \
+    && cmake --build build --config Release -j 12 \
+    && cmake --install build \
     && rm -rf $HOME/fmt*
 
 ########################################################
@@ -233,11 +238,10 @@ RUN echo 'export DRAKE_RESOURCE_ROOT=/opt/drake/share' >> ~/.bashrc
 RUN curl -SL https://github.com/gabime/spdlog/archive/refs/tags/v1.9.2.tar.gz | tar xz \
     && cd spdlog-1.9.2 \
     && mkdir build \
-    && cd build \
-    && cmake -S .. -B . \
+    && cmake -S . -B build \
         -D CMAKE_BUILD_TYPE=Release \
         -D BUILD_SHARED_LIBS=OFF \
         -D CMAKE_POSITION_INDEPENDENT_CODE=ON \
-        -D CMAKE_INSTALL_PREFIX=/usr/local \
-    && make install -j 12 \
+    && cmake --build build --config Release -j 12 \
+    && cmake --install build --prefix=/usr/local \
     && rm -rf $HOME/spdlog*

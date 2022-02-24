@@ -103,6 +103,8 @@ RUN rm /etc/alternatives/editor \
 RUN git lfs install
 
 # build catkin modules not availble via apt, need git
+# catkin is hard-coded for make and does not properly use cmake
+# the --use-ninja command is also unimplemented
 # SHELL ["/bin/bash", "-c"]
 RUN mkdir -p temp_ws/src \
     && cd temp_ws/src \
@@ -110,6 +112,7 @@ RUN mkdir -p temp_ws/src \
     && cd $HOME/temp_ws \
     && bash -c \
         ". activate \
+        && unset CMAKE_GENERATOR \
         && catkin config --install --install-space /opt/ros/noetic \
         && catkin build --cmake-args -DCMAKE_BUILD_TYPE=Release \
         && rm -rf $HOME/temp_ws"
@@ -122,9 +125,9 @@ RUN mkdir -p temp_ws/src \
 RUN curl -SL https://github.com/google/googletest/archive/release-1.11.0.tar.gz | tar -xz \
     && cd googletest-release-1.11.0 \
     && mkdir build \
-    && cd build \
-    && cmake .. -D CMAKE_BUILD_TYPE=Release \
-    && make install -j 12 \
+    && cmake -S . -B build -D CMAKE_BUILD_TYPE=Release \
+    && cmake --build build --config Release -j 12 \
+    && cmake --install build \
     && cd $HOME \
     && rm -rf googletest*
 
@@ -137,18 +140,15 @@ RUN apt-get install -qy \
 RUN curl -SL https://github.com/opencv/opencv/archive/refs/tags/4.5.3.tar.gz | tar -xz \
     && cd opencv-4.5.3 \
     && mkdir build \
-    && cd build \
     # don't build python since we use pip in a venv only
-    && cmake .. \
-        -D CMAKE_BUILD_TYPE=Release \
-        -D CMAKE_INSTALL_PREFIX=/usr/local \
-        -G "Ninja" \
+    && cmake -S . -B build -D CMAKE_BUILD_TYPE=Release \
     #     -D PYTHON3_EXECUTABLE=/opt/venv/bin/python3 \
     #     -D PYTHON_INCLUDE_DIR=/usr/include/python3.8 \
     #     -D PYTHON_INCLUDE_DIR2=/usr/include/x86_64-linux-gnu/python3.8 \
     #     -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.8.so \
     #     -D PYTHON3_NUMPY_INCLUDE_DIRS=/opt/venv/lib/python3.8/site-packages/numpy/core/include \
-    && ninja install -j 12 \
+    && cmake --build build --config Release -j 12 \
+    && cmake --install build --prefix=/usr/local \
     && cd $HOME \
     && rm -rf opencv*
     # don't use a symlink here as it can get overwritten by pip
@@ -170,24 +170,23 @@ RUN curl -SL https://github.com/opencv/opencv/archive/refs/tags/4.5.3.tar.gz | t
 RUN git clone https://github.com/DexaiRobotics/ompl.git \
     && cd ompl \
     && mkdir -p build \
-    && cmake -S . -B build -D CMAKE_BUILD_TYPE=Release -G "Ninja" \
-    && cmake --build build -j 10 \
-    && cd build \
-    && ninja install -j 10 \
+    && cmake -S . -B build -D CMAKE_BUILD_TYPE=Release \
+    && cmake --build build --config Release -j 12 \
+    && cmake --install build \
     && rm -rf $HOME/ompl
 
 # install cli11
 RUN cd $HOME && curl -SL https://github.com/CLIUtils/CLI11/archive/refs/tags/v2.1.2.tar.gz | tar -xz \
     && cd CLI11-2.1.2 \
     && mkdir build \
-    && cd build \
-    && cmake .. \
+    && cmake -S . -B build \
         -D CMAKE_BUILD_TYPE=Release \
         -D CLI11_SINGLE_FILE=OFF \
         -D CLI11_BUILD_DOCS=OFF \
         -D CLI11_BUILD_TESTS=OFF \
         -D CLI11_BUILD_EXAMPLES=OFF \
-    && make install -j 12 \
+    && cmake --build build --config Release -j 12 \
+    && cmake --install build \
     && rm -rf $HOME/CLI11*
 
 # install json, header only
@@ -220,20 +219,29 @@ RUN cd $HOME \
 
 # Install C++ branch of msgpack-c
 RUN cd $HOME && git clone -b cpp_master https://github.com/msgpack/msgpack-c.git \
-    && cd msgpack-c && cmake -DMSGPACK_CXX17=ON . && make install -j 12 \
+    && cd msgpack-c \
+    && mkdir build \
+    && cmake -S . -B build -D CMAKE_BUILD_TYPE=Release -DMSGPACK_CXX17=ON \
+    && cmake --build build --config Release -j 12 \
+    && cmake --install build \
     && cd $HOME && rm -rf msgpack-c
 
 # cnpy lets you read and write numpy formats in C++, needed by libstuffgetter.so
 RUN git clone https://github.com/rogersce/cnpy.git \
-    && mkdir -p cnpy/build && cd cnpy/build \
-    && cmake .. && make -j 12 && make install \
+    && cd cnpy \
+    && mkdir build \
+    && cmake -S . -B build -D CMAKE_BUILD_TYPE=Release \
+    && cmake --build build --config Release -j 12 \
+    && cmake --install build \
     && cd $HOME && rm -rf cnpy
 
 # install LCM system-wide
 RUN git clone https://github.com/lcm-proj/lcm \
-    && cd lcm && mkdir -p build && cd build && cmake .. \
-    && make -j 12 \
-    && make install \
+    && cd lcm \
+    && mkdir build \
+    && cmake -S . -B build -D CMAKE_BUILD_TYPE=Release \
+    && cmake --build build --config Release -j 12 \
+    && cmake --install build \
     && cd $HOME && rm -rf lcm
 
 # install botcore lcmtypes for parsing data in these formats in python
@@ -241,7 +249,7 @@ RUN git clone https://github.com/lcm-proj/lcm \
 RUN git clone https://github.com/openhumanoids/bot_core_lcmtypes.git \
     && cd bot_core_lcmtypes \
     && lcm-gen -p lcmtypes/*.lcm \
-    && mv bot_core /usr/local/lib/python3.8/dist-packages/ \
+    && mv bot_core /opt/venv/lib/python3.8/site-packages/ \
     && cd $HOME && rm -rf bot_core_lcmtypes
 
 # install librealsense2-utils for realsense viewer
@@ -284,10 +292,11 @@ RUN curl -SL https://github.com/oclint/oclint/archive/refs/tags/v21.10.tar.gz | 
 RUN git clone https://github.com/danmar/cppcheck.git \
     && cd cppcheck \
     && mkdir build \
-    && cd build \
-    && cmake .. -DUSE_MATCHCOMPILER=ON -DCMAKE_BUILD_TYPE=Release \
-    && cmake --build . --config Release -j 10 \
-    && make install \
+    && cmake -S . -B build -D CMAKE_BUILD_TYPE=Release \
+    && cmake --build build --config Release -j 12 \
+    && cmake --install build \
+    # do not use make with multiple threads as dependency tree is broken
+    # No rule to make target 'lib/build/mc_pathmatch.cpp', needed by 'tools/CMakeFiles/dmake.dir/__/lib/build/mc_pathmatch.cpp.o'
     && cd $HOME \
     && rm -rf cppcheck
 
