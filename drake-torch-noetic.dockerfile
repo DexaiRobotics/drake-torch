@@ -103,6 +103,8 @@ RUN rm /etc/alternatives/editor \
 RUN git lfs install
 
 # build catkin modules not availble via apt, need git
+# catkin is hard-coded for make and does not properly use cmake
+# the --use-ninja command is also unimplemented
 # SHELL ["/bin/bash", "-c"]
 RUN mkdir -p temp_ws/src \
     && cd temp_ws/src \
@@ -110,6 +112,7 @@ RUN mkdir -p temp_ws/src \
     && cd $HOME/temp_ws \
     && bash -c \
         ". activate \
+        && unset CMAKE_GENERATOR \
         && catkin config --install --install-space /opt/ros/noetic \
         && catkin build --cmake-args -DCMAKE_BUILD_TYPE=Release \
         && rm -rf $HOME/temp_ws"
