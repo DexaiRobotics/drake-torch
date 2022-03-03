@@ -201,7 +201,7 @@ RUN set -eux \
             && echo "deb [arch=amd64] https://drake-apt.csail.mit.edu/$(lsb_release -cs) $(lsb_release -cs) main" \
                 | tee /etc/apt/sources.list.d/drake.list >/dev/null \
             && apt-get update \
-            && apt-get install --no-install-recommends -qy drake-dev=0.33.0-1; \
+            && apt-get install --no-install-recommends -qy drake-dev; \
         # if [ $BUILD_CHANNEL = "stable" ]; then \
         #     curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-20210818-focal.tar.gz | tar -xzC /opt \
         #     && cd /opt/drake/share/drake/setup \
