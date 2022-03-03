@@ -195,18 +195,18 @@ RUN set -eux \
     && mkdir -p /opt \
     && . activate \
     && \
-        if [ $BUILD_CHANNEL = "stable" ]; then \
-            wget -qO- https://drake-apt.csail.mit.edu/drake.asc | gpg --dearmor - \
-                | tee /etc/apt/trusted.gpg.d/drake.gpg >/dev/null \
-            && echo "deb [arch=amd64] https://drake-apt.csail.mit.edu/$(lsb_release -cs) $(lsb_release -cs) main" \
-                | tee /etc/apt/sources.list.d/drake.list >/dev/null \
-            && apt-get update \
-            && apt-get install --no-install-recommends -qy drake-dev; \
         # if [ $BUILD_CHANNEL = "stable" ]; then \
-        #     curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-20210818-focal.tar.gz | tar -xzC /opt \
-        #     && cd /opt/drake/share/drake/setup \
-        #     && yes | ./install_prereqs \
-        #     && rm -rf $HOME/drake*.tar.gz; \
+        #     wget -qO- https://drake-apt.csail.mit.edu/drake.asc | gpg --dearmor - \
+        #         | tee /etc/apt/trusted.gpg.d/drake.gpg >/dev/null \
+        #     && echo "deb [arch=amd64] https://drake-apt.csail.mit.edu/$(lsb_release -cs) $(lsb_release -cs) main" \
+        #         | tee /etc/apt/sources.list.d/drake.list >/dev/null \
+        #     && apt-get update \
+        #     && apt-get install --no-install-recommends -qy drake-dev; \
+        if [ $BUILD_CHANNEL = "stable" ]; then \
+            curl -SL https://github.com/RobotLocomotion/drake/releases/download/v0.39.0/drake-20220209-focal.tar.gz | tar -xzC /opt \
+            && cd /opt/drake/share/drake/setup \
+            && yes | ./install_prereqs \
+            && rm -rf $HOME/drake*.tar.gz; \
         else \
             curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-focal.tar.gz | tar -xzC /opt \
             && cd /opt/drake/share/drake/setup \
