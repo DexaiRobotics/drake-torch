@@ -203,7 +203,7 @@ RUN set -eux \
         #     && apt-get update \
         #     && apt-get install --no-install-recommends -qy drake-dev; \
         if [ $BUILD_CHANNEL = "stable" ]; then \
-            curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-20220303-focal.tar.gz | tar -xzC /opt \
+            curl -SL https://github.com/RobotLocomotion/drake/releases/download/v1.0.0/drake-20220303-focal.tar.gz | tar -xzC /opt \
             && cd /opt/drake/share/drake/setup \
             && yes | ./install_prereqs \
             && rm -rf $HOME/drake*.tar.gz; \
