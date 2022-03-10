@@ -201,7 +201,7 @@ RUN set -eux \
             && echo "deb [arch=amd64] https://drake-apt.csail.mit.edu/$(lsb_release -cs) $(lsb_release -cs) main" \
                 | tee /etc/apt/sources.list.d/drake.list >/dev/null \
             && apt-get update \
-            && apt-get install --no-install-recommends -qy drake-dev>=1.0.0; \
+            && apt-get install --no-install-recommends -qy drake-dev; \
         # if [ $BUILD_CHANNEL = "stable" ]; then \
         #     curl -SL https://github.com/RobotLocomotion/drake/releases/download/v1.0.0/drake-20220303-focal.tar.gz | tar -xzC /opt \
         #     && cd /opt/drake/share/drake/setup \
