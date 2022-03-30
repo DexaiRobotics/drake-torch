@@ -267,7 +267,8 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com \
 RUN cd /opt \
     && git clone https://github.com/bombela/backward-cpp.git
 
-RUN curl -SL https://github.com/yse/easy_profiler/releases/download/v2.1.0/easy_profiler_core-v2.1.0-linux-x64-libc-2.27.tar.gz | tar -xzC /usr/local
+# This release puts the library in the bin folder, but it is needed by cmake in the lib folder
+RUN curl -SL https://github.com/yse/easy_profiler/releases/download/v2.1.0/easy_profiler_core-v2.1.0-linux-x64-libc-2.27.tar.gz | tar -xzC /usr/local && mv /usr/local/bin/libeasy_profiler.so /usr/local/lib/libeasy_profiler.so 
 
 # linters
 
