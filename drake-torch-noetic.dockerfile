@@ -96,7 +96,7 @@ RUN add-apt-repository -y ppa:git-core/ppa \
         ffmpeg \
         # for reading debug info and dumping stacktrace
         binutils-dev \
-        # for use with selenium to automate web gui operations
+        # for use with selenium and geckodriver to automate web gui operations
         firefox \
     && . activate \
     && pip install --upgrade --no-cache-dir --compile cpplint gcovr GitPython
