@@ -12,11 +12,12 @@ RUN echo "Oh dang look at that BUILD_CHANNEL=${BUILD_CHANNEL}"
 # initial setup
 ########################################################
 
-# remove apt repos that came with the base nvidia docker image
+# Remove apt repos that came with the base nvidia docker image.
 # https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64
 # https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu2004/x86_64
-# they are either unreliable or have been deprecated
-RUN rm /etc/apt/sources.list.d/cuda.list /etc/apt/sources.list.d/nvidia-ml.list
+# They are either unreliable or have been deprecated.
+# They only exist in the CUDA image, not the CPU one.
+RUN rm -f /etc/apt/sources.list.d/cuda.list /etc/apt/sources.list.d/nvidia-ml.list
 
 # setup timezone
 RUN echo 'etc/UTC' > /etc/timezone \
