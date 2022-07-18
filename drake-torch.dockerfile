@@ -40,7 +40,7 @@ RUN apt-get update \
 # https://github.com/phusion/baseimage-docker/issues/58#issuecomment-47995343
 ARG DEBIAN_FRONTEND=noninteractive
 
-# apt repo, keyring for cmake
+# apt repo
 # RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null \
 #     # && add-apt-repository "deb https://apt.kitware.com/ubuntu/ $(lsb_release -sc) main" \
 #     && echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ focal main' | tee /etc/apt/sources.list.d/kitware.list >/dev/null \

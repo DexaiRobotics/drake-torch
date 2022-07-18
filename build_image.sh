@@ -78,6 +78,7 @@ else
     if [[ $BUILD_CHANNEL == 'stable' ]]; then
       BASE_IMAGE="nvidia/cuda:11.1.1-cudnn8-runtime-ubuntu20.04"
     else
+      # no cudnn8 + ubuntu 20.04 available for now
       BASE_IMAGE="nvidia/cuda:11.6.2-cudnn8-runtime-ubuntu20.04"
     fi
   fi
