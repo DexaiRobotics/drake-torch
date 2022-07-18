@@ -41,17 +41,23 @@ RUN apt-get update \
 ARG DEBIAN_FRONTEND=noninteractive
 
 # apt repo, keyring for cmake
-RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null \
-    # && add-apt-repository "deb https://apt.kitware.com/ubuntu/ $(lsb_release -sc) main" \
-    && echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ focal main' | tee /etc/apt/sources.list.d/kitware.list >/dev/null \
-    && apt-get update \
-    && rm /usr/share/keyrings/kitware-archive-keyring.gpg \
-    && apt-get install -qy kitware-archive-keyring
+# RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null \
+#     # && add-apt-repository "deb https://apt.kitware.com/ubuntu/ $(lsb_release -sc) main" \
+#     && echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ focal main' | tee /etc/apt/sources.list.d/kitware.list >/dev/null \
+#     && apt-get update \
+#     && rm /usr/share/keyrings/kitware-archive-keyring.gpg \
+#     && apt-get install -qy kitware-archive-keyring
+
+# install cmake
+RUN wget https://github.com/Kitware/CMake/releases/download/v3.24.0-rc3/cmake-3.24.0-rc3-linux-x86_64.sh \
+    && chmod +x cmake-3.24.0-rc3-linux-x86_64.sh \
+    && ./cmake-3.24.0-rc3-linux-x86_64.sh --skip-license --prefix=/usr/local \
+    && rm cmake-3.24.0-rc3-linux-x86_64.sh
 
 # install gcc-10, cmake, python3 etc.
 RUN apt-get update \
     && apt-get install -qy \
-        cmake \
+        # cmake \
         unzip \
         python3 \
         python3-dev \
@@ -249,7 +255,7 @@ RUN curl -SL https://github.com/gabime/spdlog/archive/refs/tags/v1.9.2.tar.gz | 
     && cmake -S . -B build \
         -D CMAKE_BUILD_TYPE=Release \
         -D BUILD_SHARED_LIBS=OFF \
-        -D CMAKE_POSITION_INDEPENDENT_CODE=ON \
+        -D CMAKE_POSITION_INDEPENDENT_CODE=/N \
     && cmake --build build --config Release -j 12 \
     && cmake --install build --prefix=/usr/local \
     && rm -rf $HOME/spdlog*
