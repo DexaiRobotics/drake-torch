@@ -48,11 +48,6 @@ RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/nul
     && rm /usr/share/keyrings/kitware-archive-keyring.gpg \
     && apt-get install -qy kitware-archive-keyring
 
-# apt repo for latest gcc toolchain
-RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test \
-    # for gcc7
-    && echo 'deb [arch=amd64] http://archive.ubuntu.com/ubuntu focal main universe' | tee /etc/apt/sources.list >/dev/null
-
 # install gcc-10, cmake, python3 etc.
 RUN apt-get update \
     && apt-get install -qy \
@@ -62,11 +57,13 @@ RUN apt-get update \
         python3-dev \
         python3-pip \
         python3-venv \
-        # gcc7 for libfranka
-        gcc-7 \
-        g++-7 \
-        gcc-10 \
-        g++-10 \
+        # gcc-9 for libfranka
+        # gcc-7 \
+        # g++-7 \
+        gcc-9 \
+        g++-9 \
+        # gcc-10 \
+        # g++-10 \
         gcc-11 \
         g++-11
 
