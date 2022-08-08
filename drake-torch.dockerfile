@@ -159,7 +159,7 @@ RUN set -eux && cd $HOME \
             fi; \
         else \
             if [ $BUILD_CHANNEL = "stable" ]; then \
-                python3 -m pip install --upgrade --no-cache-dir --compile torch==1.12.1 torchvision==0.13.1 --extra-index-url https://download.pytorch.org/whl/cu116; \
+                python3 -m pip install --upgrade --no-cache-dir --compile torch==1.12.1 torchvision==0.13.1 --extra-index-url https://download.pytorch.org/whl/cu116 \
                 && python3 -m pip install torch-scatter --upgrade --no-cache-dir --compile -f https://data.pyg.org/whl/torch-1.12.0+cu116.html; \
             else \
                 # do not install torch-scatter here because it will segfault with nightly torch
