@@ -207,7 +207,7 @@ RUN set -eux \
     && mkdir -p /opt \
     && . activate \
     && \
-        if [ $BUILD_CHANNEL = "stable" ]; then \
+        # if [ $BUILD_CHANNEL = "stable" ]; then \
             wget -qO- https://drake-apt.csail.mit.edu/drake.asc | gpg --dearmor - \
                 | tee /etc/apt/trusted.gpg.d/drake.gpg >/dev/null \
             && echo "deb [arch=amd64] https://drake-apt.csail.mit.edu/$(lsb_release -cs) $(lsb_release -cs) main" \
@@ -219,12 +219,12 @@ RUN set -eux \
         #     && cd /opt/drake/share/drake/setup \
         #     && yes | ./install_prereqs \
         #     && rm -rf $HOME/drake*.tar.gz; \
-        else \
-            curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-focal.tar.gz | tar -xzC /opt \
-            && cd /opt/drake/share/drake/setup \
-            && yes | ./install_prereqs \
-            && rm -rf $HOME/drake*.tar.gz; \
-        fi
+        # else \
+        #     curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-focal.tar.gz | tar -xzC /opt \
+        #     && cd /opt/drake/share/drake/setup \
+        #     && yes | ./install_prereqs \
+        #     && rm -rf $HOME/drake*.tar.gz; \
+        # fi
 
 # pip install pydrake using the /opt/drake directory in develop mode
 # --user flag is broken for editable install right now, at least with setuptools backend
