@@ -135,15 +135,15 @@ RUN set -eux && cd $HOME \
         if [ $LIBTORCH = true ]; then \
             if [ $BUILD_TYPE = "cpu" ]; then \
                 if [ $BUILD_CHANNEL = "stable" ]; then \
-                    wget -q https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.10.2%2Bcpu.zip; \
+                    wget -q https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcpu.zip; \
                 else \
                     wget -q https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared-with-deps-latest.zip; \
                 fi; \
             else \
                 if [ $BUILD_CHANNEL = "stable" ]; then \
-                    wget -q https://download.pytorch.org/libtorch/cu111/libtorch-cxx11-abi-shared-with-deps-1.10.2%2Bcu111.zip; \
+                    wget -q https://download.pytorch.org/libtorch/cu116/libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcu116.zip; \
                 else \
-                    wget -q https://download.pytorch.org/libtorch/nightly/cu111/libtorch-cxx11-abi-shared-with-deps-latest.zip; \
+                    wget -q https://download.pytorch.org/libtorch/nightly/cu116/libtorch-cxx11-abi-shared-with-deps-latest.zip; \
                 fi; \
             fi \
             && unzip libtorch-cxx11-abi-shared-with-deps-*.zip \
@@ -153,17 +153,17 @@ RUN set -eux && cd $HOME \
     && \
         if [ $BUILD_TYPE = "cpu" ]; then \
             if [ $BUILD_CHANNEL = "stable" ]; then \
-                python3 -m pip install --upgrade --no-cache-dir --compile torch==1.10.2+cpu torchvision==0.11.3+cpu -f https://download.pytorch.org/whl/torch_stable.html; \
+                python3 -m pip install --upgrade --no-cache-dir --compile torch==1.12.1 torchvision==0.13.1 --extra-index-url https://download.pytorch.org/whl/cpu; \
             else \
-                python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html; \
+                python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision --extra-index-url https://download.pytorch.org/whl/nightly/cpu; \
             fi; \
         else \
             if [ $BUILD_CHANNEL = "stable" ]; then \
-                python3 -m pip install --upgrade --no-cache-dir --compile torch==1.10.2+cu111 torchvision==0.11.3+cu111 -f https://download.pytorch.org/whl/torch_stable.html \
-                && python3 -m pip install torch-scatter --upgrade --no-cache-dir --compile --no-index -f https://data.pyg.org/whl/torch-1.10.0+cu111.html; \
+                python3 -m pip install --upgrade --no-cache-dir --compile torch==1.12.1 torchvision==0.13.1 --extra-index-url https://download.pytorch.org/whl/cu116 \
+                && python3 -m pip install torch-scatter --upgrade --no-cache-dir --compile -f https://data.pyg.org/whl/torch-1.12.0+cu116.html; \
             else \
                 # do not install torch-scatter here because it will segfault with nightly torch
-                python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cu111/torch_nightly.html; \
+                python3 -m pip install --upgrade --no-cache-dir --compile --pre torch torchvision --extra-index-url https://download.pytorch.org/whl/nightly/cu116/torch_nightly.html; \
             fi; \
         fi
 
