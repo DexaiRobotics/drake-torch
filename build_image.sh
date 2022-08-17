@@ -70,15 +70,15 @@ else
   DOCKERFILE="drake-torch.dockerfile"
   if [[ $BUILD_TYPE == "cpu" ]]; then
     if [[ $BUILD_CHANNEL == 'stable' ]]; then
-      BASE_IMAGE="ubuntu:focal"
+      BASE_IMAGE="ubuntu:20.04"
     else
       BASE_IMAGE="ubuntu:22.04"
     fi
   else
     if [[ $BUILD_CHANNEL == 'stable' ]]; then
-      BASE_IMAGE="nvidia/cuda:11.1.1-cudnn8-runtime-ubuntu20.04"
+      BASE_IMAGE="nvidia/cuda:11.7.1-cudnn8-runtime-ubuntu20.04"
     else
-      BASE_IMAGE="nvidia/cuda:11.7.0-devel-ubuntu22.04"
+      BASE_IMAGE="nvidia/cuda:11.7.1-cudnn8-runtime-ubuntu22.04"
     fi
   fi
   TAG="dexai2/$REPO_NAME:${BUILD_TYPE}-${BUILD_CHANNEL}"
