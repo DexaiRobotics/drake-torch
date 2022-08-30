@@ -177,8 +177,8 @@ RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.b
     && rm -rf $HOME/eigen*
 
 # install latest fmt (to be compatible with latest spdlog)
-RUN curl -SL https://github.com/fmtlib/fmt/archive/refs/tags/9.0.0.tar.gz | tar xz \
-    && cd fmt-9.0.0 \
+RUN curl -SL https://github.com/fmtlib/fmt/archive/refs/tags/9.1.0.tar.gz | tar xz \
+    && cd fmt-9.1.0 \
     && mkdir build \
     && cmake -S . -B build -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=ON \
     && cmake --build build --config Release -j 12 \
@@ -243,10 +243,11 @@ RUN echo 'export DRAKE_RESOURCE_ROOT=/opt/drake/share' >> ~/.bashrc
 # drake crashes
 # including two shared libs causes cmake errors, so we keep this one static
 # CMAKE_POSITION_INDEPENDENT_CODE adds -fPIC so that our .so can borrow from .a
-RUN curl -SL https://github.com/gabime/spdlog/archive/refs/tags/v1.9.2.tar.gz | tar xz \
-    && cd spdlog-1.9.2 \
+RUN curl -SL https://github.com/gabime/spdlog/archive/refs/tags/v1.10.0.tar.gz | tar xz \
+    && cd spdlog-1.10.0 \
     && mkdir build \
     && cmake -S . -B build \
+        -D SPDLOG_FMT_EXTERNAL=ON \
         -D CMAKE_BUILD_TYPE=Release \
         -D BUILD_SHARED_LIBS=OFF \
         -D CMAKE_POSITION_INDEPENDENT_CODE=ON \
