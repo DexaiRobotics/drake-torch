@@ -284,7 +284,7 @@ RUN wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - 2>/dev
 # oclint
 RUN curl -SL https://github.com/oclint/oclint/archive/refs/tags/v22.02.tar.gz | tar xz \
     && cd oclint-22.02/oclint-scripts/ \
-    && ./make \
+    && ./make -j 6 \
     && cd ../build/oclint-release/ \
     && cp bin/oclint /usr/local/bin/ \
     && cp -rp lib/oclint /usr/local/lib/ \
