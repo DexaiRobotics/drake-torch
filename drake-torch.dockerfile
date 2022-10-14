@@ -177,8 +177,9 @@ RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.b
     && rm -rf $HOME/eigen*
 
 # install latest fmt (to be compatible with latest spdlog)
-RUN curl -SL https://github.com/fmtlib/fmt/archive/refs/tags/9.1.0.tar.gz | tar xz \
-    && cd fmt-9.1.0 \
+# TODO: upgrade to 9.1.0+ after upgrading drake
+RUN curl -SL https://github.com/fmtlib/fmt/archive/refs/tags/8.0.1.tar.gz | tar xz \
+    && cd fmt-8.0.1 \
     && mkdir build \
     && cmake -S . -B build -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=ON \
     && cmake --build build --config Release -j 12 \
