@@ -246,8 +246,9 @@ RUN echo 'export DRAKE_RESOURCE_ROOT=/opt/drake/share' >> ~/.bashrc
 # CMAKE_POSITION_INDEPENDENT_CODE adds -fPIC so that our .so can borrow from .a
 # Also external fmt is a pain to set up and use by dependent applications
 # https://github.com/gabime/spdlog/issues/2310
-RUN curl -SL https://github.com/gabime/spdlog/archive/refs/tags/v1.10.0.tar.gz | tar xz \
-    && cd spdlog-1.10.0 \
+# TODO: upgrade to 1.10.0+ after upgrading drake
+RUN curl -SL https://github.com/gabime/spdlog/archive/refs/tags/v1.9.2.tar.gz | tar xz \
+    && cd spdlog-1.9.2 \
     && mkdir build \
     && cmake -S . -B build \
         # -D SPDLOG_FMT_EXTERNAL=ON \
