@@ -12,5 +12,7 @@ setuptools.setup(
     url="https://drake.mit.edu/",
     packages=setuptools.find_packages(),
     python_requires=">=3.6",
-    install_requires=["u-msgpack-python >= 2.7.1"]
+    # typically covers the missing packages:
+    # ipython, pyzmq, u-msgpack-python, tornado
+    install_requires=["meshcat >= 0.3.2"]
 )
