@@ -210,7 +210,7 @@ RUN set -eux \
         #     && apt-get update \
         #     && apt-get install --no-install-recommends -qy drake-dev; \
         if [ $BUILD_CHANNEL = "stable" ]; then \
-            curl -SL https://github.com/RobotLocomotion/drake/releases/download/v1.10.0/drake-dev_1.10.0-1_amd64-focal.deb \
+            wget https://github.com/RobotLocomotion/drake/releases/download/v1.10.0/drake-dev_1.10.0-1_amd64-focal.deb \
             && dpkg -i drake-dev_1.10.0-1_amd64-focal.deb \
             && rm -rf $HOME/drake*.deb; \
         else \
