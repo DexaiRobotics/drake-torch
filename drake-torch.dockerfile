@@ -182,7 +182,7 @@ RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.b
     && rm -rf $HOME/eigen*
 
 # install latest fmt (to be compatible with latest spdlog)
-# TODO: upgrade to 8.1.1+ after upgrading drake
+# TODO: upgrade to 9.1.0+ after upgrading drake
 RUN curl -SL https://github.com/fmtlib/fmt/archive/refs/tags/8.0.1.tar.gz | tar xz \
     && cd fmt-8.0.1 \
     && mkdir build \
@@ -213,7 +213,7 @@ RUN set -eux \
             && echo "deb [arch=amd64] https://drake-apt.csail.mit.edu/$(lsb_release -cs) $(lsb_release -cs) main" \
                 | tee /etc/apt/sources.list.d/drake.list >/dev/null \
             && apt-get update \
-            && apt-get install --no-install-recommends -qy drake-dev; \
+            && apt-get install --no-install-recommends -qy drake-dev=1.0.0-1; \
         # if [ $BUILD_CHANNEL = "stable" ]; then \
         #     curl -SL https://github.com/RobotLocomotion/drake/releases/download/v1.0.0/drake-20220303-focal.tar.gz | tar -xzC /opt \
         #     && cd /opt/drake/share/drake/setup \
@@ -249,13 +249,17 @@ RUN echo 'export DRAKE_RESOURCE_ROOT=/opt/drake/share' >> ~/.bashrc
 # drake crashes
 # including two shared libs causes cmake errors, so we keep this one static
 # CMAKE_POSITION_INDEPENDENT_CODE adds -fPIC so that our .so can borrow from .a
+# Also external fmt is a pain to set up and use by dependent applications
+# https://github.com/gabime/spdlog/issues/2310
+# TODO: upgrade to 1.10.0+ after upgrading drake
 RUN curl -SL https://github.com/gabime/spdlog/archive/refs/tags/v1.9.2.tar.gz | tar xz \
     && cd spdlog-1.9.2 \
     && mkdir build \
     && cmake -S . -B build \
+        # -D SPDLOG_FMT_EXTERNAL=ON \
         -D CMAKE_BUILD_TYPE=Release \
         -D BUILD_SHARED_LIBS=OFF \
-        -D CMAKE_POSITION_INDEPENDENT_CODE=/N \
+        -D CMAKE_POSITION_INDEPENDENT_CODE=ON \
     && cmake --build build --config Release -j 12 \
     && cmake --install build --prefix=/usr/local \
     && rm -rf $HOME/spdlog*

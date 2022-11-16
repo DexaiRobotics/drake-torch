@@ -17,6 +17,13 @@ else
     exit 1
 fi
 
+if ! python3 -c "import pydrake.systems.meshcat_visualizer"; then
+    echo "meshcat import failure" >&2
+    exit 1
+else
+    echo "meshcat import test passed"
+fi
+
 # test ROS vision_opencv install
 if ! python3 -c "import cv_bridge"; then
     echo "cv_bridge import failure" >&2

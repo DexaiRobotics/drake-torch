@@ -282,9 +282,9 @@ RUN wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - 2>/dev
     && ln -s /usr/bin/clang-tidy-16 /usr/bin/clang-tidy
 
 # oclint
-RUN curl -SL https://github.com/oclint/oclint/archive/refs/tags/v21.10.tar.gz | tar xz \
-    && cd oclint-21.10/oclint-scripts/ \
-    && ./make \
+RUN curl -SL https://github.com/oclint/oclint/archive/refs/tags/v22.02.tar.gz | tar xz \
+    && cd oclint-22.02/oclint-scripts/ \
+    && ./make -j 6 \
     && cd ../build/oclint-release/ \
     && cp bin/oclint /usr/local/bin/ \
     && cp -rp lib/oclint /usr/local/lib/ \
