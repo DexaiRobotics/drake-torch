@@ -49,10 +49,10 @@ ARG DEBIAN_FRONTEND=noninteractive
 #     && apt-get install -qy kitware-archive-keyring
 
 # install cmake
-RUN wget https://github.com/Kitware/CMake/releases/download/v3.24.0-rc3/cmake-3.24.0-rc3-linux-x86_64.sh \
-    && chmod +x cmake-3.24.0-rc3-linux-x86_64.sh \
-    && ./cmake-3.24.0-rc3-linux-x86_64.sh --skip-license --prefix=/usr/local \
-    && rm cmake-3.24.0-rc3-linux-x86_64.sh
+RUN wget https://github.com/Kitware/CMake/releases/download/v3.25.0/cmake-3.25.0-linux-x86_64.sh \
+    && chmod +x cmake-3.25.0-linux-x86_64.sh \
+    && ./cmake-3.25.0-linux-x86_64.sh --skip-license --prefix=/usr/local \
+    && rm cmake-3.25.0-linux-x86_64.sh
 
 # install gcc-10, cmake, python3 etc.
 RUN apt-get update \
