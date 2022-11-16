@@ -17,7 +17,7 @@ else
     exit 1
 fi
 
-if ! python3 -c "import pydrake.systems.meshcat_visualizer"; then
+if ! python3 -c "from pydrake.geometry import MeshcatVisualizer"; then
     echo "meshcat import failure" >&2
     exit 1
 else
