@@ -89,7 +89,8 @@ RUN curl -SL http://mirrors.concertpass.com/gcc/releases/gcc-7.5.0/gcc-7.5.0.tar
     && cd gcc-7.5.0 \
     && ./contrib/download_prerequisites \
     && mkdir build \
-    && ./build/configure \
+    && cd build \
+    && ../configure \
         --prefix=/usr \
         --enable-shared \
         --enable-threads=posix \
