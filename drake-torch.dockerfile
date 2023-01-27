@@ -63,6 +63,8 @@ RUN apt-get update \
         python3-dev \
         python3-pip \
         python3-venv \
+        gcc-9 \
+        g++-9 \
         gcc-11 \
         g++-11 \
         gcc-12 \
@@ -85,23 +87,23 @@ RUN curl -SL https://ftp.gnu.org/gnu/make/make-4.4.tar.gz | tar -xz \
     && rm -rf make-4.4
 
 # gcc-7 for libfranka
-RUN curl -SL http://mirrors.concertpass.com/gcc/releases/gcc-7.5.0/gcc-7.5.0.tar.gz | tar -xz \
-    && cd gcc-7.5.0 \
-    && ./contrib/download_prerequisites \
-    && mkdir build \
-    && cd build \
-    && ../configure \
-        --prefix=/usr \
-        --enable-shared \
-        --enable-threads=posix \
-        --enable-__cxa_atexit \
-        --enable-clocale=gnu \
-        # 64-bit only, do not build for 32 bit
-        --disable-multilib \
-    && make -j 12 \
-    && make install \
-    && cd $HOME \
-    %% rm -rf gcc*
+# RUN curl -SL http://mirrors.concertpass.com/gcc/releases/gcc-7.5.0/gcc-7.5.0.tar.gz | tar -xz \
+#     && cd gcc-7.5.0 \
+#     && ./contrib/download_prerequisites \
+#     && mkdir build \
+#     && cd build \
+#     && ../configure \
+#         --prefix=/usr \
+#         --enable-shared \
+#         --enable-threads=posix \
+#         --enable-__cxa_atexit \
+#         --enable-clocale=gnu \
+#         # 64-bit only, do not build for 32 bit
+#         --disable-multilib \
+#     && make --quiet -j 12 \
+#     && make install \
+#     && cd $HOME \
+#     %% rm -rf gcc*
 
 # create venv to avoid site breakage between debian and pip
 RUN python3 -m venv /opt/venv \
