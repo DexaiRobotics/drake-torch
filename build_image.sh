@@ -76,9 +76,9 @@ else
     fi
   else
     if [[ $BUILD_CHANNEL == 'stable' ]]; then
-      BASE_IMAGE="nvidia/cuda:11.7.1-cudnn8-runtime-ubuntu20.04"
+      BASE_IMAGE="nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu20.04"
     else
-      BASE_IMAGE="nvidia/cuda:11.7.1-cudnn8-runtime-ubuntu22.04"
+      BASE_IMAGE="nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04"
     fi
   fi
   TAG="dexai2/$REPO_NAME:${BUILD_TYPE}-${BUILD_CHANNEL}"

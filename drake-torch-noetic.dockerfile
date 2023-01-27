@@ -123,9 +123,9 @@ RUN mkdir -p temp_ws/src \
 #### newer packages
 ########################################################
 
-# install latest googletest 1.11.0 including googlemock
-RUN curl -SL https://github.com/google/googletest/archive/release-1.11.0.tar.gz | tar -xz \
-    && cd googletest-release-1.11.0 \
+# install latest googletest including googlemock
+RUN curl -SL https://github.com/google/googletest/archive/release-1.12.1.tar.gz | tar -xz \
+    && cd googletest-release-1.12.1 \
     && mkdir build \
     && cmake -S . -B build -D CMAKE_BUILD_TYPE=Release \
     && cmake --build build --config Release -j 12 \
@@ -139,8 +139,8 @@ RUN apt-get install -qy \
         libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
         libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev \
     && apt-get autoremove -qy
-RUN curl -SL https://github.com/opencv/opencv/archive/refs/tags/4.5.3.tar.gz | tar -xz \
-    && cd opencv-4.5.3 \
+RUN curl -SL https://github.com/opencv/opencv/archive/refs/tags/4.7.0.tar.gz | tar -xz \
+    && cd opencv-4.7.0 \
     && mkdir build \
     # don't build python since we use pip in a venv only
     && cmake -S . -B build -D CMAKE_BUILD_TYPE=Release \
@@ -178,8 +178,8 @@ RUN git clone https://github.com/DexaiRobotics/ompl.git \
     && rm -rf $HOME/ompl
 
 # install cli11
-RUN cd $HOME && curl -SL https://github.com/CLIUtils/CLI11/archive/refs/tags/v2.1.2.tar.gz | tar -xz \
-    && cd CLI11-2.1.2 \
+RUN cd $HOME && curl -SL https://github.com/CLIUtils/CLI11/archive/refs/tags/v2.3.1.tar.gz | tar -xz \
+    && cd CLI11-2.3.1 \
     && mkdir build \
     && cmake -S . -B build \
         -D CMAKE_BUILD_TYPE=Release \
@@ -192,10 +192,10 @@ RUN cd $HOME && curl -SL https://github.com/CLIUtils/CLI11/archive/refs/tags/v2.
     && rm -rf $HOME/CLI11*
 
 # install json, header only
-RUN wget https://github.com/nlohmann/json/releases/download/v3.10.4/json.hpp -P /usr/local/include/
+RUN wget https://github.com/nlohmann/json/releases/download/v3.11.2/json.hpp -P /usr/local/include/
 
 # install magic_enum, header only
-RUN wget https://github.com/Neargye/magic_enum/releases/download/v0.7.3/magic_enum.hpp -P /usr/local/include/
+RUN wget https://github.com/Neargye/magic_enum/releases/download/v0.8.1/magic_enum.hpp -P /usr/local/include/
 
 # tl::optional, enhanced version of std::optional, header only
 RUN mkdir -p /usr/local/include/tl \
@@ -217,7 +217,7 @@ RUN cd $HOME \
     && rm -rf CTPL-v.0.0.2
 
 RUN cd $HOME \
-    && wget https://github.com/approvals/ApprovalTests.cpp/releases/download/v.10.12.0/ApprovalTests.v.10.12.0.hpp -O /usr/local/include/ApprovalTests.hpp
+    && wget https://github.com/approvals/ApprovalTests.cpp/releases/download/v.10.12.2/ApprovalTests.v.10.12.2.hpp -O /usr/local/include/ApprovalTests.hpp
 
 # Install C++ branch of msgpack-c
 RUN cd $HOME && git clone -b cpp_master https://github.com/msgpack/msgpack-c.git \
