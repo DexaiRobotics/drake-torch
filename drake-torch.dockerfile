@@ -41,23 +41,23 @@ RUN apt-get update \
 ARG DEBIAN_FRONTEND=noninteractive
 
 # apt repo
-# RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null \
-#     # && add-apt-repository "deb https://apt.kitware.com/ubuntu/ $(lsb_release -sc) main" \
-#     && echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ focal main' | tee /etc/apt/sources.list.d/kitware.list >/dev/null \
-#     && apt-get update \
-#     && rm /usr/share/keyrings/kitware-archive-keyring.gpg \
-#     && apt-get install -qy kitware-archive-keyring
+RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null \
+    && add-apt-repository "deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ $(lsb_release -sc) main" \
+    # && echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ focal main' | tee /etc/apt/sources.list.d/kitware.list >/dev/null \
+    && apt-get update \
+    && rm /usr/share/keyrings/kitware-archive-keyring.gpg \
+    && apt-get install -qy kitware-archive-keyring
 
 # install cmake
-RUN wget https://github.com/Kitware/CMake/releases/download/v3.25.0/cmake-3.25.0-linux-x86_64.sh \
-    && chmod +x cmake-3.25.0-linux-x86_64.sh \
-    && ./cmake-3.25.0-linux-x86_64.sh --skip-license --prefix=/usr/local \
-    && rm cmake-3.25.0-linux-x86_64.sh
+# RUN wget https://github.com/Kitware/CMake/releases/download/v3.25.0/cmake-3.25.0-linux-x86_64.sh \
+#     && chmod +x cmake-3.25.0-linux-x86_64.sh \
+#     && ./cmake-3.25.0-linux-x86_64.sh --skip-license --prefix=/usr/local \
+#     && rm cmake-3.25.0-linux-x86_64.sh
 
 # install gcc-10, cmake, python3 etc.
 RUN apt-get update \
     && apt-get install -qy \
-        # cmake \
+        cmake \
         unzip \
         python3 \
         python3-dev \
