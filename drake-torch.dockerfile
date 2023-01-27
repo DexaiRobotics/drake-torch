@@ -40,6 +40,31 @@ RUN apt-get update \
 # https://github.com/phusion/baseimage-docker/issues/58#issuecomment-47995343
 ARG DEBIAN_FRONTEND=noninteractive
 
+# install make 4.4
+RUN curl -SL https://ftp.gnu.org/gnu/make/make-4.4.tar.gz | tar -xz \
+    && cd make-4.4 \
+    && mkdir build \
+    && cd build \
+    && ../configure --prefix=/usr \
+    && make --quiet -j 12 \
+    && make --quiet install \
+    && cd $HOME \
+    && rm -rf make-4.4
+
+# gcc-7 for libfranka
+RUN curl -SL http://mirrors.concertpass.com/gcc/releases/gcc-7.5.0/gcc-7.5.0.tar.gz | tar -xz \
+    && cd gcc-7.5.0 \
+    && ./contrib/download_prerequisites \
+    && mkdir build \
+    && ./build/configure \
+        --prefix=/usr \
+        --enable-shared \
+        --enable-threads=posix \
+        --enable-__cxa_atexit \
+        --enable-clocale=gnu \
+    && cd build \
+    && make install --quiet -j 12
+
 # apt repo
 RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null \
     # && add-apt-repository "deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ $(lsb_release -sc) main" \
@@ -48,7 +73,7 @@ RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/nul
     && rm /usr/share/keyrings/kitware-archive-keyring.gpg \
     && apt-get install -qy kitware-archive-keyring
 
-# install cmake
+# build cmake from source if no apt available
 # RUN wget https://github.com/Kitware/CMake/releases/download/v3.25.0/cmake-3.25.0-linux-x86_64.sh \
 #     && chmod +x cmake-3.25.0-linux-x86_64.sh \
 #     && ./cmake-3.25.0-linux-x86_64.sh --skip-license --prefix=/usr/local \
@@ -63,9 +88,6 @@ RUN apt-get update \
         python3-dev \
         python3-pip \
         python3-venv \
-        # gcc-7 for libfranka
-        gcc-7 \
-        g++-7 \
         gcc-11 \
         g++-11 \
         gcc-12 \
@@ -83,16 +105,7 @@ RUN python3 -m venv /opt/venv \
     && pip install --upgrade --no-cache-dir --compile \
         setuptools wheel pip
 
-# install make 4.4
-RUN curl -SL https://ftp.gnu.org/gnu/make/make-4.4.tar.gz | tar -xz \
-    && cd make-4.4 \
-    && mkdir build \
-    && cd build \
-    && ../configure --prefix=/usr \
-    && make --quiet -j 12 \
-    && make --quiet install \
-    && cd $HOME \
-    && rm -rf make-4.4
+
 
 # install latest gdb
 # texinfo is needed for building gdb 9.2 even in the presence of make 4.3
