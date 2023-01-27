@@ -96,8 +96,12 @@ RUN curl -SL http://mirrors.concertpass.com/gcc/releases/gcc-7.5.0/gcc-7.5.0.tar
         --enable-threads=posix \
         --enable-__cxa_atexit \
         --enable-clocale=gnu \
-    && cd build \
-    && make install --quiet -j 12
+        # 64-bit only, do not build for 32 bit
+        --disable-multilib \
+    && make -j 12 \
+    && make install \
+    && cd $HOME \
+    %% rm -rf gcc*
 
 # create venv to avoid site breakage between debian and pip
 RUN python3 -m venv /opt/venv \
