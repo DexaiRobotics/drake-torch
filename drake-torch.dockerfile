@@ -40,31 +40,6 @@ RUN apt-get update \
 # https://github.com/phusion/baseimage-docker/issues/58#issuecomment-47995343
 ARG DEBIAN_FRONTEND=noninteractive
 
-# install make 4.4
-RUN curl -SL https://ftp.gnu.org/gnu/make/make-4.4.tar.gz | tar -xz \
-    && cd make-4.4 \
-    && mkdir build \
-    && cd build \
-    && ../configure --prefix=/usr \
-    && make --quiet -j 12 \
-    && make --quiet install \
-    && cd $HOME \
-    && rm -rf make-4.4
-
-# gcc-7 for libfranka
-RUN curl -SL http://mirrors.concertpass.com/gcc/releases/gcc-7.5.0/gcc-7.5.0.tar.gz | tar -xz \
-    && cd gcc-7.5.0 \
-    && ./contrib/download_prerequisites \
-    && mkdir build \
-    && ./build/configure \
-        --prefix=/usr \
-        --enable-shared \
-        --enable-threads=posix \
-        --enable-__cxa_atexit \
-        --enable-clocale=gnu \
-    && cd build \
-    && make install --quiet -j 12
-
 # apt repo
 RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null \
     # && add-apt-repository "deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ $(lsb_release -sc) main" \
@@ -98,14 +73,37 @@ RUN update-alternatives \
         --slave /usr/bin/g++ g++ /usr/bin/g++-12 \
         --slave /usr/bin/gcov gcov /usr/bin/gcov-12
 
+# install make 4.4
+RUN curl -SL https://ftp.gnu.org/gnu/make/make-4.4.tar.gz | tar -xz \
+    && cd make-4.4 \
+    && mkdir build \
+    && cd build \
+    && ../configure --prefix=/usr \
+    && make --quiet -j 12 \
+    && make --quiet install \
+    && cd $HOME \
+    && rm -rf make-4.4
+
+# gcc-7 for libfranka
+RUN curl -SL http://mirrors.concertpass.com/gcc/releases/gcc-7.5.0/gcc-7.5.0.tar.gz | tar -xz \
+    && cd gcc-7.5.0 \
+    && ./contrib/download_prerequisites \
+    && mkdir build \
+    && ./build/configure \
+        --prefix=/usr \
+        --enable-shared \
+        --enable-threads=posix \
+        --enable-__cxa_atexit \
+        --enable-clocale=gnu \
+    && cd build \
+    && make install --quiet -j 12
+
 # create venv to avoid site breakage between debian and pip
 RUN python3 -m venv /opt/venv \
     && ln -s  /opt/venv/bin/activate /usr/local/bin/activate \
     && . activate \
     && pip install --upgrade --no-cache-dir --compile \
         setuptools wheel pip
-
-
 
 # install latest gdb
 # texinfo is needed for building gdb 9.2 even in the presence of make 4.3
