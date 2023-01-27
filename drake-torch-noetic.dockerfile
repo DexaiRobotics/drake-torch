@@ -139,8 +139,8 @@ RUN apt-get install -qy \
         libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
         libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev \
     && apt-get autoremove -qy
-RUN curl -SL https://github.com/opencv/opencv/archive/refs/tags/4.6.0.tar.gz | tar -xz \
-    && cd opencv-4.6.0 \
+RUN curl -SL https://github.com/opencv/opencv/archive/refs/tags/4.7.0.tar.gz | tar -xz \
+    && cd opencv-4.7.0 \
     && mkdir build \
     # don't build python since we use pip in a venv only
     && cmake -S . -B build -D CMAKE_BUILD_TYPE=Release \
