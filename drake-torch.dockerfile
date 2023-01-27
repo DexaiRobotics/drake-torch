@@ -245,11 +245,11 @@ RUN set -eux \
 COPY in_container_scripts/setup_pydrake.py setup_pydrake.py
 RUN . activate \
     && \
-        if [ "`lsb_release -sc`" = "bionic" ]; \
-        then mv setup_pydrake.py /opt/drake/lib/python3.6/site-packages/setup.py \
-            && python3 -m pip install -e /opt/drake/lib/python3.6/site-packages; \
-        else mv setup_pydrake.py /opt/drake/lib/python3.8/site-packages/setup.py \
+        if [ "`lsb_release -sc`" = "focal" ]; \
+        then mv setup_pydrake.py /opt/drake/lib/python3.8/site-packages/setup.py \
             && python3 -m pip install -e /opt/drake/lib/python3.8/site-packages; \
+        else mv setup_pydrake.py /opt/drake/lib/python3.10/site-packages/setup.py \
+            && python3 -m pip install -e /opt/drake/lib/python3.10/site-packages; \
         fi
 
 # get rid of the following spam
