@@ -63,20 +63,18 @@ RUN apt-get update \
         python3-dev \
         python3-pip \
         python3-venv \
-        # gcc-9 for libfranka
-        # gcc-7 \
-        # g++-7 \
-        gcc-9 \
-        g++-9 \
-        # gcc-10 \
-        # g++-10 \
+        # gcc-7 for libfranka
+        gcc-7 \
+        g++-7 \
         gcc-11 \
-        g++-11
+        g++-11 \
+        gcc-12 \
+        g++-12
 
 RUN update-alternatives \
-        --install /usr/bin/gcc gcc /usr/bin/gcc-11 90 \
-        --slave /usr/bin/g++ g++ /usr/bin/g++-11 \
-        --slave /usr/bin/gcov gcov /usr/bin/gcov-11
+        --install /usr/bin/gcc gcc /usr/bin/gcc-12 90 \
+        --slave /usr/bin/g++ g++ /usr/bin/g++-12 \
+        --slave /usr/bin/gcov gcov /usr/bin/gcov-12
 
 # create venv to avoid site breakage between debian and pip
 RUN python3 -m venv /opt/venv \
@@ -85,16 +83,16 @@ RUN python3 -m venv /opt/venv \
     && pip install --upgrade --no-cache-dir --compile \
         setuptools wheel pip
 
-# install make 4.3
-RUN curl -SL https://ftp.gnu.org/gnu/make/make-4.3.tar.gz | tar -xz \
-    && cd make-4.3 \
+# install make 4.4
+RUN curl -SL https://ftp.gnu.org/gnu/make/make-4.4.tar.gz | tar -xz \
+    && cd make-4.4 \
     && mkdir build \
     && cd build \
     && ../configure --prefix=/usr \
     && make --quiet -j 12 \
     && make --quiet install \
     && cd $HOME \
-    && rm -rf make-4.3
+    && rm -rf make-4.4
 
 # install latest gdb
 # texinfo is needed for building gdb 9.2 even in the presence of make 4.3
@@ -115,7 +113,7 @@ RUN curl -SL https://ftp.gnu.org/gnu/make/make-4.3.tar.gz | tar -xz \
 RUN apt-get install -qy gdb
 
 # install latest ninja
-RUN wget https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-linux.zip \
+RUN wget https://github.com/ninja-build/ninja/releases/download/v1.11.1/ninja-linux.zip \
     && unzip ninja-linux.zip \
     && mv ninja /usr/bin/ \
     && rm ninja-linux.zip
@@ -182,9 +180,8 @@ RUN curl -SL https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.b
     && rm -rf $HOME/eigen*
 
 # install latest fmt (to be compatible with latest spdlog)
-# TODO: upgrade to 9.1.0+ after upgrading drake
-RUN curl -SL https://github.com/fmtlib/fmt/archive/refs/tags/8.0.1.tar.gz | tar xz \
-    && cd fmt-8.0.1 \
+RUN curl -SL https://github.com/fmtlib/fmt/archive/refs/tags/9.1.0.tar.gz | tar xz \
+    && cd fmt-9.1.0 \
     && mkdir build \
     && cmake -S . -B build -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=ON \
     && cmake --build build --config Release -j 12 \
@@ -251,8 +248,8 @@ RUN echo 'export DRAKE_RESOURCE_ROOT=/opt/drake/share' >> ~/.bashrc
 # Also external fmt is a pain to set up and use by dependent applications
 # https://github.com/gabime/spdlog/issues/2310
 # TODO: upgrade to 1.10.0+ after upgrading drake
-RUN curl -SL https://github.com/gabime/spdlog/archive/refs/tags/v1.9.2.tar.gz | tar xz \
-    && cd spdlog-1.9.2 \
+RUN curl -SL https://github.com/gabime/spdlog/archive/refs/tags/v1.11.0.tar.gz | tar xz \
+    && cd spdlog-1.11.0 \
     && mkdir build \
     && cmake -S . -B build \
         # -D SPDLOG_FMT_EXTERNAL=ON \
