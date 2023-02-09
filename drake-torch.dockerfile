@@ -211,7 +211,7 @@ RUN set -eux \
         #     && apt-get install --no-install-recommends -qy drake-dev; \
         if [ $BUILD_CHANNEL = "stable" ]; then \
             wget -q https://drake-packages.csail.mit.edu/drake/nightly/drake-dev_0.0.20230208-1_amd64-focal.deb \
-            && apt install --no-install-recommends -qy ./drake-dev_0.0.20220721-1_amd64-focal.deb \
+            && apt-get install --no-install-recommends -qy ./drake-dev_0.0.20230208-1_amd64-focal.deb \
             && rm -rf $HOME/drake*.deb; \
         else \
             curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-focal.tar.gz | tar -xzC /opt \
