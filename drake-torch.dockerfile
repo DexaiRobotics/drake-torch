@@ -110,7 +110,7 @@ RUN curl -SL https://ftp.gnu.org/gnu/make/make-4.3.tar.gz | tar -xz \
 RUN apt-get install -qy gdb
 
 # install latest ninja
-RUN wget https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-linux.zip \
+RUN wget -q https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-linux.zip \
     && unzip ninja-linux.zip \
     && mv ninja /usr/bin/ \
     && rm ninja-linux.zip
@@ -210,8 +210,8 @@ RUN set -eux \
         #     && apt-get update \
         #     && apt-get install --no-install-recommends -qy drake-dev; \
         if [ $BUILD_CHANNEL = "stable" ]; then \
-            wget https://github.com/RobotLocomotion/drake/releases/download/v1.12.0/drake-dev_1.12.0-1_amd64-focal.deb \
-            && apt install --no-install-recommends -qy ./drake-dev_1.12.0-1_amd64-focal.deb \
+            wget -q https://drake-packages.csail.mit.edu/drake/nightly/drake-dev_0.0.20230131-1_amd64-focal.deb \
+            && apt install --no-install-recommends -qy ./drake-dev_0.0.20230131-1_amd64-focal.deb \
             && rm -rf $HOME/drake*.deb; \
         else \
             curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-focal.tar.gz | tar -xzC /opt \
@@ -225,11 +225,11 @@ RUN set -eux \
 COPY in_container_scripts/setup_pydrake.py setup_pydrake.py
 RUN . activate \
     && \
-        if [ "`lsb_release -sc`" = "bionic" ]; \
-        then mv setup_pydrake.py /opt/drake/lib/python3.6/site-packages/setup.py \
-            && python3 -m pip install -e /opt/drake/lib/python3.6/site-packages; \
-        else mv setup_pydrake.py /opt/drake/lib/python3.8/site-packages/setup.py \
+        if [ "`lsb_release -sc`" = "focal" ]; \
+        then mv setup_pydrake.py /opt/drake/lib/python3.8/site-packages/setup.py \
             && python3 -m pip install -e /opt/drake/lib/python3.8/site-packages; \
+        else mv setup_pydrake.py /opt/drake/lib/python3.10/site-packages/setup.py \
+            && python3 -m pip install -e /opt/drake/lib/python3.10/site-packages; \
         fi
 
 # get rid of the following spam
