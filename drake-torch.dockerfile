@@ -188,7 +188,6 @@ RUN curl -SL https://github.com/fmtlib/fmt/archive/refs/tags/8.0.1.tar.gz | tar 
 
 # install matplot++ (for plotting in c++)
 RUN curl -SL https://github.com/alandefreitas/matplotplusplus/releases/download/v1.1.0/matplotplusplus-1.1.0-Linux.tar.gz | tar xz \
-    && apt install gnuplot \
     && mv matplotplusplus-1.1.0-Linux /usr/local/matplot
 
 ########################################################
@@ -221,7 +220,7 @@ RUN set -eux \
         #     && cd /opt/drake/share/drake/setup \
         #     && yes | ./install_prereqs \
         #     && rm -rf $HOME/drake*.tar.gz; \
-        # fi
+        fi
 
 # pip install pydrake using the /opt/drake directory in develop mode
 # --user flag is broken for editable install right now, at least with setuptools backend
