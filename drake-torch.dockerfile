@@ -186,15 +186,17 @@ RUN curl -SL https://github.com/fmtlib/fmt/archive/refs/tags/8.0.1.tar.gz | tar 
     && cmake --install build \
     && rm -rf $HOME/fmt*
 
+# install matplot++ (for plotting in c++)
+RUN curl -SL https://github.com/alandefreitas/matplotplusplus/releases/download/v1.1.0/matplotplusplus-1.1.0-Linux.tar.gz | tar xz \
+    && mv matplotplusplus-1.1.0-Linux /usr/local/matplot
+
 ########################################################
 # drake
 # https://drake.mit.edu/from_binary.html
 # https://github.com/RobotLocomotion/drake/releases
 
 # https://drake-packages.csail.mit.edu/drake/nightly/drake
-# https://drake-packages.csail.mit.edu/drake/nightly/drake-20200602-focal.tar.gz
 
-# stable channel pegged to (0.33.0-1) 20210811 due to collision filter group changes
 # the apt binaries are more optimised and run faster than the gz
 
 ########################################################
@@ -202,22 +204,22 @@ RUN set -eux \
     && mkdir -p /opt \
     && . activate \
     && \
-        # if [ $BUILD_CHANNEL = "stable" ]; then \
-        #     wget -qO- https://drake-apt.csail.mit.edu/drake.asc | gpg --dearmor - \
-        #         | tee /etc/apt/trusted.gpg.d/drake.gpg >/dev/null \
-        #     && echo "deb [arch=amd64] https://drake-apt.csail.mit.edu/$(lsb_release -cs) $(lsb_release -cs) main" \
-        #         | tee /etc/apt/sources.list.d/drake.list >/dev/null \
-        #     && apt-get update \
-        #     && apt-get install --no-install-recommends -qy drake-dev; \
         if [ $BUILD_CHANNEL = "stable" ]; then \
-            wget -q https://drake-packages.csail.mit.edu/drake/nightly/drake-dev_0.0.20230227-1_amd64-focal.deb \
-            && apt install --no-install-recommends -qy ./drake-dev_0.0.20230227-1_amd64-focal.deb \
-            && rm -rf $HOME/drake*.deb; \
-        else \
-            curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-focal.tar.gz | tar -xzC /opt \
-            && cd /opt/drake/share/drake/setup \
-            && yes | ./install_prereqs \
-            && rm -rf $HOME/drake*.tar.gz; \
+            wget -qO- https://drake-apt.csail.mit.edu/drake.asc | gpg --dearmor - \
+                | tee /etc/apt/trusted.gpg.d/drake.gpg >/dev/null \
+            && echo "deb [arch=amd64] https://drake-apt.csail.mit.edu/$(lsb_release -cs) $(lsb_release -cs) main" \
+                | tee /etc/apt/sources.list.d/drake.list >/dev/null \
+            && apt-get update \
+            && apt-get install --no-install-recommends -qy drake-dev; \
+        # if [ $BUILD_CHANNEL = "stable" ]; then \
+        #     wget -q https://drake-packages.csail.mit.edu/drake/nightly/drake-dev_0.0.20230227-1_amd64-focal.deb \
+        #     && apt install --no-install-recommends -qy ./drake-dev_0.0.20230227-1_amd64-focal.deb \
+        #     && rm -rf $HOME/drake*.deb; \
+        # else \
+        #     curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-focal.tar.gz | tar -xzC /opt \
+        #     && cd /opt/drake/share/drake/setup \
+        #     && yes | ./install_prereqs \
+        #     && rm -rf $HOME/drake*.tar.gz; \
         fi
 
 # pip install pydrake using the /opt/drake directory in develop mode
