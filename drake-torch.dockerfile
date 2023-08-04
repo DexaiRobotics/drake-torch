@@ -120,6 +120,71 @@ RUN wget -q https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja
 # the same issue, so we set it as the default generator for cmake.
 ENV CMAKE_GENERATOR=Ninja
 
+# install viam and dependencies
+RUN apt-get -y dist-upgrade
+
+RUN apt-get -y --no-install-recommends install \
+    build-essential \
+    doxygen \
+    less \
+    libboost-all-dev \
+    libc-ares-dev \
+    libre2-dev \
+    libssl-dev \
+    pkg-config \
+    sudo \
+    zlib1g-dev
+
+
+# Add the public key for the llvm repository to get the correct clang version
+RUN bash -c 'wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|apt-key add -'
+RUN apt-add-repository -y 'deb http://apt.llvm.org/focal/ llvm-toolchain-focal-15 main'
+
+# Add public key and repository to get cmake 3.25+
+RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - > /usr/share/keyrings/kitware-archive-keyring.gpg
+RUN echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ focal main' > /etc/apt/sources.list.d/kitware.list
+
+RUN apt-get update
+
+RUN apt-get -y --no-install-recommends install -t llvm-toolchain-focal-15 \
+    clang-15 \
+    clang-tidy-15
+
+RUN apt-get -y install cmake
+
+RUN mkdir -p ${HOME}/opt/src
+
+# clone and install grpc
+RUN cd ${HOME}/opt/src && \
+    git clone --recurse-submodules -b v1.52.0 --depth 1 --shallow-submodules https://github.com/grpc/grpc && \
+    cd grpc && \
+    mkdir -p build && \
+    cd build && \
+    cmake .. -G Ninja \
+        -DgRPC_ZLIB_PROVIDER=package \
+        -DgRPC_CARES_PROVIDER=package \
+        -DgRPC_RE2_PROVIDER=package \
+        -DgRPC_SSL_PROVIDER=package \
+        -DgRPC_INSTALL=ON \
+        -DgRPC_BUILD_TESTS=OFF \
+        -DBUILD_SHARED_LIBS=ON \
+        -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+        -DCMAKE_INSTALL_PREFIX=/usr/local \
+        -DCMAKE_INSTALL_RPATH=/usr/local/lib && \
+    ninja install && \
+    cd .. && \
+    rm -rf build
+
+# install viam
+RUN cd ${HOME}/opt/src && \
+    git clone https://github.com/viamrobotics/viam-cpp-sdk && \
+    cd viam-cpp-sdk && \
+    mkdir build && \
+    cd build && \
+    cmake .. -G Ninja && \
+    ninja all && \
+    ninja install
+
 ##############################################################
 # libtorch and pytorch, torchvision
 ##############################################################
