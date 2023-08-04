@@ -305,9 +305,7 @@ RUN git clone https://github.com/danmar/cppcheck.git \
     && cd $HOME \
     && rm -rf cppcheck
 
-# install viam and dependencies
-RUN apt-get -y dist-upgrade
-
+# install viam dependencies
 RUN apt-get -y --no-install-recommends install \
     build-essential \
     ca-certificates \
@@ -326,26 +324,9 @@ RUN apt-get -y --no-install-recommends install \
     sudo \
     zlib1g-dev
 
-# Add the public key for the llvm repository to get the correct clang version
-RUN bash -c 'wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|apt-key add -'
-RUN apt-add-repository -y 'deb http://apt.llvm.org/focal/ llvm-toolchain-focal-15 main'
-
-# Add public key and repository to get cmake 3.25+
-RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - > /usr/share/keyrings/kitware-archive-keyring.gpg
-RUN echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ focal main' > /etc/apt/sources.list.d/kitware.list
-
-RUN apt-get update
-
-RUN apt-get -y --no-install-recommends install -t llvm-toolchain-focal-15 \
-    clang-15 \
-    clang-tidy-15
-
-RUN apt-get -y install cmake
-
-RUN mkdir -p ${HOME}/opt/src
-
 # clone and install grpc
-RUN cd ${HOME}/opt/src && \
+RUN mkdir -p ${HOME}/opt/src && \ 
+    cd ${HOME}/opt/src && \
     git clone --recurse-submodules -b v1.52.0 --depth 1 --shallow-submodules https://github.com/grpc/grpc && \
     cd grpc && \
     mkdir -p build && \
@@ -365,7 +346,7 @@ RUN cd ${HOME}/opt/src && \
     cd .. && \
     rm -rf build
 
-# install viam
+# clone & install viam sdk
 RUN cd ${HOME}/opt/src && \
     git clone https://github.com/viamrobotics/viam-cpp-sdk && \
     cd viam-cpp-sdk && \
