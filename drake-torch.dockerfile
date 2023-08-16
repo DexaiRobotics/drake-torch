@@ -162,7 +162,9 @@ RUN cd ${HOME}/opt/src && \
     cd viam-cpp-sdk && \
     mkdir build && \
     cd build && \
-    cmake .. -G Ninja && \
+    cmake .. -G Ninja \
+    -DCMAKE_INSTALL_PREFIX=/usr/local \
+    -DCMAKE_INSTALL_RPATH=/usr/local/lib && \
     ninja all && \
     ninja install
 
