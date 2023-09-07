@@ -120,6 +120,14 @@ RUN wget -q https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja
 # the same issue, so we set it as the default generator for cmake.
 ENV CMAKE_GENERATOR=Ninja
 
+# install gRPC and Protobuf
+RUN apt-get -y --no-install-recommends install \
+    pkg-config \
+    libgrpc++-dev \
+    libprotobuf-dev \
+    protobuf-compiler \
+    protobuf-compiler-grpc
+
 ##############################################################
 # libtorch and pytorch, torchvision
 ##############################################################
