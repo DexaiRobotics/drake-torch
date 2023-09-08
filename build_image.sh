@@ -92,7 +92,6 @@ declare -a ARGS=(
   --build-arg BUILD_CHANNEL="$BUILD_CHANNEL"
   --cpuset-cpus "0-$LASTCORE"
   -t "$TAG"
-  --squash
 )
 
 if [[ $USE_CACHE == false ]]; then
