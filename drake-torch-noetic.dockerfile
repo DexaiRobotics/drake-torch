@@ -305,6 +305,13 @@ RUN git clone https://github.com/danmar/cppcheck.git \
     && cd $HOME \
     && rm -rf cppcheck
 
+# install gRPC and Protobuf
+RUN apt-get -y --no-install-recommends install \
+    libgrpc++-dev \
+    libprotobuf-dev \
+    protobuf-compiler \
+    protobuf-compiler-grpc
+
 ########################################################
 # final steps
 ########################################################
