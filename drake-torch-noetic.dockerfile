@@ -62,42 +62,42 @@ RUN . activate \
 # dev essentials, later sections need git
 RUN add-apt-repository -y ppa:git-core/ppa \
     && apt-get install -qy \
-        openssh-server \
-        openssh-client \
-        iputils-ping \
-        vim \
-        nano \
-        cron \
-        git \
-        git-extras \
-        git-lfs \
-        tig \
-        htop \
-        screen \
-        xvfb \
-        fluxbox \
-        x11vnc \
-        tmux \
-        tree \
-        doxygen \
-        libgflags-dev \
-        # libusb needed by HID API and librealsense
-        libusb-1.0-0-dev \
-        # libudev are both needed by HID API
-        libudev-dev \
-        usbutils \
-        # needed to build spacenav_node in
-        # ros package joystick_drivers which
-        # is used to interface with joystick
-        # for teleop
-        libspnav-dev \
-        # for parsing json and coveralls
-        jq \
-        ffmpeg \
-        # for reading debug info and dumping stacktrace
-        binutils-dev \
-        # for use with selenium and geckodriver to automate web gui operations
-        firefox \
+    openssh-server \
+    openssh-client \
+    iputils-ping \
+    vim \
+    nano \
+    cron \
+    git \
+    git-extras \
+    git-lfs \
+    tig \
+    htop \
+    screen \
+    xvfb \
+    fluxbox \
+    x11vnc \
+    tmux \
+    tree \
+    doxygen \
+    libgflags-dev \
+    # libusb needed by HID API and librealsense
+    libusb-1.0-0-dev \
+    # libudev are both needed by HID API
+    libudev-dev \
+    usbutils \
+    # needed to build spacenav_node in
+    # ros package joystick_drivers which
+    # is used to interface with joystick
+    # for teleop
+    libspnav-dev \
+    # for parsing json and coveralls
+    jq \
+    ffmpeg \
+    # for reading debug info and dumping stacktrace
+    binutils-dev \
+    # for use with selenium and geckodriver to automate web gui operations
+    firefox \
     && . activate \
     && pip install --upgrade --no-cache-dir --compile cpplint gcovr GitPython
 RUN rm /etc/alternatives/editor \
@@ -113,11 +113,11 @@ RUN mkdir -p temp_ws/src \
     && git clone https://github.com/RobotWebTools/web_video_server \
     && cd $HOME/temp_ws \
     && bash -c \
-        ". activate \
-        && unset CMAKE_GENERATOR \
-        && catkin config --install --install-space /opt/ros/noetic \
-        && catkin build --cmake-args -DCMAKE_BUILD_TYPE=Release \
-        && rm -rf $HOME/temp_ws"
+    ". activate \
+    && unset CMAKE_GENERATOR \
+    && catkin config --install --install-space /opt/ros/noetic \
+    && catkin build --cmake-args -DCMAKE_BUILD_TYPE=Release \
+    && rm -rf $HOME/temp_ws"
 
 ########################################################
 #### newer packages
@@ -136,8 +136,8 @@ RUN curl -SL https://github.com/google/googletest/archive/release-1.12.1.tar.gz 
 # OpenCV for C++ and Python3
 # opencv 4.5.4 gets segfault in cv::resize
 RUN apt-get install -qy \
-        libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
-        libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev \
+    libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \
+    libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev \
     && apt-get autoremove -qy
 RUN curl -SL https://github.com/opencv/opencv/archive/refs/tags/4.7.0.tar.gz | tar -xz \
     && cd opencv-4.7.0 \
@@ -153,8 +153,8 @@ RUN curl -SL https://github.com/opencv/opencv/archive/refs/tags/4.7.0.tar.gz | t
     && cmake --install build --prefix=/usr/local \
     && cd $HOME \
     && rm -rf opencv*
-    # don't use a symlink here as it can get overwritten by pip
-    # && ln -s /usr/local/lib/python3.8/site-packages/cv2 /opt/venv/lib/python3.8/site-packages/cv2
+# don't use a symlink here as it can get overwritten by pip
+# && ln -s /usr/local/lib/python3.8/site-packages/cv2 /opt/venv/lib/python3.8/site-packages/cv2
 
 ########################################################
 # other dependencies
@@ -167,7 +167,7 @@ RUN curl -SL https://github.com/opencv/opencv/archive/refs/tags/4.7.0.tar.gz | t
 #     && rm -rf $HOME/ompl-1.5.2 $HOME/castxml \
 #     && rm install-ompl-ubuntu.sh
 
-# build OMPL fork from source 
+# build OMPL fork from source
 # make -j 4 update_bindings # if you want Python bindings
 RUN git clone https://github.com/DexaiRobotics/ompl.git \
     && cd ompl \
@@ -182,11 +182,11 @@ RUN cd $HOME && curl -SL https://github.com/CLIUtils/CLI11/archive/refs/tags/v2.
     && cd CLI11-2.3.1 \
     && mkdir build \
     && cmake -S . -B build \
-        -D CMAKE_BUILD_TYPE=Release \
-        -D CLI11_SINGLE_FILE=OFF \
-        -D CLI11_BUILD_DOCS=OFF \
-        -D CLI11_BUILD_TESTS=OFF \
-        -D CLI11_BUILD_EXAMPLES=OFF \
+    -D CMAKE_BUILD_TYPE=Release \
+    -D CLI11_SINGLE_FILE=OFF \
+    -D CLI11_BUILD_DOCS=OFF \
+    -D CLI11_BUILD_TESTS=OFF \
+    -D CLI11_BUILD_EXAMPLES=OFF \
     && cmake --build build --config Release -j 12 \
     && cmake --install build \
     && rm -rf $HOME/CLI11*
@@ -199,7 +199,7 @@ RUN wget https://github.com/Neargye/magic_enum/releases/download/v0.8.1/magic_en
 
 # tl::optional, enhanced version of std::optional, header only
 RUN mkdir -p /usr/local/include/tl \
-  && wget https://github.com/TartanLlama/optional/raw/master/include/tl/optional.hpp -P /usr/local/include/tl
+    && wget https://github.com/TartanLlama/optional/raw/master/include/tl/optional.hpp -P /usr/local/include/tl
 
 # tl::expected, header only
 RUN wget https://github.com/TartanLlama/expected/raw/master/include/tl/expected.hpp -P /usr/local/include/tl
@@ -257,29 +257,29 @@ RUN git clone https://github.com/openhumanoids/bot_core_lcmtypes.git \
 # install librealsense2-utils for realsense viewer
 # librealsense2-udev-rules:amd64 requires rsync
 RUN apt-key adv --keyserver keyserver.ubuntu.com \
-        --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE\
-        || apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 \
-        --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCD \
+    --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE\
+    || apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 \
+    --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCD \
     && add-apt-repository "deb https://librealsense.intel.com/Debian/apt-repo $(lsb_release -cs) main" -u \
     && apt-get install -qy \
-        rsync \
-        librealsense2-utils
+    rsync \
+    librealsense2-utils
 
 # provide backward source in /opt for inclusion and linking
 RUN cd /opt \
     && git clone https://github.com/bombela/backward-cpp.git
 
 # This release puts the library in the bin folder, but it is needed by cmake in the lib folder
-RUN curl -SL https://github.com/yse/easy_profiler/releases/download/v2.1.0/easy_profiler_core-v2.1.0-linux-x64-libc-2.27.tar.gz | tar -xzC /usr/local && mv /usr/local/bin/libeasy_profiler.so /usr/local/lib/libeasy_profiler.so 
+RUN curl -SL https://github.com/yse/easy_profiler/releases/download/v2.1.0/easy_profiler_core-v2.1.0-linux-x64-libc-2.27.tar.gz | tar -xzC /usr/local && mv /usr/local/bin/libeasy_profiler.so /usr/local/lib/libeasy_profiler.so
 
 # linters
 
 # clang-format, clang-tidy
 RUN wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - 2>/dev/null \
     && add-apt-repository "deb http://apt.llvm.org/`lsb_release -sc`/ llvm-toolchain-`lsb_release -sc` main" 2>/dev/null \
-    && apt-get -qy install clang-format-17 clang-tidy-17 \
-    && ln -s /usr/bin/clang-format-17 /usr/bin/clang-format \
-    && ln -s /usr/bin/clang-tidy-17 /usr/bin/clang-tidy
+    && apt-get -qy install clang-format-18 clang-tidy-18 \
+    && ln -s /usr/bin/clang-format-18 /usr/bin/clang-format \
+    && ln -s /usr/bin/clang-tidy-18 /usr/bin/clang-tidy
 
 # oclint
 RUN curl -SL https://github.com/oclint/oclint/archive/refs/tags/v22.02.tar.gz | tar xz \
@@ -314,7 +314,9 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 COPY in_container_scripts scripts
-RUN scripts/mod_bashrc.sh && rm -rf scripts
+RUN scripts/mod_environment.sh && rm -rf scripts
+# Set env so all scripts (not just interactive ones) can use it
+ENV BASH_ENV=/root/environment.sh
 
 # Taken from - https://docs.docker.com/engine/examples/running_ssh_service/#environment-variables
 RUN mkdir /var/run/sshd

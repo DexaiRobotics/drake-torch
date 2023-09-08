@@ -1,7 +1,7 @@
 pipeline {
     environment {
         registry = "dexai2/drake-pytorch"
-        registryCredential = 'dockerhub'
+        registryCredential = 'dockerhub_id'
     }
     agent any
     options {
@@ -16,7 +16,7 @@ pipeline {
                         echo "starting in $PWD"
                         sh "cd $WORKSPACE"
                         sh "ls"
-                        sh "./build_image.sh --cuda --stable"
+                        sh "./build_image.sh --cuda --stable --nocache"
                     }
                 }
                 stage('build_cpu') {
@@ -24,7 +24,7 @@ pipeline {
                         echo "starting in $PWD"
                         sh "cd $WORKSPACE"
                         sh "ls"
-                        sh "./build_image.sh --cpu --stable"
+                        sh "./build_image.sh --cpu --stable --nocache"
                     }
                 }
             }
@@ -37,7 +37,7 @@ pipeline {
                         echo "starting in $PWD"
                         sh "cd $WORKSPACE"
                         sh "ls"
-                        sh "./build_image.sh --cuda --stable --ros"
+                        sh "./build_image.sh --cuda --stable --ros --nocache"
                     }
                 }
                 stage('build_cpu') {
@@ -45,7 +45,7 @@ pipeline {
                         echo "starting in $PWD"
                         sh "cd $WORKSPACE"
                         sh "ls"
-                        sh "./build_image.sh --cpu --stable --ros"
+                        sh "./build_image.sh --cpu --stable --ros --nocache"
                     }
                 }
             }
@@ -72,8 +72,8 @@ pipeline {
             }
         }
     }
-    post { 
-        always { 
+    post {
+        always {
             // step([$class: 'WsCleanup'])
             sh "chmod -R 777 ."
             cleanWs()

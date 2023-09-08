@@ -16,7 +16,7 @@ declare -r -a FIX_FILES=( /etc/bash.bashrc /etc/skel/.bashrc /root/.bashrc )
 
 sed -i -e 's/^'"$ORIGINAL"'$/'"$REPLACEMENT"'/' "${FIX_FILES[@]}"
 
-cat <<'EOF' >> /root/.bashrc
+cat <<'EOF' > /root/environment.sh
 
 # this adds py3 to $PYTHONPATH
 if [[ -f /opt/ros/${ROS_DISTRO}/setup.bash ]]; then
@@ -51,3 +51,5 @@ fi
 . activate
 
 EOF
+
+echo "source /root/environment.sh" >> /root/.bashrc
