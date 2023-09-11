@@ -20,7 +20,6 @@ cat <<'EOF' > /root/environment.sh
 
 # this adds py3 to $PYTHONPATH
 if [[ -f /opt/ros/${ROS_DISTRO}/setup.bash ]]; then
-  echo "found /opt/ros/${ROS_DISTRO}/setup.bash. sourcing..."
   source /opt/ros/${ROS_DISTRO}/setup.bash
 fi
 
@@ -29,7 +28,6 @@ fi
 # on melodic this sets $PYTHONPATH to two py27 locations and then py3
 # but we want py3 first
 if [[ -f $HOME/catkin_ws/devel/setup.bash ]]; then
-  echo "found $HOME/catkin_ws/devel/setup.bash. sourcing..."
   source $HOME/catkin_ws/devel/setup.bash
 fi
 
