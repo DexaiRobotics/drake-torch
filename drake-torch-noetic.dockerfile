@@ -57,7 +57,8 @@ RUN . activate \
     # /opt/ros/noetic/share/catkin/cmake/catkin_package.cmake depends on empy
     # cv_bridge depends on pyyaml but it's not installed into the venv
     # rosdep includes pyyaml
-    && pip install --upgrade --no-cache-dir --compile rosdep empy catkin_tools opencv-python
+    # known issue for empy 4: https://stackoverflow.com/questions/77642155/attributeerror-module-object-has-no-attribute-raw-opt/77656642#77656642
+    && pip install --upgrade --no-cache-dir --compile rosdep empy==3.3.4 catkin_tools opencv-python
 
 # dev essentials, later sections need git
 RUN add-apt-repository -y ppa:git-core/ppa \
