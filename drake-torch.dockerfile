@@ -211,7 +211,6 @@ RUN curl -SL https://github.com/alandefreitas/matplotplusplus/releases/download/
 RUN set -eux \
     && mkdir -p /opt \
     && . activate \
-    && \
         # if [ $BUILD_CHANNEL = "stable" ]; then \
         #     wget -qO- https://drake-apt.csail.mit.edu/drake.asc | gpg --dearmor - \
         #         | tee /etc/apt/trusted.gpg.d/drake.gpg >/dev/null \
@@ -225,10 +224,10 @@ RUN set -eux \
         #     && rm -rf $HOME/drake*.deb; \
         # else \
         # Get nightly drake
-        curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-focal.tar.gz | tar -xzC /opt \
-        && cd /opt/drake/share/drake/setup \
-        && yes | ./install_prereqs \
-        && rm -rf $HOME/drake*.tar.gz; \
+    && curl -SL https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-focal.tar.gz | tar -xzC /opt \
+    && cd /opt/drake/share/drake/setup \
+    && yes | ./install_prereqs \
+    && rm -rf $HOME/drake*.tar.gz; 
         # fi
 
 # pip install pydrake using the /opt/drake directory in develop mode
