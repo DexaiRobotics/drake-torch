@@ -57,7 +57,8 @@ RUN . activate \
     # /opt/ros/noetic/share/catkin/cmake/catkin_package.cmake depends on empy
     # cv_bridge depends on pyyaml but it's not installed into the venv
     # rosdep includes pyyaml
-    && pip install --upgrade --no-cache-dir --compile rosdep empy catkin_tools opencv-python
+    # known issue for empy 4: https://stackoverflow.com/questions/77642155/attributeerror-module-object-has-no-attribute-raw-opt/77656642#77656642
+    && pip install --upgrade --no-cache-dir --compile rosdep empy==3.3.4 catkin_tools opencv-python
 
 # dev essentials, later sections need git
 RUN add-apt-repository -y ppa:git-core/ppa \
@@ -277,9 +278,9 @@ RUN curl -SL https://github.com/yse/easy_profiler/releases/download/v2.1.0/easy_
 # clang-format, clang-tidy
 RUN wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - 2>/dev/null \
     && add-apt-repository "deb http://apt.llvm.org/`lsb_release -sc`/ llvm-toolchain-`lsb_release -sc` main" 2>/dev/null \
-    && apt-get -qy install clang-format-18 clang-tidy-18 \
-    && ln -s /usr/bin/clang-format-18 /usr/bin/clang-format \
-    && ln -s /usr/bin/clang-tidy-18 /usr/bin/clang-tidy
+    && apt-get -qy install clang-format-19 clang-tidy-19 \
+    && ln -s /usr/bin/clang-format-19 /usr/bin/clang-format \
+    && ln -s /usr/bin/clang-tidy-19 /usr/bin/clang-tidy
 
 # oclint
 RUN curl -SL https://github.com/oclint/oclint/archive/refs/tags/v22.02.tar.gz | tar xz \
